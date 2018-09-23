@@ -1,0 +1,20 @@
+import logging
+
+log = logging.getLogger(__name__.split(".")[-1])
+
+
+class Settings:
+    def __init__(self):
+        self.tool_diameter = 0.0
+        self.cut_offset = 0.0
+        self.cut_depth_pass = 1.0
+        self.cut_depth_total = 6.0
+        self.cut_feedrate = 600.0
+        self.plunge_feedrate = 60
+
+        self.travel_height = 1.0
+        self.travel_speed = 1200
+        self.lift_speed = 300
+
+        self.pocket_offset = 0.0
+        self.add_tabs = False
