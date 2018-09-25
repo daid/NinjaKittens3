@@ -18,7 +18,8 @@ NK3.MainWindow {
         id: toolbar
         height: 28
         Row {
-            anchors.fill: parent
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             Button {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom

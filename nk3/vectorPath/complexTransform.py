@@ -45,6 +45,10 @@ class ComplexTransform:
         return ComplexTransform([1.0, 0.0, offset.real, 0.0, 1.0, offset.imag, 0.0, 0.0, 1.0])
 
     @staticmethod
+    def scale(scale: complex) -> "ComplexTransform":
+        return ComplexTransform([scale.real, 0.0, 0, 0.0, scale.imag, 0.0, 0.0, 0.0, 1.0])
+
+    @staticmethod
     def rotate(angle: float) -> "ComplexTransform":
         s = math.sin(math.radians(angle))
         c = math.cos(math.radians(angle))

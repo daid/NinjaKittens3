@@ -9,6 +9,7 @@ from nk3.document.vectorNode import DocumentVectorNode
 from nk3.fileReader.dxf.node.node import DxfNode
 from nk3.fileReader.fileReader import FileReader
 from nk3.vectorPath.vectorPaths import VectorPaths
+from nk3.vectorPath.complexTransform import ComplexTransform
 from .dxfParser import DXFParser
 from . import dxfConst
 from .node.container import DxfContainerNode
@@ -52,28 +53,7 @@ class DXFFileReader(FileReader):
         entities = root.find("SECTION", "ENTITIES")
         if isinstance(entities, DxfContainerNode):
             for entity in entities:
-                if entity.type_name == "LINE":
-                    self._processLine(entity)
-                elif entity.type_name == "CIRCLE":
-                    self._processCircle(entity)
-                elif entity.type_name == "ELLIPSE":
-                    self._processEllipse(entity)
-                elif entity.type_name == "POLYLINE":
-                    assert isinstance(entity, DxfContainerNode)
-                    self._processPolyline(entity)
-                elif entity.type_name == "LWPOLYLINE":
-                    self._processLightWeightPolyline(entity)
-                elif entity.type_name == "MLINE":
-                    self._processMLine(entity)
-                elif entity.type_name == "ARC":
-                    self._processArc(entity)
-                elif entity.type_name == "INSERT":
-                    self._processInsert(entity)
-                elif entity.type_name in self.__IGNORED_ENTITIES:
-                    pass
-                else:
-                    log.info("Unknown entity: %s", entity)
-                    # entity.dumpEntries()
+                self._processEntity(entity)
 
         self._finish(self.__document_root)
         self._moveToOrigin(self.__document_root)
@@ -130,6 +110,32 @@ class DXFFileReader(FileReader):
             color = dxfConst.colors[color]
             return color[0] | color[1] << 8 | color[2] << 16
         return None
+
+    def _processEntity(self, entity):
+        if entity.type_name == "LINE":
+            self._processLine(entity)
+        elif entity.type_name == "CIRCLE":
+            self._processCircle(entity)
+        elif entity.type_name == "ELLIPSE":
+            self._processEllipse(entity)
+        elif entity.type_name == "POLYLINE":
+            assert isinstance(entity, DxfContainerNode)
+            self._processPolyline(entity)
+        elif entity.type_name == "LWPOLYLINE":
+            self._processLightWeightPolyline(entity)
+        elif entity.type_name == "MLINE":
+            self._processMLine(entity)
+        elif entity.type_name == "SPLINE":
+            self._processSpline(entity)
+        elif entity.type_name == "ARC":
+            self._processArc(entity)
+        elif entity.type_name == "INSERT":
+            self._processInsert(entity)
+        elif entity.type_name in self.__IGNORED_ENTITIES:
+            pass
+        else:
+            log.info("Unknown entity: %s", entity)
+            # entity.dumpEntries()
 
     def _processLine(self, entity):
         start = complex(entity[10], entity[20])
@@ -208,6 +214,27 @@ class DXFFileReader(FileReader):
             p0 = p1
         log.warning("MLine processed, but not with offset lines")
 
+    def _processSpline(self, entity):
+        nurbs = NURBS(entity[71])
+        for knot in entity.getEntries(40):
+            nurbs.addKnot(knot[0])
+        for x, y in entity.getEntries(10, 20):
+            nurbs.addPoint(complex(x, y))
+        points = nurbs.calculate(nurbs.pointCount())
+        distance = 0
+        for p0, p1 in zip(points[0:-1], points[1:]):
+            distance += abs(p1 - p0)
+        if distance < 1.0:
+            point_count = int(max(2, distance / 0.1))
+        elif distance < 5.0:
+            point_count = int(max(2, distance / 0.3))
+        else:
+            point_count = int(max(2, distance / 0.5))
+        path = self._getPathFor(entity)
+        points = nurbs.calculate(point_count)
+        for n in range(0, len(points) - 1):
+            path.addLine(points[n], points[n + 1])
+
     def _processArc(self, entity):
         center = complex(entity[10], entity[20])
         radius = entity[40]
@@ -226,5 +253,82 @@ class DXFFileReader(FileReader):
         column_spacing = entity.findEntry(44, default=1)
         row_spacing = entity.findEntry(45, default=1)
 
-        log.warning("Unhandled insert: %s", entity)
-        self.__block_by_name[entity.name].dump()
+        log.info("%s", (offset, scale, rotation))
+        assert column_count == 1 and row_count == 1
+        transform = ComplexTransform.rotate(rotation)\
+            .combine(ComplexTransform.scale(scale))\
+            .combine(ComplexTransform.translate(offset))
+        for e in self.__block_by_name[entity.name]:
+            p = self._getPathFor(e)
+            p.pushTransform(transform)
+            self._processEntity(e)
+            p.popTransform()
+
+
+class NURBS:
+    def __init__(self, degree: int) -> None:
+        self._degree = degree
+        self._points = []  # type: List[complex]
+        self._weights = []  # type: List[float]
+        self._knots = []  # type: List[float]
+
+    def addPoint(self, p: complex) -> None:
+        self._points.append(p)
+
+    def addKnot(self, knot: float) -> None:
+        self._knots.append(knot)
+
+    def pointCount(self):
+        return len(self._points)
+
+    def calculate(self, segments: int) -> List[complex]:
+        while len(self._weights) < len(self._points):
+            self._weights.append(1.0)
+
+        ret = []
+        for n in range(0, segments):
+            u = self._knots[0] + (self._knots[-1] - self._knots[0]) * n / (segments - 1)
+            nku = []
+            for m in range(0, len(self._points)):
+                nku.append(self._weights[m] * self._N(m, self._degree, u))
+
+            point = complex(0, 0)
+            denom = sum(nku)
+            for m in range(0, len(self._points)):
+                if nku[m] != 0.0 and denom != 0.0:
+                    r_iku = nku[m] / denom
+                    if r_iku != 0.0:
+                        point += self._points[m] * r_iku
+
+            ret.append(point)
+        return ret
+
+    def _N(self, i: int, n: int, u: float) -> float:
+        if n == 0:
+            if self._knots[i] <= u <= self._knots[i+1]:
+                return 1
+            return 0
+        else:
+            Nin1u = self._N(i, n - 1, u)
+            Ni1n1u = self._N(i + 1, n - 1, u)
+            if Nin1u == 0.0:
+                a = 0.0
+            else:
+                a = self._F(i, n, u) * Nin1u
+            if Ni1n1u == 0.0:
+                b = 0
+            else:
+                b = self._G(i, n, u) * Ni1n1u
+            return a + b
+
+    def _F(self, i: int, n: int, u: float) -> float:
+        denom = self._knots[i + n] - self._knots[i]
+        if denom == 0.0:
+            return 0.0
+        return (u - self._knots[i]) / denom
+
+    def _G(self, i: int, n: int, u: float) -> float:
+        denom = self._knots[i + n + 1] - self._knots[i]
+        if denom == 0:
+            return 0.0
+        return (self._knots[i + n + 1] - u) / denom
