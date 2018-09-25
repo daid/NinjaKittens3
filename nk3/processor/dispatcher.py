@@ -67,7 +67,6 @@ class Dispatcher:
         moves = []
         for job in collector.getJobs():
             moves += Processor(job).process()
-        # TODO: Generate export data from 3d paths
-        Export().export(moves)
-        # TODO: Build rendering data for moves
+        # Notify the main application of new processed data.
+        # The main application can display this and export it.
         self.onMoveData(moves)

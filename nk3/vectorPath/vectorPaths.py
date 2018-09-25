@@ -3,6 +3,7 @@ import math
 from typing import Optional, List
 
 from nk3.vectorPath.vectorPath import VectorPath
+from nk3.vectorPath.complexTransform import ComplexTransform
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -12,9 +13,17 @@ class VectorPaths:
 
     def __init__(self) -> None:
         self.__paths = []  # type: List[VectorPath]
+        self.__transform_stack = [ComplexTransform()]
+
+    def popTransform(self) -> None:
+        assert len(self.__transform_stack) > 1
+        self.__transform_stack.pop()
+
+    def pushTransform(self, transform: ComplexTransform) -> None:
+        self.__transform_stack.append(self.__transform_stack[-1].combine(transform))
 
     def addLine(self, start: complex, end: complex) -> None:
-        self._findOrCreateWithEndPoint(start).add(end)
+        self._findOrCreateWithEndPoint(self.__transform_stack[-1] * start).add(self.__transform_stack[-1] * end)
 
     def addArc(self, start: complex, end: complex, rotation: float, radius: complex, *, large_arc: bool, sweep: bool) -> None:
         if radius.real == 0.0 or radius.imag == 0.0:
@@ -92,15 +101,16 @@ class VectorPaths:
             angle = (start_angle + (end_angle - start_angle) * (n / point_count)) / 180 * math.pi
             p = center + complex(math.cos(angle) * radius, math.sin(angle) * radius)
             if path is None:
-                path = self._findOrCreateWithEndPoint(p)
-            path.add(p)
+                path = self._findOrCreateWithEndPoint(self.__transform_stack[-1] * p)
+            else:
+                path.add(self.__transform_stack[-1] * p)
 
     def addCircle(self, center: complex, radius: float) -> None:
         point_count = math.ceil((2.0 * math.pi * radius) / self.__RESOLUTION)
         path = self._createPath()
         for n in range(point_count):
             angle = math.pi * 2.0 * n / point_count
-            path.add(center + complex(math.cos(angle) * radius, math.sin(angle) * radius))
+            path.add(self.__transform_stack[-1] * (center + complex(math.cos(angle) * radius, math.sin(angle) * radius)))
         path.close()
 
     def addBulgeLine(self, start: complex, end: complex, bulge: float) -> None:

@@ -17,4 +17,4 @@ class Settings:
         self.lift_speed = 300
 
         self.pocket_offset = 0.0
-        self.add_tabs = False
+        self.tab_height = 0.0

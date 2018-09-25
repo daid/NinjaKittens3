@@ -109,7 +109,7 @@ class DXFFileReader(FileReader):
             self.__document_root.append(self.__layers[layer_name])
         node = self.__layers[layer_name]
         if color is not None:
-            color_name = "#%06x" % color
+            color_name = "#%02x%02x%02x" % (color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF)
         else:
             color_name = "NoColor"
         for child in node:

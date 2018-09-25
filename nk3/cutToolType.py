@@ -4,6 +4,7 @@ from typing import Iterator
 
 from nk3.jobOperations.cutInside import CutInsideOperation
 from nk3.jobOperations.cutOutside import CutOutsideOperation
+from nk3.jobOperations.cutOutsideWithPocket import CutOutsideWithPocketOperation
 from nk3.jobOperations.cutPocket import CutPocketOperation
 from nk3.processor.settings import Settings
 from nk3.settingType import SettingType
@@ -22,6 +23,7 @@ class CutToolType:
         ]
         self.__operations = [
             CutOutsideOperation(),
+            CutOutsideWithPocketOperation(),
             CutInsideOperation(),
             CutPocketOperation(),
         ]

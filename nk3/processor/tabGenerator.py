@@ -3,19 +3,21 @@ import logging
 from typing import List
 
 from nk3.processor import pathUtils
+from nk3.processor.settings import Settings
 
 log = logging.getLogger(__name__.split(".")[-1])
 
 
 class TabGenerator:
-    def __init__(self, path: List[complex], max_depth_per_point: List[float]):
+    def __init__(self, settings: Settings, path: List[complex], max_depth_per_point: List[float]):
         self.__path = path
         self.__max_depth_per_point = max_depth_per_point
 
-        tool_diameter = 3
-        self.__tab_height = tool_diameter
-        self.__tab_top_width = tool_diameter
-        self.__tab_bottom_width = self.__tab_height * 2 + self.__tab_top_width
+        self.__tab_height = settings.tab_height
+        self.__tab_top_width = settings.tool_diameter
+        self.__tab_bottom_width = self.__tab_top_width + self.__tab_height * 2
+
+        assert self.__tab_height > 0.0
 
         self.__generate()
 

@@ -31,6 +31,8 @@ def length(path: List[complex]) -> float:
 
 
 def union(paths: List[List[complex]]) -> List[List[complex]]:
+    if len(paths) < 1:
+        return []
     clipper = pyclipper.Pyclipper()
     clipper.AddPaths(_toClipper(paths), pyclipper.PT_SUBJECT, True)
     return _fromClipper(clipper.Execute(pyclipper.CT_UNION))

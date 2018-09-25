@@ -48,4 +48,6 @@ def qtSlot(f):
             continue
         assert par.annotation != sig.empty, "Parameter annotation missing for %s" % (par.name)
         parameters.append(par.annotation)
-    return pyqtSlot(*parameters, result=result_type)(f)
+    if result_type is not None:
+        return pyqtSlot(*parameters, result=result_type)(f)
+    return pyqtSlot(*parameters)(f)

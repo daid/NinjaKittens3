@@ -1,18 +1,22 @@
 import sys
 import logging
 
-from PyQt5.QtCore import QUrl, Qt, pyqtSignal
+from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject
 from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QMouseEvent
-from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType
+from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
 
+from nk3.QObjectBase import qtSlot
 from nk3.QObjectList import QObjectList
 from nk3.cutToolInstance import CutToolInstance
 from nk3.cutToolType import CutToolType
 
 from nk3.fileReader.dxf.dxfFileReader import DXFFileReader
 from nk3.processor.dispatcher import Dispatcher
+from nk3.processor.export import Export
 from nk3.view import View
+
+log = logging.getLogger(__name__.split(".")[-1])
 
 
 class MainWindow(QQuickWindow):
@@ -61,14 +65,15 @@ class MouseHandler(QQuickItem):
         Application.getInstance().getView().zoom *= 1.0 - (event.angleDelta().y() / 120.0) * 0.1
 
 
-class Application:
+class Application(QObject):
     _instance = None
 
     @classmethod
-    def getInstance(cls) -> "Application":
-        return Application._instance
+    def getInstance(cls, *args) -> "Application":
+        return cls._instance
 
     def __init__(self):
+        super().__init__()
         assert Application._instance is None
         Application._instance = self
 
@@ -79,6 +84,7 @@ class Application:
 
         qmlRegisterType(MainWindow, "NK3", 1, 0, "MainWindow")
         qmlRegisterType(MouseHandler, "NK3", 1, 0, "MouseHandler")
+        qmlRegisterSingletonType(Application, "NK3", 1, 0, "Application", Application.getInstance)
 
         self.__move_data = None
 
@@ -98,8 +104,9 @@ class Application:
         self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
 
         # self.__document_list.append(DXFFileReader().load("C:/Models/CNC/RiderCNC/TableBeltTensioner.stl.dxf"))
+        # self.__document_list.append(DXFFileReader().load("C:/Models/CNC/RiderCNC/LimpyV0.2-DustShoe.dxf"))
         # self.__document_list.append(DXFFileReader().load("C:/Models/ForCNC/CarWheel.dxf"))
-        self.__document_list.append(DXFFileReader().load("C:/Models/ForCNC/RoundedGearBoard.dxf"))
+        # self.__document_list.append(DXFFileReader().load("C:/Models/ForCNC/RoundedGearBoard.dxf"))
         # self.__document_list.append(DXFFileReader().load("test.dxf"))
         # self.__document_list[0].operation_index = 0
         # self.__document_list.append(DXFFileReader().load("C:/Software/NinjaKittens2/ch side top.dxf"))
@@ -131,6 +138,22 @@ class Application:
         if not self.__qml_engine.rootObjects():
             return -1
         return self.__app.exec_()
+
+    @qtSlot
+    def loadFile(self, filename: QUrl) -> None:
+        try:
+            document_node = DXFFileReader().load(filename.toLocalFile())
+        except Exception:
+            log.exception("Load file failed for: %s", filename.toLocalFile())
+        else:
+            while len(self.__document_list) > 0:
+                self.__document_list.remove(0)
+            self.__document_list.append(document_node)
+        self.repaint()
+
+    @qtSlot
+    def exportFile(self, filename: QUrl) -> None:
+        Export().export(filename.toLocalFile(), self.__move_data)
 
 
 if __name__ == '__main__':
