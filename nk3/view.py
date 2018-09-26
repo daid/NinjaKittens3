@@ -29,7 +29,7 @@ class View:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        self.glPerspective(gl, 90.0, size, 1.0, 1024.0)
+        self.glPerspective(gl, 90.0, size, 1.0, self.__zoom * 4.0)
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glLoadIdentity()
         self._renderDocuments(gl)

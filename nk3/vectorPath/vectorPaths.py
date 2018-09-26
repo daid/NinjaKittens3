@@ -2,6 +2,7 @@ import logging
 import math
 from typing import Optional, List
 
+from nk3.vectorPath.nurbs import NURBS
 from nk3.vectorPath.vectorPath import VectorPath
 from nk3.vectorPath.complexTransform import ComplexTransform
 
@@ -116,6 +117,22 @@ class VectorPaths:
     def addBulgeLine(self, start: complex, end: complex, bulge: float) -> None:
         radius = (abs(end - start) / 2) / math.sin(2 * math.atan(bulge))
         self.addArc(start, end, 0, complex(radius, radius), large_arc=False, sweep=bulge < 0)
+
+    def addNurbs(self, nurbs: NURBS) -> None:
+        points = nurbs.calculate(nurbs.pointCount())
+        distance = 0
+        for p0, p1 in zip(points[0:-1], points[1:]):
+            distance += abs(self.__transform_stack[-1] * p1 - self.__transform_stack[-1] * p0)
+        if distance < 1.0:
+            point_count = int(max(2, distance / 0.1))
+        elif distance < 5.0:
+            point_count = int(max(2, distance / 0.3))
+        else:
+            point_count = int(max(2, distance / 0.5))
+        points = nurbs.calculate(point_count)
+        p = self._findOrCreateWithEndPoint(self.__transform_stack[-1] * points[0])
+        for point in points[1:]:
+            p.add(self.__transform_stack[-1] * point)
 
     def _createPath(self, point: Optional[complex]=None) -> VectorPath:
         path = VectorPath()
