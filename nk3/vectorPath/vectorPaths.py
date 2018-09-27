@@ -26,7 +26,7 @@ class VectorPaths:
     def addLine(self, start: complex, end: complex) -> None:
         self._findOrCreateWithEndPoint(self.__transform_stack[-1] * start).add(self.__transform_stack[-1] * end)
 
-    def addArc(self, start: complex, end: complex, rotation: float, radius: complex, *, large_arc: bool, sweep: bool) -> None:
+    def addArc(self, start: complex, end: complex, rotation: float, radius: complex, *, large_arc: bool=False, sweep: bool=False) -> None:
         if radius.real == 0.0 or radius.imag == 0.0:
             return self.addLine(start, end)
         if start == end:

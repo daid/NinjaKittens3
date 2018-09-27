@@ -7,7 +7,6 @@ from xml.etree import ElementTree
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
 from nk3.fileReader.fileReader import FileReader
-from nk3.vectorPath.vectorPaths import VectorPaths
 from nk3.vectorPath.complexTransform import ComplexTransform
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -36,12 +35,97 @@ class SVGFileReader(FileReader):
             if child.get("transform"):
                 log.warning("Ignoring transform: %s", child.get("transform"))
             child_tag = child.tag[child.tag.find('}') + 1:].lower()
-            if child_tag == "g":
+            if child_tag == "g" or child_tag == "a":
                 self.__processGTag(child, node)
+            elif child_tag == "line":
+                self.__processLineTag(child, node)
+            elif child_tag == "polyline":
+                self.__processPolylineTag(child, node)
+            elif child_tag == "polygon":
+                self.__processPolygonTag(child, node)
+            elif child_tag == "circle":
+                self.__processCircleTag(child, node)
             elif child_tag == "path":
                 self.__processPathTag(child, node)
+            elif child_tag == "rect":
+                self.__processRectTag(child, node)
             else:
                 log.warning("Unknown svg tag: %s", child_tag)
+
+    def __processLineTag(self, tag, node):
+        x1 = float(tag.get('x1', 0))
+        y1 = float(tag.get('y1', 0))
+        x2 = float(tag.get('x2', 0))
+        y2 = float(tag.get('y2', 0))
+        node.getPaths().addLine(complex(x1, y1), complex(x2, y2))
+
+    def __processPolylineTag(self, tag, node):
+        paths = node.getPaths()
+        values = list(map(float, re.split('[, \t]+', tag.get('points', '').strip())))
+        p0 = complex(values[0], values[1])
+        for n in range(2, len(values)-1, 2):
+            p1 = complex(values[n], values[n + 1])
+            paths.addLine(p0, p1)
+            p0 = p1
+
+    def __processPolygonTag(self, tag, node):
+        paths = node.getPaths()
+        values = list(map(float, re.split('[, \t]+', tag.get('points', '').strip())))
+        start = p0 = complex(values[0], values[1])
+        for n in range(2, len(values)-1, 2):
+            p1 = complex(values[n], values[n + 1])
+            paths.addLine(p0, p1)
+            p0 = p1
+        paths.addLine(p0, start)
+
+    def __processCircleTag(self, tag, node):
+        cx = float(tag.get('cx', '0'))
+        cy = float(tag.get('cy', '0'))
+        r = float(tag.get('r', '0'))
+        paths = node.getPaths()
+        paths.addCircle(complex(cx, cy), r)
+
+    def __processRectTag(self, tag, node):
+        paths = node.getPaths()
+        x = float(tag.get("x", 0))
+        y = float(tag.get("y", 0))
+        w = float(tag.get("width", 0))
+        h = float(tag.get("height", 0))
+
+        if w <= 0 or h <= 0:
+            return
+        rx = tag.get('rx')
+        ry = tag.get('ry')
+        if rx is not None or ry is not None:
+            if ry is None:
+                ry = rx
+            elif rx is None:
+                rx = ry
+            rx = float(rx)
+            ry = float(ry)
+            if rx > w / 2:
+                rx = w / 2
+            if ry > h / 2:
+                ry = h / 2
+        else:
+            rx = 0.0
+            ry = 0.0
+
+        if rx > 0 and ry > 0:
+            r = complex(rx, ry)
+            paths.addArc(complex(x+w-rx, y), complex(x+w, y+ry), 0, r)
+            paths.addLine(complex(x+w, y+ry), complex(x+w, y+h-ry))
+            paths.addArc(complex(x+w, y+h-ry), complex(x+w-rx, y+h), 0, r)
+            paths.addLine(complex(x+w-rx, y+h), complex(x+rx, y+h))
+            paths.addArc(complex(x+rx, y+h), complex(x, y+h-ry), 0, r)
+            paths.addLine(complex(x, y+h-ry), complex(x, y+ry))
+            paths.addArc(complex(x, y+ry), complex(x+rx, y), 0, r)
+            paths.addLine(complex(x+rx, y), complex(x+w-rx, y))
+        else:
+            paths.addLine(complex(x+w, y), complex(x+w, y+h))
+            paths.addLine(complex(x+w, y+h), complex(x, y+h))
+            paths.addLine(complex(x, y+h), complex(x, y))
+            paths.addLine(complex(x, y), complex(x+w, y))
 
     def __processPathTag(self, tag, node):
         paths = node.getPaths()
