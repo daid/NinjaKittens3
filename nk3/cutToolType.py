@@ -2,6 +2,7 @@ import logging
 
 from typing import Iterator
 
+from nk3.jobOperationType import JobOperationType
 from nk3.jobOperations.cutInside import CutInsideOperation
 from nk3.jobOperations.cutOutside import CutOutsideOperation
 from nk3.jobOperations.cutOutsideWithPocket import CutOutsideWithPocketOperation
@@ -31,7 +32,7 @@ class CutToolType:
     def getSettingTypes(self) -> Iterator[SettingType]:
         return iter(self.__settings)
 
-    def getOperationTypes(self):
+    def getOperationTypes(self) -> Iterator[JobOperationType]:
         return iter(self.__operations)
 
     def fillProcessorSettings(self, instance: "CutToolInstance", settings: Settings) -> None:

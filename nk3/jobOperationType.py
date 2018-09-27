@@ -1,10 +1,12 @@
+from abc import ABC, abstractmethod
+
 from typing import List, Iterator
 
 from nk3.processor.settings import Settings
 from nk3.settingType import SettingType
 
 
-class JobOperationType:
+class JobOperationType(ABC):
     def __init__(self, default_name: str, settings: List[SettingType]):
         self.__default_name = default_name
         self.__settings = settings
@@ -16,5 +18,6 @@ class JobOperationType:
     def getSettingTypes(self) -> Iterator[SettingType]:
         return iter(self.__settings)
 
+    @abstractmethod
     def fillProcessorSettings(self, instance: "JobOperationInstance", settings: Settings) -> None:
         raise NotImplementedError

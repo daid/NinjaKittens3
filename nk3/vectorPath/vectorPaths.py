@@ -134,6 +134,22 @@ class VectorPaths:
         for point in points[1:]:
             p.add(self.__transform_stack[-1] * point)
 
+    def addCurve(self, start: complex, end: complex, cp0: complex, cp1: complex) -> None:
+        n = NURBS(3)
+        n.addPoint(start)
+        n.addPoint(cp0)
+        n.addPoint(cp1)
+        n.addPoint(end)
+        n.addKnot(0)
+        n.addKnot(0)
+        n.addKnot(0)
+        n.addKnot(0)
+        n.addKnot(1)
+        n.addKnot(1)
+        n.addKnot(1)
+        n.addKnot(1)
+        self.addNurbs(n)
+
     def _createPath(self, point: Optional[complex]=None) -> VectorPath:
         path = VectorPath()
         if point is not None:

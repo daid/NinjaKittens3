@@ -1,6 +1,7 @@
 from collections import namedtuple
 import inspect
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtWrapperType, pyqtSlot
+from typing import List
 
 QObjectBaseProperty = namedtuple("QObjectBaseProperty", ["type", "value"])
 
@@ -37,6 +38,12 @@ class QObjectBase(QObject, metaclass=QObjectBaseMeta):
     pass
 
 
+def _toQtType(t):
+    if t == List[str]:
+        return "QStringList"
+    return t
+
+
 ## Type annotation aware version of pyqtSlot
 def qtSlot(f):
     sig = inspect.signature(f)
@@ -47,7 +54,7 @@ def qtSlot(f):
         if par.name == "self":
             continue
         assert par.annotation != sig.empty, "Parameter annotation missing for %s" % (par.name)
-        parameters.append(par.annotation)
+        parameters.append(_toQtType(par.annotation))
     if result_type is not None:
-        return pyqtSlot(*parameters, result=result_type)(f)
+        return pyqtSlot(*parameters, result=_toQtType(result_type))(f)
     return pyqtSlot(*parameters)(f)

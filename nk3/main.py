@@ -1,10 +1,12 @@
 import sys
 import logging
+import os
 
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject
 from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QMouseEvent
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
+from typing import List
 
 from nk3.QObjectBase import qtSlot
 from nk3.QObjectList import QObjectList
@@ -12,6 +14,7 @@ from nk3.cutToolInstance import CutToolInstance
 from nk3.cutToolType import CutToolType
 
 from nk3.fileReader.dxf.dxfFileReader import DXFFileReader
+from nk3.fileReader.fileReader import FileReader
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.export import Export
 from nk3.view import View
@@ -103,19 +106,6 @@ class Application(QObject):
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)
         self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
 
-        # self.__document_list.append(DXFFileReader().load("C:/Models/CNC/RiderCNC/TableBeltTensioner.stl.dxf"))
-        # self.__document_list.append(DXFFileReader().load("C:/Models/CNC/RiderCNC/LimpyV0.2-DustShoe.dxf"))
-        # self.__document_list.append(DXFFileReader().load("C:/Models/ForCNC/CarWheel.dxf"))
-        # self.__document_list.append(DXFFileReader().load("C:/Models/ForCNC/RoundedGearBoard.dxf"))
-        # self.__document_list.append(DXFFileReader().load("test.dxf"))
-        # self.__document_list[0].operation_index = 0
-        # self.__document_list.append(DXFFileReader().load("C:/Software/NinjaKittens2/ch side top.dxf"))
-        # self.__document_list.append(DXFFileReader().load("C:/Software/NinjaKittens2/1235-B2P-D1 3.dxf"))
-        # import glob
-        # for filename in glob.glob("_sample-files-master/dxf/**/*.dxf"):
-        #     self.__document_list.append(DXFFileReader().load(filename))
-        # self.__document_list.append(DXFFileReader().load("_sample-files-master/dxf/autocad2017/2Dhatch.dxf"))
-
     @property
     def document_list(self):
         return self.__document_list
@@ -142,7 +132,9 @@ class Application(QObject):
     @qtSlot
     def loadFile(self, filename: QUrl) -> None:
         try:
-            document_node = DXFFileReader().load(filename.toLocalFile())
+            log.info("Going to load: %s", filename.toLocalFile())
+            reader = FileReader.getFileTypes()[os.path.splitext(filename.toLocalFile())[1][1:].lower()]
+            document_node = reader().load(filename.toLocalFile())
         except Exception:
             log.exception("Load file failed for: %s", filename.toLocalFile())
         else:
@@ -150,6 +142,14 @@ class Application(QObject):
                 self.__document_list.remove(0)
             self.__document_list.append(document_node)
         self.repaint()
+
+    @qtSlot
+    def getLoadFileTypes(self) -> List[str]:
+        types = FileReader.getFileTypes()
+        result = ["Vector files (%s)" % (" ".join(["*.%s" % ext for ext in types.keys()]))]
+        for ext in types.keys():
+            result.append("%s (*.%s)" % (ext, ext))
+        return result
 
     @qtSlot
     def exportFile(self, filename: QUrl) -> None:

@@ -1,7 +1,7 @@
 import logging
 import os
 
-from typing import Optional, List
+from typing import Optional, List, Iterator
 
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
@@ -19,6 +19,10 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class DXFFileReader(FileReader):
+    @staticmethod
+    def getExtensions() -> Iterator[str]:
+        return "dxf",
+
     __IGNORED_ENTITIES = ("ATTDEF", "VIEWPORT", "XLINE", "POINT")
 
     def __init__(self):
@@ -29,8 +33,7 @@ class DXFFileReader(FileReader):
         self.__document_root = None  # type: DocumentNode
         self.__layers = {}  # type: List[DocumentNode]
 
-    def load(self, filename: str):
-        log.info("Going to load: %s", filename)
+    def load(self, filename: str) -> DocumentNode:
         parser = DXFParser(filename)
         self.__document_root = DocumentNode(os.path.basename(filename))
 

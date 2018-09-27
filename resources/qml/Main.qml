@@ -72,7 +72,7 @@ NK3.MainWindow {
         id: open_file_dialog
         title: "Please choose a file"
         selectMultiple: true
-        nameFilters: ["Vector files (*.dxf *.svg)"]
+        nameFilters: NK3.Application.getLoadFileTypes()
 
         onAccepted: {
             for(var idx in fileUrls)
