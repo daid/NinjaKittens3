@@ -13,7 +13,6 @@ from nk3.QObjectList import QObjectList
 from nk3.cutToolInstance import CutToolInstance
 from nk3.cutToolType import CutToolType
 
-from nk3.fileReader.dxf.dxfFileReader import DXFFileReader
 from nk3.fileReader.fileReader import FileReader
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.export import Export

@@ -4,7 +4,7 @@ from typing import Iterator, Type, Dict
 
 from nk3.document.node import DocumentNode
 import importlib
-import glob
+import pkgutil
 import os
 
 
@@ -28,14 +28,16 @@ class FileReader(ABC):
         if FileReader.__EXTENSION_MAPPING is None:
             mapping = {}
             base_path = os.path.dirname(__file__)
-            for filename in glob.glob("%s/*/*.py" % (base_path)):
-                filename = os.path.splitext(os.path.relpath(filename, base_path))[0]
-                module_name = "nk3.fileReader.%s" % (filename.replace("\\", "/").replace("/", "."))
-                module = importlib.import_module(module_name)
-                for attrname in dir(module):
-                    attr = getattr(module, attrname)
-                    if type(attr) is type(FileReader) and issubclass(attr, FileReader) and attr != FileReader:
-                        for extension in attr.getExtensions():
-                            mapping[extension] = attr
+            for _, base_module_name, ispkg in pkgutil.walk_packages([base_path]):
+                if not ispkg:
+                    continue
+                for _, sub_module_name, ispkg in pkgutil.walk_packages([base_path + "/" + base_module_name]):
+                    module_name = "nk3.fileReader.%s.%s" % (base_module_name, sub_module_name)
+                    module = importlib.import_module(module_name)
+                    for attrname in dir(module):
+                        attr = getattr(module, attrname)
+                        if type(attr) is type(FileReader) and issubclass(attr, FileReader) and attr != FileReader:
+                            for extension in attr.getExtensions():
+                                mapping[extension] = attr
             FileReader.__EXTENSION_MAPPING = mapping
         return FileReader.__EXTENSION_MAPPING

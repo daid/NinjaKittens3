@@ -140,7 +140,7 @@ class DXFFileReader(FileReader):
         elif entity.type_name in self.__IGNORED_ENTITIES:
             pass
         else:
-            log.info("Unknown entity: %s", entity)
+            log.warning("Unknown entity: %s", entity)
             # entity.dumpEntries()
 
     def _processLine(self, entity):
@@ -246,7 +246,6 @@ class DXFFileReader(FileReader):
         column_spacing = entity.findEntry(44, default=1)
         row_spacing = entity.findEntry(45, default=1)
 
-        log.info("%s", (offset, scale, rotation))
         assert column_count == 1 and row_count == 1
         transform = ComplexTransform.rotate(rotation)\
             .combine(ComplexTransform.scale(scale))\
