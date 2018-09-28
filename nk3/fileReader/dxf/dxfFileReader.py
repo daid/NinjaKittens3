@@ -1,4 +1,6 @@
+import cmath
 import logging
+import math
 import os
 
 from typing import Optional, List, Iterator
@@ -159,9 +161,13 @@ class DXFFileReader(FileReader):
         center = complex(entity[10], entity[20])
         major_axis_endpoint = complex(entity[11], entity[21])
         minor_major_ratio = entity[40]
-        start_angle = entity[41]
-        end_angle = entity[42]
-        log.warning("Ignored ellipse")
+        start_angle = math.degrees(entity[41])
+        end_angle = math.degrees(entity[42])
+        # Note: Not sure if the start/end angle is handled properly, only seen full ellipses in example files.
+
+        major_radius = abs(major_axis_endpoint)
+        rotation = math.degrees(cmath.phase(major_axis_endpoint))
+        self._getPathFor(entity).addArcByAngle(center, complex(major_radius, major_radius * minor_major_ratio), start_angle, end_angle, rotation=rotation)
 
     def _processPolyline(self, entity):
         p0 = None

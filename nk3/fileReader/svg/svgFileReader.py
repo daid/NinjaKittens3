@@ -1,5 +1,6 @@
 import logging
 import re
+import math
 
 from typing import Iterator
 from xml.etree import ElementTree
@@ -46,10 +47,14 @@ class SVGFileReader(FileReader):
                 self.__processPolygonTag(child, node)
             elif child_tag == "circle":
                 self.__processCircleTag(child, node)
+            elif child_tag == "ellipse":
+                self.__processEllipseTag(child, node)
             elif child_tag == "path":
                 self.__processPathTag(child, node)
             elif child_tag == "rect":
                 self.__processRectTag(child, node)
+            elif child_tag in ("desc", "title", "animate", "animateColor", "animateTransform", "script", "namedview", "metadata"):
+                pass  # ignore these tags, as they contain no value for us.
             else:
                 log.warning("Unknown svg tag: %s", child_tag)
             if child.get("transform"):
@@ -87,6 +92,14 @@ class SVGFileReader(FileReader):
         r = float(tag.get('r', '0'))
         paths = node.getPaths()
         paths.addCircle(complex(cx, cy), r)
+
+    def __processEllipseTag(self, tag, node):
+        cx = float(tag.get('cx', '0'))
+        cy = float(tag.get('cy', '0'))
+        rx = float(tag.get('rx', '0'))
+        ry = float(tag.get('ry', '0'))
+        paths = node.getPaths()
+        paths.addArcByAngle(complex(cx, cy), complex(rx, ry), 0, 360)
 
     def __processRectTag(self, tag, node):
         paths = node.getPaths()
@@ -137,9 +150,8 @@ class SVGFileReader(FileReader):
         p0 = complex(0, 0)
         cp1 = complex(0, 0)
         for command in re.findall("[a-df-zA-DF-Z][^a-df-zA-DF-Z]*", path_string):
-            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?", command[1:])))
+            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?", command[1:])))
             command = command[0]
-
             if command == "M":
                 p0 = complex(params[0], params[1])
                 if start is None:
@@ -269,15 +281,24 @@ class SVGFileReader(FileReader):
         t = ComplexTransform()
         for match in re.finditer("([a-z]+)\\(([^\\)]*)\\)", transform.lower()):
             func, params = match.groups()
-            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?", params)))
+            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?", params)))
             if func == "translate" and len(params) > 1:
                 t = ComplexTransform.translate(complex(params[0], params[1])).combine(t)
-            elif func == "rotate" and len(params) > 0:
+            elif func == "rotate" and len(params) == 1:
                 t = ComplexTransform.rotate(params[0]).combine(t)
+            elif func == "rotate" and len(params) == 3:
+                offset = complex(params[1], params[2])
+                t = ComplexTransform.translate(offset).combine(ComplexTransform.rotate(params[0]).combine(ComplexTransform.translate(-offset).combine(t)))
+            elif func == "scale" and len(params) == 1:
+                t = ComplexTransform.scale(complex(params[0], params[0])).combine(t)
             elif func == "scale" and len(params) > 1:
                 t = ComplexTransform.scale(complex(params[0], params[1])).combine(t)
             elif func == "matrix" and len(params) == 6:
                 t = ComplexTransform([params[0], params[2], params[4], params[1], params[3], params[5], 0.0, 0.0, 1.0]).combine(t)
+            elif func == "skewx" and len(params) == 1:
+                t = ComplexTransform([1.0, math.tan(math.radians(params[0])), 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]).combine(t)
+            elif func == "skewy" and len(params) == 1:
+                t = ComplexTransform([1.0, 0.0, 0.0, math.tan(math.radians(params[0])), 1.0, 0.0, 0.0, 0.0, 1.0]).combine(t)
             else:
                 log.warning("Ignoring transform: %s %s", func, params)
         self.__transform_stack.append(t.combine(self.__transform_stack[-1]))

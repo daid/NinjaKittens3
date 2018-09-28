@@ -1,5 +1,6 @@
 import logging
 import math
+import cmath
 from typing import Optional, List
 
 from nk3.vectorPath.nurbs import NURBS
@@ -87,14 +88,15 @@ class VectorPaths:
         elif sweep and angle_extent < 0.0:
             angle_extent += 360.0
 
-        self.addArcByAngle(complex(cx, cy), radius, angle_start, angle_start + angle_extent)
+        self.addArcByAngle(complex(cx, cy), radius, angle_start, angle_start + angle_extent, rotation=rotation)
 
-    def addArcByAngle(self, center: complex, radius: complex, start_angle: float, end_angle: float) -> None:
+    def addArcByAngle(self, center: complex, radius: complex, start_angle: float, end_angle: float, *, rotation=0.0) -> None:
         point_count = math.ceil((abs(start_angle - end_angle) / 180 * math.pi * max(radius.real, radius.imag)) / self.__RESOLUTION)
         path = None
+        c = cmath.rect(1.0, math.radians(rotation))
         for n in range(point_count + 1):
-            angle = (start_angle + (end_angle - start_angle) * (n / point_count)) / 180 * math.pi
-            p = center + complex(math.cos(angle) * radius.real, math.sin(angle) * radius.imag)
+            angle = math.radians(start_angle + (end_angle - start_angle) * (n / point_count))
+            p = center + complex(math.cos(angle) * radius.real, math.sin(angle) * radius.imag) * c
             if path is None:
                 path = self._findOrCreateWithEndPoint(self.__transform_stack[-1] * p)
             else:
