@@ -20,20 +20,21 @@ class SVGFileReader(FileReader):
     def __init__(self):
         super().__init__()
         self.__xml = None
+        dpi = 90
+        self.__transform_stack = [ComplexTransform.scale(complex(25.4/dpi, -25.4/dpi))]
 
     def load(self, filename: str) -> DocumentNode:
-        f = open(filename, "r")
-        self.__xml = ElementTree.parse(f)
+        self.__xml = ElementTree.parse(filename)
         root_node = DocumentVectorNode(filename)
+        root_node.getPaths().setTransformStack(self.__transform_stack)
         self.__processGTag(self.__xml.getroot(), root_node)
-        f.close()
         root_node.getPaths().stitch()
         return root_node
 
     def __processGTag(self, tag, node):
         for child in tag:
             if child.get("transform"):
-                log.warning("Ignoring transform: %s", child.get("transform"))
+                self.__pushTransform(child.get("transform"))
             child_tag = child.tag[child.tag.find('}') + 1:].lower()
             if child_tag == "g" or child_tag == "a":
                 self.__processGTag(child, node)
@@ -51,6 +52,8 @@ class SVGFileReader(FileReader):
                 self.__processRectTag(child, node)
             else:
                 log.warning("Unknown svg tag: %s", child_tag)
+            if child.get("transform"):
+                self.__transform_stack.pop()
 
     def __processLineTag(self, tag, node):
         x1 = float(tag.get('x1', 0))
@@ -134,8 +137,7 @@ class SVGFileReader(FileReader):
         p0 = complex(0, 0)
         cp1 = complex(0, 0)
         for command in re.findall("[a-df-zA-DF-Z][^a-df-zA-DF-Z]*", path_string):
-            params = re.findall("-?[0-9]+(?:\\.[0-9]*)?", command[1:])
-            params = list(map(float, params))
+            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?", command[1:])))
             command = command[0]
 
             if command == "M":
@@ -183,13 +185,13 @@ class SVGFileReader(FileReader):
             elif command == 'A':
                 while len(params) > 6:
                     p1 = complex(params[5], params[6])
-                    paths.addArc(p0, p1, params[2], complex(params[0], params[1]), large_arc=params[3] > 0, sweep=params[4] > 0)
+                    paths.addArc(p0, p1, params[2], complex(params[0], params[1]), large_arc=params[3] > 0, sweep=params[4] <= 0)
                     params = params[7:]
                     p0 = p1
             elif command == 'a':
                 while len(params) > 6:
                     p1 = p0 + complex(params[5], params[6])
-                    paths.addArc(p0, p1, params[2], complex(params[0], params[1]), large_arc=params[3] > 0, sweep=params[4] > 0)
+                    paths.addArc(p0, p1, params[2], complex(params[0], params[1]), large_arc=params[3] > 0, sweep=params[4] <= 0)
                     params = params[7:]
                     p0 = p1
             elif command == 'c':
@@ -262,3 +264,20 @@ class SVGFileReader(FileReader):
                 start = None
             else:
                 log.warning("Unknown path command: %s %s", command, params)
+
+    def __pushTransform(self, transform: str) -> None:
+        t = ComplexTransform()
+        for match in re.finditer("([a-z]+)\\(([^\\)]*)\\)", transform.lower()):
+            func, params = match.groups()
+            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?", params)))
+            if func == "translate" and len(params) > 1:
+                t = ComplexTransform.translate(complex(params[0], params[1])).combine(t)
+            elif func == "rotate" and len(params) > 0:
+                t = ComplexTransform.rotate(params[0]).combine(t)
+            elif func == "scale" and len(params) > 1:
+                t = ComplexTransform.scale(complex(params[0], params[1])).combine(t)
+            elif func == "matrix" and len(params) == 6:
+                t = ComplexTransform([params[0], params[2], params[4], params[1], params[3], params[5], 0.0, 0.0, 1.0]).combine(t)
+            else:
+                log.warning("Ignoring transform: %s %s", func, params)
+        self.__transform_stack.append(t.combine(self.__transform_stack[-1]))

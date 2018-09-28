@@ -32,6 +32,7 @@ class DXFFileReader(FileReader):
 
         self.__document_root = None  # type: DocumentNode
         self.__layers = {}  # type: List[DocumentNode]
+        self.__transform_stack = [ComplexTransform()]
 
     def load(self, filename: str) -> DocumentNode:
         parser = DXFParser(filename)
@@ -105,6 +106,7 @@ class DXFFileReader(FileReader):
         if color is not None:
             child.color = color
         node.append(child)
+        child.getPaths().setTransformStack(self.__transform_stack)
         return child.getPaths()
 
     def _getColorFor(self, entity: DxfNode) -> Optional[int]:
@@ -235,7 +237,7 @@ class DXFFileReader(FileReader):
         end_angle = entity[51]
         if end_angle < start_angle:
             end_angle += 360.0
-        self._getPathFor(entity).addArcByAngle(center, radius, start_angle, end_angle)
+        self._getPathFor(entity).addArcByAngle(center, complex(radius, radius), start_angle, end_angle)
 
     def _processInsert(self, entity):
         offset = complex(entity[10], entity[20])
@@ -250,8 +252,7 @@ class DXFFileReader(FileReader):
         transform = ComplexTransform.rotate(rotation)\
             .combine(ComplexTransform.scale(scale))\
             .combine(ComplexTransform.translate(offset))
+        self.__transform_stack.append(transform.combine(self.__transform_stack[-1]))
         for e in self.__block_by_name[entity.name]:
-            p = self._getPathFor(e)
-            p.pushTransform(transform)
             self._processEntity(e)
-            p.popTransform()
+        self.__transform_stack.pop()

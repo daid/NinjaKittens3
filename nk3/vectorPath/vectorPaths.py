@@ -14,14 +14,10 @@ class VectorPaths:
 
     def __init__(self) -> None:
         self.__paths = []  # type: List[VectorPath]
-        self.__transform_stack = [ComplexTransform()]
+        self.__transform_stack = [ComplexTransform()]  # type: List[ComplexTransform]
 
-    def popTransform(self) -> None:
-        assert len(self.__transform_stack) > 1
-        self.__transform_stack.pop()
-
-    def pushTransform(self, transform: ComplexTransform) -> None:
-        self.__transform_stack.append(self.__transform_stack[-1].combine(transform))
+    def setTransformStack(self, stack: List[ComplexTransform]) -> None:
+        self.__transform_stack = stack
 
     def addLine(self, start: complex, end: complex) -> None:
         self._findOrCreateWithEndPoint(self.__transform_stack[-1] * start).add(self.__transform_stack[-1] * end)
@@ -91,16 +87,14 @@ class VectorPaths:
         elif sweep and angle_extent < 0.0:
             angle_extent += 360.0
 
-        #TODO: Assumes radius.real == radius.imag
-        assert radius.real == radius.imag
-        self.addArcByAngle(complex(cx, cy), radius.real, angle_start, angle_start + angle_extent)
+        self.addArcByAngle(complex(cx, cy), radius, angle_start, angle_start + angle_extent)
 
-    def addArcByAngle(self, center: complex, radius: float, start_angle: float, end_angle: float) -> None:
-        point_count = math.ceil((abs(start_angle - end_angle) / 180 * math.pi * radius) / self.__RESOLUTION)
+    def addArcByAngle(self, center: complex, radius: complex, start_angle: float, end_angle: float) -> None:
+        point_count = math.ceil((abs(start_angle - end_angle) / 180 * math.pi * max(radius.real, radius.imag)) / self.__RESOLUTION)
         path = None
         for n in range(point_count + 1):
             angle = (start_angle + (end_angle - start_angle) * (n / point_count)) / 180 * math.pi
-            p = center + complex(math.cos(angle) * radius, math.sin(angle) * radius)
+            p = center + complex(math.cos(angle) * radius.real, math.sin(angle) * radius.imag)
             if path is None:
                 path = self._findOrCreateWithEndPoint(self.__transform_stack[-1] * p)
             else:
