@@ -45,3 +45,22 @@ def offset(paths: List[List[complex]], amount: float, *, tree=False) -> Union[Li
         return _fromClipperTree(offset.Execute2(amount * 1000.0))
     else:
         return _fromClipper(offset.Execute(amount * 1000.0))
+
+
+def insertPoint(offset_distance: float, path: List[complex], depth: Optional[List[float]]=None):
+    a = 0.0
+    p0 = None
+    for repeat in range(2):
+        for n in range(0, len(path)):
+            p1 = path[n]
+            if p0 is not None:
+                step = abs(p0 - p1)
+                if a + step > offset_distance:
+                    path.insert(n, p0 + (p1 - p0) / step * (offset_distance - a))
+                    if depth is not None:
+                        d0 = depth[n-1]
+                        d1 = depth[n]
+                        depth.insert(n, d0 + (d1 - d0) / step * (offset_distance - a))
+                    return
+                a += step
+            p0 = p1

@@ -1,4 +1,5 @@
 import logging
+import math
 
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.processor import pathUtils
@@ -32,6 +33,11 @@ class Processor:
     def __process2dTo3d(self, path_tree):
         cut_depth_total = self.__job.settings.cut_depth_total
         cut_depth_pass = self.__job.settings.cut_depth_pass
+        if self.__job.settings.attack_angle < 90:
+            attack_length = cut_depth_pass / math.tan(math.radians(self.__job.settings.attack_angle))
+        else:
+            attack_length = None
+
         depths = [-cut_depth_pass]
         while depths[-1] > -cut_depth_total:
             depths.append(depths[-1] - cut_depth_pass)
@@ -43,14 +49,14 @@ class Processor:
             max_depth_per_point = [-cut_depth_total] * len(path)
             if self.__needTabs(node):
                 TabGenerator(self.__job.settings, path, max_depth_per_point)
-            self.__moves.append(Move(path[-1], self.__job.settings.travel_height, self.__job.settings.travel_speed))
+            self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
             for depth in depths:
                 if self.__needPocket(node):
                     for p in self.__concentricInfill([path] + [n.contour for n in node.children], self.__job.settings.pocket_offset):
                         # TODO: This assumes we can safely moves to any point in our pocket, which is not always the case.
                         self.__closedPathToMoves(p, depth)
-                self.__closedPathToMoves(path, depth, max_depth_per_point)
-            self.__moves.append(Move(path[-1], self.__job.settings.travel_height, self.__job.settings.lift_speed))
+                self.__closedPathToMoves(path, depth, max_depth_per_point=max_depth_per_point, attack_length=attack_length)
+            self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.lift_speed))
         self.__moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
         return self.__moves
 
@@ -74,12 +80,21 @@ class Processor:
             return self.__concentricInfill(result, offset) + result
         return []
 
-    def __closedPathToMoves(self, path, depth, max_depth_per_point=None):
-        if max_depth_per_point is None:
-            self.__moves.append(Move(path[-1], depth, self.__job.settings.plunge_feedrate))
-            for point in path:
-                self.__moves.append(Move(point, depth, self.__job.settings.cut_feedrate))
-        else:
-            self.__moves.append(Move(path[-1], max(depth, max_depth_per_point[-1]), self.__job.settings.plunge_feedrate))
-            for point, max_depth in zip(path, max_depth_per_point):
-                self.__moves.append(Move(point, max(depth, max_depth), self.__job.settings.cut_feedrate))
+    def __closedPathToMoves(self, path, depth, *, max_depth_per_point=None, attack_length=None):
+        depth_list = [depth] * len(path)
+        if max_depth_per_point:
+            for n in range(len(path)):
+                depth_list[n] = max(depth_list[n], max_depth_per_point[n])
+        if attack_length and pathUtils.length(path) > attack_length:
+            path = path.copy()
+            pathUtils.insertPoint(attack_length, path, depth_list)
+            f = 0
+            n = 0
+            while f < attack_length:
+                depth_list[n] += self.__job.settings.cut_depth_pass * (attack_length - f) / attack_length
+                n += 1
+                f += abs(path[n] - path[n-1])
+        self.__moves.append(Move(path[0], depth_list[0], self.__job.settings.plunge_feedrate))
+        for point, depth_at_point in zip(path, depth_list):
+            self.__moves.append(Move(point, depth_at_point, self.__job.settings.cut_feedrate))
+        self.__moves.append(Move(path[0], depth_list[-1], self.__job.settings.cut_feedrate))

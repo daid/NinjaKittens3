@@ -23,12 +23,12 @@ class TabGenerator:
 
     def __generate(self) -> None:
         length = pathUtils.length(self.__path)
-        if length < self.__tab_bottom_width:
+        if length < self.__tab_bottom_width * 4:
             return
-        self.__addTab(length / 4)
-        if length < self.__tab_bottom_width * 2:
-            return
-        self.__addTab(length / 4 * 3)
+        f = length / 3
+        self.__addTab(f / 2)
+        self.__addTab(f / 2 + f)
+        self.__addTab(f / 2 + f * 2)
 
     def __addTab(self, offset: float) -> None:
         if offset < self.__tab_bottom_width / 2.0:
@@ -38,10 +38,11 @@ class TabGenerator:
         bottom_end = offset + self.__tab_bottom_width / 2.0
         top_start = offset - self.__tab_top_width / 2.0
         top_end = offset + self.__tab_top_width/ 2.0
-        self.__ensurePointAt(bottom_start)
-        self.__ensurePointAt(bottom_end)
-        self.__ensurePointAt(top_start)
-        self.__ensurePointAt(top_end)
+        pathUtils.insertPoint(bottom_start, self.__path, self.__max_depth_per_point)
+        pathUtils.insertPoint(bottom_start, self.__path, self.__max_depth_per_point)
+        pathUtils.insertPoint(bottom_end, self.__path, self.__max_depth_per_point)
+        pathUtils.insertPoint(top_start, self.__path, self.__max_depth_per_point)
+        pathUtils.insertPoint(top_end, self.__path, self.__max_depth_per_point)
 
         a = 0.0
         p0 = None
@@ -58,19 +59,4 @@ class TabGenerator:
                         self.__max_depth_per_point[n] += self.__tab_height * -(a - bottom_end) / (self.__tab_bottom_width - self.__tab_top_width) * 2
                     elif a >= bottom_end:
                         return
-                p0 = p1
-
-    def __ensurePointAt(self, offset: float) -> None:
-        a = 0.0
-        p0 = None
-        for repeat in range(2):
-            for n in range(0, len(self.__path)):
-                p1 = self.__path[n]
-                if p0 is not None:
-                    step = abs(p0 - p1)
-                    if a + step > offset:
-                        self.__path.insert(n, p0 + (p1 - p0) / step * (offset - a))
-                        self.__max_depth_per_point.insert(n, self.__max_depth_per_point[n])
-                        return
-                    a += step
                 p0 = p1
