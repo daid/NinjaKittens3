@@ -1,12 +1,12 @@
 from collections import namedtuple
 import inspect
-from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtWrapperType, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 from typing import List
 
 QObjectBaseProperty = namedtuple("QObjectBaseProperty", ["type", "value"])
 
 
-class QObjectBaseMeta(pyqtWrapperType):
+class QObjectBaseMeta(type(QObject)):
     def __new__(mcs, name, bases, dct):
         new_dct = {}
         for k, v in dct.items():
