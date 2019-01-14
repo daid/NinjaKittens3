@@ -23,6 +23,14 @@ NK3.MainWindow {
             Button {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
+                text: "Quit"
+                onClicked: {
+                    Qt.quit()
+                }
+            }
+            Button {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
                 text: "Load"
                 onClicked: {
                     open_file_dialog.visible = true
