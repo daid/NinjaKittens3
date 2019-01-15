@@ -12,11 +12,13 @@ from nk3.QObjectBase import qtSlot
 from nk3.QObjectList import QObjectList
 from nk3.cutToolInstance import CutToolInstance
 from nk3.cutToolType import CutToolType
+from nk3.jobOperationInstance import JobOperationInstance
 
 from nk3.fileReader.fileReader import FileReader
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.export import Export
 from nk3.view import View
+from nk3.configuration.storage import Storage
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -48,7 +50,7 @@ class MainWindow(QQuickWindow):
 class MouseHandler(QQuickItem):
     def __init__(self, parent):
         super().__init__(parent)
-        self.setAcceptedMouseButtons(Qt.AllButtons)
+        #TODO: Causes hangs from time to time?!? self.setAcceptedMouseButtons(Qt.AllButtons)
         self.__last_pos = None
 
     def mousePressEvent(self, event):
@@ -78,7 +80,7 @@ class Application(QObject):
         super().__init__()
         assert Application._instance is None
         Application._instance = self
-
+        
         self.__app = QGuiApplication(sys.argv)
         self.__qml_engine = QQmlApplicationEngine(self.__app)
 
@@ -98,12 +100,19 @@ class Application(QObject):
         self.__dispatcher = Dispatcher(self.__cut_tool_list, self.__document_list)
         self.__dispatcher.onMoveData = self.__onMoveData
 
-        self.__cut_tool_list.append(CutToolInstance("3mm", CutToolType()))
-        self.__cut_tool_list.append(CutToolInstance("8mm", CutToolType()))
+        Storage().load(self.__cut_tool_list)
+        if self.__cut_tool_list.size() == 0:
+            instance = CutToolInstance("6mm", CutToolType())
+            self.__cut_tool_list.append(instance)
+            for operation_type in instance.type.getOperationTypes():
+                instance.operations.append(JobOperationInstance(instance, operation_type))
+
 
         self.__qml_engine.rootContext().setContextProperty("cut_tool_list", self.__cut_tool_list)
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)
         self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
+
+        self.__app.aboutToQuit.connect(self._onQuit)
 
     @property
     def document_list(self):
@@ -154,7 +163,12 @@ class Application(QObject):
     def exportFile(self, filename: QUrl) -> None:
         Export().export(filename.toLocalFile(), self.__move_data)
 
+    def _onQuit(self):
+        Storage().save(self.__cut_tool_list)
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s:%(levelname)10s:%(name)20s:%(message)s", level=logging.INFO)
-    Application().start()
+    log.info("Creating")
+    app = Application()
+    log.info("Running")
+    app.start()

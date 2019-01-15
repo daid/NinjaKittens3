@@ -29,8 +29,9 @@ class CutToolInstance(QObjectList):
             self.append(instance)
             self.__setting_instances[instance.type.key] = instance
 
-        for operation_type in cut_tool_type.getOperationTypes():
-            self.operations.append(JobOperationInstance(self, operation_type))
+    @property
+    def type(self):
+        return self.__type
 
     def fillProcessorSettings(self, settings: Settings) -> None:
         self.__type.fillProcessorSettings(self, settings)

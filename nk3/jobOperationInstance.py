@@ -21,6 +21,10 @@ class JobOperationInstance(QObjectList):
             self.append(instance)
             self.__setting_instances[instance.type.key] = instance
 
+    @property
+    def type(self):
+        return self.__type
+
     def fillProcessorSettings(self, settings: Settings):
         self.__tool.fillProcessorSettings(settings)
         self.__type.fillProcessorSettings(self, settings)

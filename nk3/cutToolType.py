@@ -17,9 +17,9 @@ log = logging.getLogger(__name__.split(".")[-1])
 class CutToolType:
     def __init__(self):
         self.__settings = [
-            SettingType(key="tool_diameter", label="Endmill diameter", type="dimension", default="3.0"),
+            SettingType(key="tool_diameter", label="Endmill diameter", type="dimension", default="6.0"),
             SettingType(key="cut_depth_pass", label="Cut depth per pass", type="dimension", default="1.0"),
-            SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="600"),
+            SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="1200"),
             SettingType(key="plunge_feedrate", label="Plungerate", type="speed", default="180"),
         ]
         self.__operations = [
