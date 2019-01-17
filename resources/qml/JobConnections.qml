@@ -46,6 +46,7 @@ Canvas {
     }
 
     onPaint: {
+        if (context == null) return;
         context.reset();
         context.strokeStyle = Qt.rgba(0,0,0);
         context.beginPath()

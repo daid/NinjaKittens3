@@ -3,7 +3,7 @@ import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.1
 
 Column {
-    property Item operations: operations
+    property var cut_tool: item
     Item {
         property bool open: false
         clip: true
@@ -30,7 +30,7 @@ Column {
                     verticalAlignment: Text.AlignVCenter
                     Layout.fillHeight: true
                     text: "^"
-                    rotation: parent.parent.parent.parent.open ? "180" : 0
+                    rotation: parent.parent.parent.open ? "180" : 0
                     Behavior on rotation {
                         PropertyAnimation { duration: 100 }
                     }
@@ -56,6 +56,26 @@ Column {
                         item.name = text
                     }
                 }
+                Button {
+                    text: "+"
+                    implicitWidth: height
+                    onClicked: {
+                        new_operation_popup.popup()
+                    }
+                }
+                Menu {
+                    id: new_operation_popup
+                    Instantiator {
+                        model: item.operation_types
+                        MenuItem
+                        {
+                            text: item.default_name
+                            onTriggered: cut_tool.addOperation(item)
+                        }
+                        onObjectAdded: new_operation_popup.insertItem(index, object)
+                        onObjectRemoved: new_operation_popup.removeItem(object)
+                    }
+                }
             }
 
             Repeater {
@@ -66,6 +86,8 @@ Column {
     }
     Column {
         id: operations
+        anchors.left: parent.left
+        anchors.right: parent.right
         Repeater {
             model: item.operations
             OperationItem { x: 50 }

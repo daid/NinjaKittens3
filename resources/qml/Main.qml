@@ -20,7 +20,7 @@ NK3.MainWindow {
         Row {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            Button {
+            ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 text: "Quit"
@@ -28,7 +28,7 @@ NK3.MainWindow {
                     Qt.quit()
                 }
             }
-            Button {
+            ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 text: "Load"
@@ -36,7 +36,7 @@ NK3.MainWindow {
                     open_file_dialog.visible = true
                 }
             }
-            Button {
+            ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 text: "Export"

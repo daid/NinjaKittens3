@@ -12,7 +12,7 @@ class JobOperationInstance(QObjectList):
 
     def __init__(self, tool_instance: "CutToolInstance", job_operation_type: JobOperationType) -> None:
         super().__init__()
-        self.name = job_operation_type.defaultName
+        self.name = job_operation_type.default_name
         self.__tool = tool_instance
         self.__type = job_operation_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]

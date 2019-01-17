@@ -50,7 +50,7 @@ class MainWindow(QQuickWindow):
 class MouseHandler(QQuickItem):
     def __init__(self, parent):
         super().__init__(parent)
-        #TODO: Causes hangs from time to time?!? self.setAcceptedMouseButtons(Qt.AllButtons)
+        self.setAcceptedMouseButtons(Qt.AllButtons)
         self.__last_pos = None
 
     def mousePressEvent(self, event):
@@ -102,11 +102,7 @@ class Application(QObject):
 
         Storage().load(self.__cut_tool_list)
         if self.__cut_tool_list.size() == 0:
-            instance = CutToolInstance("6mm", CutToolType())
-            self.__cut_tool_list.append(instance)
-            for operation_type in instance.type.getOperationTypes():
-                instance.operations.append(JobOperationInstance(instance, operation_type))
-
+            self.createNewTool("?")
 
         self.__qml_engine.rootContext().setContextProperty("cut_tool_list", self.__cut_tool_list)
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)
@@ -163,12 +159,20 @@ class Application(QObject):
     def exportFile(self, filename: QUrl) -> None:
         Export().export(filename.toLocalFile(), self.__move_data)
 
+    @qtSlot
+    def createNewTool(self, tool_name: str) -> None:
+        instance = CutToolInstance(tool_name, CutToolType())
+        for operation_type in instance.type.getOperationTypes():
+            instance.operations.append(JobOperationInstance(instance, operation_type))
+        self.__cut_tool_list.append(instance)
+
     def _onQuit(self):
         Storage().save(self.__cut_tool_list)
 
 if __name__ == '__main__':
+    os.putenv("QML_DISABLE_DISK_CACHE", "1")
     logging.basicConfig(format="%(asctime)s:%(levelname)10s:%(name)20s:%(message)s", level=logging.INFO)
-    log.info("Creating")
+    log.info("Creating application")
     app = Application()
-    log.info("Running")
-    app.start()
+    log.info("Starting application")
+    sys.exit(app.start())
