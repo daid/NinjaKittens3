@@ -1,5 +1,6 @@
 import logging
 import math
+from typing import List
 
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.processor import pathUtils
@@ -22,7 +23,7 @@ class Processor:
         # Convert 2d paths from pyclipper to 3d paths
         return self.__process2dTo3d(path_tree)
 
-    def __process2d(self):
+    def __process2d(self) -> pathUtils.TreeNode:
         if self.__job.settings.cut_offset != 0.0:
             result = pathUtils.union(self.__job.closedPaths)
             if self.__job.openPaths:
@@ -30,7 +31,7 @@ class Processor:
             return pathUtils.offset(result, self.__job.settings.cut_offset, tree=True)
         return self.__job.closedPaths
 
-    def __process2dTo3d(self, path_tree):
+    def __process2dTo3d(self, path_tree: pathUtils.TreeNode) -> List[Move]:
         cut_depth_total = self.__job.settings.cut_depth_total
         cut_depth_pass = self.__job.settings.cut_depth_pass
         if self.__job.settings.attack_angle < 90:
@@ -85,8 +86,10 @@ class Processor:
         if max_depth_per_point:
             for n in range(len(path)):
                 depth_list[n] = max(depth_list[n], max_depth_per_point[n])
-        if attack_length and pathUtils.length(path) > attack_length:
+        if attack_length:
             path = path.copy()
+            while pathUtils.length(path) < attack_length:
+                path += path
             pathUtils.insertPoint(attack_length, path, depth_list)
             f = 0
             n = 0

@@ -50,7 +50,7 @@ def offset(paths: List[List[complex]], amount: float, *, tree=False) -> Union[Li
 def insertPoint(offset_distance: float, path: List[complex], depth: Optional[List[float]]=None):
     a = 0.0
     p0 = None
-    for repeat in range(2):
+    while True:
         for n in range(0, len(path)):
             p1 = path[n]
             if p0 is not None:

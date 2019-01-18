@@ -3,7 +3,7 @@ import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.1
 
 Component {
-    id: node
+    id: document_node
     Column {
         x: 10
         Row {
@@ -65,7 +65,8 @@ Component {
             model: item
             Loader {
                 property var item: model.item
-                sourceComponent: node
+                sourceComponent: document_node
+                onLoaded: print("Loaded:", item, item.name, item.size())
             }
         }
     }

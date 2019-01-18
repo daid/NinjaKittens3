@@ -4,6 +4,7 @@ from typing import Iterator, TYPE_CHECKING
 
 from nk3.QObjectBase import QObjectBase
 from nk3.QObjectList import QObjectList
+from nk3.jobOperations.cutCenter import CutCenterOperation
 from nk3.jobOperations.cutInside import CutInsideOperation
 from nk3.jobOperations.cutOutside import CutOutsideOperation
 from nk3.jobOperations.cutOutsideWithPocket import CutOutsideWithPocketOperation
@@ -31,6 +32,7 @@ class CutToolType(QObjectBase):
         self.__operations.append(CutOutsideWithPocketOperation())
         self.__operations.append(CutInsideOperation())
         self.__operations.append(CutPocketOperation())
+        self.__operations.append(CutCenterOperation())
 
     def getSettingTypes(self) -> Iterator[SettingType]:
         return iter(self.__settings)

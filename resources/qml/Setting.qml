@@ -7,14 +7,14 @@ RowLayout {
     implicitWidth: parent.width
 
     Text {
-        Layout.preferredWidth: 100
+        Layout.fillWidth: true
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         text: item.type.label
     }
 
     TextField {
-        Layout.fillWidth: true
+        Layout.preferredWidth: 75
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         text: item.value
