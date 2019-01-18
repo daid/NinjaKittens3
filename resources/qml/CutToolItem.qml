@@ -57,23 +57,37 @@ Column {
                     }
                 }
                 Button {
-                    text: "+"
+                    text: "..."
                     implicitWidth: height
                     onClicked: {
-                        new_operation_popup.popup()
+                        operation_popup.popup()
                     }
                 }
                 Menu {
-                    id: new_operation_popup
+                    id: operation_popup
                     Instantiator {
                         model: item.operation_types
-                        MenuItem
-                        {
-                            text: item.default_name
+                        MenuItem {
+                            text: "Add: " + item.default_name
                             onTriggered: cut_tool.addOperation(item)
                         }
-                        onObjectAdded: new_operation_popup.insertItem(index, object)
-                        onObjectRemoved: new_operation_popup.removeItem(object)
+                        onObjectAdded: operation_popup.insertItem(index, object)
+                        onObjectRemoved: operation_popup.removeItem(object)
+                    }
+                    MenuSeparator {}
+                    Instantiator {
+                        model: item.operations
+                        MenuItem {
+                            text: "Remove: " + item.name
+                            onTriggered: cut_tool.removeOperation(index)
+                        }
+                        onObjectAdded: operation_popup.insertItem(index, object)
+                        onObjectRemoved: operation_popup.removeItem(object)
+                    }
+                    MenuSeparator {}
+                    MenuItem {
+                        text: "Remove tool"
+                        onTriggered: cut_tool.delete()
                     }
                 }
             }

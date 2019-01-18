@@ -36,6 +36,19 @@ class CutToolInstance(QObjectList):
     def addOperation(self, operation: JobOperationType) -> None:
         self.operations.append(JobOperationInstance(self, operation))
 
+    @qtSlot
+    def removeOperation(self, index: int) -> None:
+        self.operations.remove(index)
+
+    @qtSlot
+    def delete(self) -> None:
+        if self.parent().size() < 2:
+            return
+        for n in range(self.parent().size()):
+            if self.parent().get(n) == self:
+                self.parent().remove(n)
+                return
+
     @property
     def type(self):
         return self.__type
