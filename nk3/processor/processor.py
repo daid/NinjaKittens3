@@ -96,7 +96,7 @@ class Processor:
             while f < attack_length:
                 depth_list[n] += self.__job.settings.cut_depth_pass * (attack_length - f) / attack_length
                 n += 1
-                f += abs(path[n] - path[n-1])
+                f += abs(path[n % len(path)] - path[n-1])
         self.__moves.append(Move(path[0], depth_list[0], self.__job.settings.plunge_feedrate))
         for point, depth_at_point in zip(path, depth_list):
             self.__moves.append(Move(point, depth_at_point, self.__job.settings.cut_feedrate))
