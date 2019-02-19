@@ -44,6 +44,14 @@ NK3.MainWindow {
                     export_file_dialog.visible = true
                 }
             }
+            ToolButton {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                text: "Reload QML"
+                onClicked: {
+                    NK3.Application.reloadQML();
+                }
+            }
         }
     }
 

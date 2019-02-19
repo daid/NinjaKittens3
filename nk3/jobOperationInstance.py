@@ -11,7 +11,7 @@ class JobOperationInstance(QObjectList):
     name = QObjectBaseProperty(str, "")
 
     def __init__(self, tool_instance: "CutToolInstance", job_operation_type: JobOperationType) -> None:
-        super().__init__()
+        super().__init__("setting")
         self.name = job_operation_type.default_name
         self.__tool = tool_instance
         self.__type = job_operation_type

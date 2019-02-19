@@ -46,19 +46,19 @@ Item {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
-                text: item.name
+                text: operation.name
                 placeholderText: qsTr("Operation name")
                 Keys.onReleased: {
-                    item.name = text
+                    operation.name = text
                 }
                 onEditingFinished: {
-                    item.name = text
+                    operation.name = text
                 }
             }
         }
 
         Repeater {
-            model: item
+            model: operation
             Setting {}
         }
     }

@@ -3,7 +3,7 @@ import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.1
 
 Column {
-    property var cut_tool: item
+    property Column operations: operations
     Item {
         property bool open: false
         clip: true
@@ -47,13 +47,13 @@ Column {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
-                    text: item.name
+                    text: tool.name
                     placeholderText: qsTr("Tool name")
                     Keys.onReleased: {
-                        item.name = text
+                        tool.name = text
                     }
                     onEditingFinished: {
-                        item.name = text
+                        tool.name = text
                     }
                 }
                 Button {
@@ -66,20 +66,20 @@ Column {
                 Menu {
                     id: operation_popup
                     Instantiator {
-                        model: item.operation_types
+                        model: tool.operation_types
                         MenuItem {
-                            text: "Add: " + item.default_name
-                            onTriggered: cut_tool.addOperation(item)
+                            text: "Add: " + operation.default_name
+                            onTriggered: tool.addOperation(operation)
                         }
                         onObjectAdded: operation_popup.insertItem(index, object)
                         onObjectRemoved: operation_popup.removeItem(object)
                     }
                     MenuSeparator {}
                     Instantiator {
-                        model: item.operations
+                        model: tool.operations
                         MenuItem {
-                            text: "Remove: " + item.name
-                            onTriggered: cut_tool.removeOperation(index)
+                            text: "Remove: " + operation.name
+                            onTriggered: tool.removeOperation(index)
                         }
                         onObjectAdded: operation_popup.insertItem(index, object)
                         onObjectRemoved: operation_popup.removeItem(object)
@@ -87,13 +87,13 @@ Column {
                     MenuSeparator {}
                     MenuItem {
                         text: "Remove tool"
-                        onTriggered: cut_tool.delete()
+                        onTriggered: tool.delete()
                     }
                 }
             }
 
             Repeater {
-                model: item
+                model: tool
                 Setting {}
             }
         }
@@ -103,7 +103,7 @@ Column {
         anchors.left: parent.left
         anchors.right: parent.right
         Repeater {
-            model: item.operations
+            model: tool.operations
             OperationItem { x: 50 }
         }
     }

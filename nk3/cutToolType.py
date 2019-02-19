@@ -27,7 +27,7 @@ class CutToolType(QObjectBase):
             SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="1200"),
             SettingType(key="plunge_feedrate", label="Plungerate", type="speed", default="180"),
         ]
-        self.__operations = QObjectList()
+        self.__operations = QObjectList("operation")
         self.__operations.append(CutOutsideOperation())
         self.__operations.append(CutOutsideWithPocketOperation())
         self.__operations.append(CutInsideOperation())

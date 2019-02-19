@@ -92,9 +92,9 @@ class Application(QObject):
 
         self.__move_data = None
 
-        self.__cut_tool_list = QObjectList()
+        self.__cut_tool_list = QObjectList("tool")
 
-        self.__document_list = QObjectList()
+        self.__document_list = QObjectList("node")
         self.__document_list.rowsInserted.connect(lambda parent, first, last: self.__view.home())
 
         self.__dispatcher = Dispatcher(self.__cut_tool_list, self.__document_list)
@@ -132,6 +132,13 @@ class Application(QObject):
         if not self.__qml_engine.rootObjects():
             return -1
         return self.__app.exec_()
+
+    @qtSlot
+    def reloadQML(self) -> None:
+        for window in self.__qml_engine.rootObjects():
+            window.close()
+        self.__qml_engine.clearComponentCache()
+        self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
 
     @qtSlot
     def loadFile(self, filename: QUrl) -> None:

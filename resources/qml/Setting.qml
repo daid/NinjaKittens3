@@ -10,21 +10,21 @@ RowLayout {
         Layout.fillWidth: true
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
-        text: item.type.label
+        text: setting.type.label
     }
 
     TextField {
         Layout.preferredWidth: 75
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
-        text: item.value
-        placeholderText: item.type.default_value
+        text: setting.value
+        placeholderText: setting.type.default_value
         validator: DoubleValidator{}
         Keys.onReleased: {
-            item.value = text
+            setting.value = text
         }
         onEditingFinished: {
-            item.value = text
+            setting.value = text
         }
 
         Text {
@@ -33,7 +33,7 @@ RowLayout {
             anchors.verticalCenter: parent.verticalCenter
 
             color: '#808080'
-            text: item.type.unit
+            text: setting.type.unit
         }
     }
 }

@@ -21,9 +21,9 @@ class CutToolInstance(QObjectList):
     operations = QObjectBaseProperty(QObjectList, None)
 
     def __init__(self, name: str, cut_tool_type: CutToolType) -> None:
-        super().__init__()
+        super().__init__("setting")
         self.name = name
-        self.operations = QObjectList()
+        self.operations = QObjectList("operation")
         self.__type = cut_tool_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
 

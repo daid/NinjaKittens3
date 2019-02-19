@@ -45,7 +45,8 @@ Canvas {
             paintNode(node.get(i), target.children[i + 1].children[0], target)
     }
 
-    onPaint: {
+    onPaint:
+    {
         if (context == null) return;
         context.reset();
         context.strokeStyle = Qt.rgba(0,0,0);

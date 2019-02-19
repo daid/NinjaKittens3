@@ -9,13 +9,14 @@ T = TypeVar('T')
 class QObjectList(QAbstractListModel, metaclass=QObjectBaseMeta):
     RoleItem = Qt.UserRole + 1
 
-    def __init__(self):
+    def __init__(self, entry_name: str) -> None:
         super().__init__()
         self.__entries = []  # type: List[T]
+        self.__entry_name = entry_name.encode("utf-8")
 
     def roleNames(self):  ## Part of QAbstractListModel
         return {
-            self.RoleItem: b"item",
+            self.RoleItem: self.__entry_name,
         }
 
     def rowCount(self, parent):  ## Part of QAbstractListModel

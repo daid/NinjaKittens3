@@ -10,7 +10,7 @@ class DocumentNode(QObjectList):
     color = QObjectBaseProperty(int, 0)
 
     def __init__(self, name):
-        super().__init__()
+        super().__init__("node")
         self.name = name
 
     def getAABB(self) -> Optional[Tuple[complex, complex]]:
