@@ -25,11 +25,11 @@ class Processor:
 
     def __process2d(self) -> pathUtils.TreeNode:
         if self.__job.settings.cut_offset != 0.0:
-            result = pathUtils.union(self.__job.closedPaths)
+            result = self.__job.closedPaths.union()
             if self.__job.openPaths:
                 log.warning("Job has open paths, will be ignored...")
-            return pathUtils.offset(result, self.__job.settings.cut_offset, tree=True)
-        return self.__job.closedPaths
+            return result.offset(self.__job.settings.cut_offset, tree=True)
+        return self.__job.closedPaths.union()
 
     def __process2dTo3d(self, path_tree: pathUtils.TreeNode) -> List[Move]:
         cut_depth_total = self.__job.settings.cut_depth_total
@@ -45,59 +45,51 @@ class Processor:
         depths[-1] = -cut_depth_total
 
         self.__moves.append(Move(None, self.__job.settings.travel_height, self.__job.settings.travel_speed))
-        for node in DepthFirstIterator(path_tree, lambda n: n.children):
-            path = node.contour
+        for paths in DepthFirstIterator(path_tree, lambda n: n.children):
+            path = paths[0]
             max_depth_per_point = [-cut_depth_total] * len(path)
-            if self.__needTabs(node):
+            if self.__needTabs(paths):
                 TabGenerator(self.__job.settings, path, max_depth_per_point)
-            self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
+            f = 0
+            path.addDepthAtDistance(0, 0)
+            path_length = max(path.length(), attack_length)
             for depth in depths:
-                if self.__needPocket(node):
-                    for p in self.__concentricInfill([path] + [n.contour for n in node.children], self.__job.settings.pocket_offset):
-                        # TODO: This assumes we can safely moves to any point in our pocket, which is not always the case.
-                        self.__closedPathToMoves(p, depth)
-                self.__closedPathToMoves(path, depth, max_depth_per_point=max_depth_per_point, attack_length=attack_length)
-            self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.lift_speed))
+                if self.__needPocket(paths):
+                    pass #for p in self.__concentricInfill([path] + [n.contour for n in node.children], self.__job.settings.pocket_offset):
+                    #    # TODO: This assumes we can safely moves to any point in our pocket, which is not always the case.
+                    #    self.__closedPathToMoves(p, depth)
+                path.addDepthAtDistance(depth, f + attack_length)
+                f += path_length
+                path.addDepthAtDistance(depth, f)
+            f += min(path.length(), attack_length)
+            path.addDepthAtDistance(depths[-1], f)
+
+            self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
+            for point, height in path.iterateDepthPoints():
+                self.__moves.append(Move(point, height, self.__job.settings.cut_feedrate))
+            self.__moves.append(Move(self.__moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
         self.__moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
         return self.__moves
 
-    def __needPocket(self, node):
-        if self.__job.settings.pocket_offset > 0.0 and not node.hole:
+    def __needPocket(self, paths):
+        if self.__job.settings.pocket_offset > 0.0 and not paths.is_hole:
             return True
-        if self.__job.settings.pocket_offset < 0.0 and node.hole:
+        if self.__job.settings.pocket_offset < 0.0 and paths.is_hole:
             return True
         return False
 
-    def __needTabs(self, node):
-        if self.__needPocket(node):
+    def __needTabs(self, paths):
+        if self.__needPocket(paths):
             return False
         if self.__job.settings.tab_height <= 0.0 or self.__job.settings.pocket_offset > 0.0:
             return False
-        return len(pathUtils.offset([node.contour], -self.__job.settings.tool_diameter)) > 0
+        for path in paths.offset(-self.__job.settings.tool_diameter):
+            if path.length() > 0:
+                return True
+        return False
 
     def __concentricInfill(self, paths, offset):
         result = pathUtils.offset(paths, -abs(offset))
         if len(result) > 0:
             return self.__concentricInfill(result, offset) + result
         return []
-
-    def __closedPathToMoves(self, path, depth, *, max_depth_per_point=None, attack_length=None):
-        depth_list = [depth] * len(path)
-        if max_depth_per_point:
-            for n in range(len(path)):
-                depth_list[n] = max(depth_list[n], max_depth_per_point[n])
-        if attack_length:
-            path = path.copy()
-            while pathUtils.length(path) < attack_length:
-                path += path
-            pathUtils.insertPoint(attack_length, path, depth_list)
-            f = 0
-            n = 0
-            while f < attack_length:
-                depth_list[n] += self.__job.settings.cut_depth_pass * (attack_length - f) / attack_length
-                n += 1
-                f += abs(path[n % len(path)] - path[n-1])
-        self.__moves.append(Move(path[0], depth_list[0], self.__job.settings.plunge_feedrate))
-        for point, depth_at_point in zip(path, depth_list):
-            self.__moves.append(Move(point, depth_at_point, self.__job.settings.cut_feedrate))
-        self.__moves.append(Move(path[0], depth_list[-1], self.__job.settings.cut_feedrate))

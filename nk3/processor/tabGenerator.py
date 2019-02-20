@@ -9,7 +9,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class TabGenerator:
-    def __init__(self, settings: Settings, path: List[complex], max_depth_per_point: List[float]):
+    def __init__(self, settings: Settings, path: pathUtils.Path, max_depth_per_point: List[float]):
         self.__path = path
         self.__max_depth_per_point = max_depth_per_point
 
@@ -22,13 +22,14 @@ class TabGenerator:
         self.__generate()
 
     def __generate(self) -> None:
-        length = pathUtils.length(self.__path)
+        length = self.__path.length()
         if length < self.__tab_bottom_width * 4:
             return
+
         f = length / 3
-        self.__addTab(f / 2)
-        self.__addTab(f / 2 + f)
-        self.__addTab(f / 2 + f * 2)
+        self.__addTab(f * 0.5)
+        self.__addTab(f * 1.5)
+        self.__addTab(f * 2.5)
 
     def __addTab(self, offset: float) -> None:
         if offset < self.__tab_bottom_width / 2.0:
@@ -39,10 +40,9 @@ class TabGenerator:
         top_start = offset - self.__tab_top_width / 2.0
         top_end = offset + self.__tab_top_width/ 2.0
         pathUtils.insertPoint(bottom_start, self.__path, self.__max_depth_per_point)
-        pathUtils.insertPoint(bottom_start, self.__path, self.__max_depth_per_point)
-        pathUtils.insertPoint(bottom_end, self.__path, self.__max_depth_per_point)
         pathUtils.insertPoint(top_start, self.__path, self.__max_depth_per_point)
         pathUtils.insertPoint(top_end, self.__path, self.__max_depth_per_point)
+        pathUtils.insertPoint(bottom_end, self.__path, self.__max_depth_per_point)
 
         a = 0.0
         p0 = None

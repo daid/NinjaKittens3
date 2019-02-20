@@ -47,6 +47,7 @@ class MainWindow(QQuickWindow):
             self._initialize()
         Application.getInstance().getView().render(self._gl, self.size())
 
+
 class MouseHandler(QQuickItem):
     def __init__(self, parent):
         super().__init__(parent)
@@ -131,6 +132,11 @@ class Application(QObject):
     def start(self):
         if not self.__qml_engine.rootObjects():
             return -1
+
+        self.loadFile(QUrl(r"file:///C:/Software/CNC/NinjaKittens3/test.dxf"))
+        self.__document_list[0].tool_index = 0
+        self.__document_list[0].operation_index = 0
+
         return self.__app.exec_()
 
     @qtSlot

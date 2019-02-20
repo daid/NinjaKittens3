@@ -47,7 +47,7 @@ NK3.MainWindow {
             ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                text: "Reload QML"
+                text: "[Reload QML]"
                 onClicked: {
                     NK3.Application.reloadQML();
                 }

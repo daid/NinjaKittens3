@@ -1,5 +1,5 @@
 import logging
-from typing import List, NamedTuple, Union, Tuple, Optional
+from typing import List, NamedTuple, Tuple, Optional, Iterator
 import pyclipper
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -9,58 +9,116 @@ Move = NamedTuple('Move', [('xy', Optional[complex]), ('z', float), ('speed', fl
 TreeNode = NamedTuple("TreeNode", [("contour", List[complex]), ("children", List["TreeNode"]), ("hole", bool)])
 
 
-def _toClipper(paths: List[List[complex]]) -> List[List[Tuple[float, float]]]:
-    return [[(p.real * 1000.0, p.imag * 1000.0) for p in path] for path in paths]
+class Path:
+    def __init__(self, points: List[complex]) -> None:
+        self.__points = points
+        self.__depth_at_distance = []  # type: List[Tuple[float, float]]
 
+    def addDepthAtDistance(self, depth: float, distance: float) -> None:
+        self.__depth_at_distance.append((distance, depth))
 
-def _fromClipper(paths: List[List[Tuple[float, float]]]) -> List[List[complex]]:
-    return [[complex(p[0] / 1000.0, p[1] / 1000) for p in path] for path in paths]
+    def iterateDepthPoints(self) -> Iterator[Tuple[complex, float]]:
+        self.__depth_at_distance.sort(key=lambda n: (n[0], -n[1]))
+        total_distance = self.__depth_at_distance[-1][0]
 
+        done_distance = 0.0
+        p0 = self.__points[0]
+        point_index = 1
+        depth_index = 0
+        yield (p0, self.__depth_at_distance[depth_index][1])
+        while done_distance < total_distance:
+            p1 = self.__points[(point_index + 1) % len(self.__points)]
+            next_move_distance = done_distance + abs(p1 - p0)
 
-def _fromClipperTree(node: pyclipper.PyPolyNode) -> TreeNode:
-    return TreeNode([complex(p[0] / 1000.0, p[1] / 1000) for p in node.Contour], [_fromClipperTree(n) for n in node.Childs], node.IsHole)
+            next_depth_distance = self.__depth_at_distance[depth_index + 1][0]
 
-
-def length(path: List[complex]) -> float:
-    result = 0.0
-    p0 = path[-1]
-    for p1 in path:
-        result += abs(p0 - p1)
-        p0 = p1
-    return result
-
-
-def union(paths: List[List[complex]]) -> List[List[complex]]:
-    if len(paths) < 1:
-        return []
-    clipper = pyclipper.Pyclipper()
-    clipper.AddPaths(_toClipper(paths), pyclipper.PT_SUBJECT, True)
-    return _fromClipper(clipper.Execute(pyclipper.CT_UNION))
-
-
-def offset(paths: List[List[complex]], amount: float, *, tree=False) -> Union[List[List[complex]], TreeNode]:
-    offset = pyclipper.PyclipperOffset()
-    offset.AddPaths(_toClipper(paths), pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON)
-    if tree:
-        return _fromClipperTree(offset.Execute2(amount * 1000.0))
-    else:
-        return _fromClipper(offset.Execute(amount * 1000.0))
-
-
-def insertPoint(offset_distance: float, path: List[complex], depth: Optional[List[float]]=None):
-    a = 0.0
-    p0 = None
-    while True:
-        for n in range(0, len(path)):
-            p1 = path[n]
-            if p0 is not None:
-                step = abs(p0 - p1)
-                if a + step > offset_distance:
-                    path.insert(n, p0 + (p1 - p0) / step * (offset_distance - a))
-                    if depth is not None:
-                        d0 = depth[n-1]
-                        d1 = depth[n]
-                        depth.insert(n, d0 + (d1 - d0) / step * (offset_distance - a))
-                    return
-                a += step
+            if next_move_distance < next_depth_distance:
+                # Move to the next point in the path.
+                point_index += 1
+                done_distance = next_move_distance
+                d0 = self.__depth_at_distance[depth_index]
+                d1 = self.__depth_at_distance[depth_index + 1]
+                yield (p1, d0[1] + (d1[1] - d0[1]) * (done_distance - d0[0]) / (d1[0] - d0[0]))
+            else:
+                # Move to a depth point in the path.
+                p1 = p0 + (p1 - p0) * (next_depth_distance - done_distance) / (next_move_distance - done_distance)
+                done_distance = next_depth_distance
+                depth_index += 1
+                yield (p1, self.__depth_at_distance[depth_index][1])
+                if depth_index + 1 == len(self.__depth_at_distance):
+                    break
             p0 = p1
+
+    def length(self) -> float:
+        result = 0.0
+        p0 = self.__points[-1]
+        for p1 in self.__points:
+            result += abs(p0 - p1)
+            p0 = p1
+        return result
+
+    def _toClipper(self) -> List[Tuple[float, float]]:
+        return [(p.real * 1000.0, p.imag * 1000.0) for p in self.__points]
+
+    def __len__(self):
+        return len(self.__points)
+
+    def __getitem__(self, item):
+        return self.__points[item]
+
+class Paths:
+    def __init__(self) -> None:
+        self.__paths = []  # type: List[Path]
+        self.__children = []  # type: List[Paths]
+        self.__is_hole = False
+
+    def union(self) -> "Paths":
+        clipper = pyclipper.Pyclipper()
+        clipper.AddPaths(self._toClipper(), pyclipper.PT_SUBJECT, True)
+        return Paths()._fromClipper(clipper.Execute(pyclipper.CT_UNION))
+
+    def offset(self, amount: float, *, tree=False) -> "Paths":
+        offset = pyclipper.PyclipperOffset()
+        offset.AddPaths(self._toClipper(), pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON)
+        if tree:
+            return Paths()._fromClipperTree(offset.Execute2(amount * 1000.0))
+        else:
+            return Paths()._fromClipper(offset.Execute(amount * 1000.0))
+
+    def addPath(self, points: List[complex]) -> None:
+        self.__paths.append(Path(points))
+
+    def _toClipper(self) -> List[List[Tuple[float, float]]]:
+        return [path._toClipper() for path in self.__paths]
+
+    def _fromClipper(self, paths: List[List[Tuple[float, float]]]) -> "Paths":
+        self.__paths.clear()
+        self.__children.clear()
+        for path in paths:
+            self.__paths.append(Path([complex(p[0] / 1000.0, p[1] / 1000) for p in path]))
+        return self
+
+    def _fromClipperTree(self, node: pyclipper.PyPolyNode) -> "Paths":
+        self.__paths.clear()
+        self.__children.clear()
+        self.__is_hole = node.IsHole
+        self.__paths.append(Path([complex(p[0] / 1000.0, p[1] / 1000) for p in node.Contour]))
+        for child in node.Childs:
+            c = Paths()
+            c._fromClipperTree(child)
+            self.__children.append(c)
+        return self
+
+    @property
+    def children(self) -> Iterator:
+        return iter(self.__children)
+
+    @property
+    def isHole(self) -> bool:
+        return self.__is_hole
+
+    def __getitem__(self, item):
+        return self.__paths[item]
+
+    def __iter__(self):
+        return iter(self.__paths)
