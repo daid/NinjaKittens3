@@ -47,9 +47,12 @@ class Processor:
         self.__moves.append(Move(None, self.__job.settings.travel_height, self.__job.settings.travel_speed))
         for paths in DepthFirstIterator(path_tree, lambda n: n.children):
             if self.__needPocket(paths):
+                if not paths.isHole:
+                    for child in paths.children:
+                        paths.combine(child)
+                        child.clear()
                 result = paths.offset(-abs(self.__job.settings.pocket_offset))
-                for n in range(10):
-                    # TODO: This assumes we can safely moves to any point in our pocket, which is not always the case.
+                while len(result) > 0:
                     paths.combine(result)
                     result = result.offset(-abs(self.__job.settings.pocket_offset))
             for path in paths:

@@ -104,6 +104,9 @@ class Paths:
         self.__paths += other.__paths
         self.__children += other.__children
 
+    def clear(self):
+        self.__paths.clear()
+
     def _toClipper(self) -> List[List[Tuple[float, float]]]:
         return [path._toClipper() for path in self.__paths]
 
