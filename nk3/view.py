@@ -56,6 +56,7 @@ class View:
         if isinstance(document, DocumentVectorNode):
             color = document.color
             gl.glColor4ub(color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, 0xFF)
+            gl.glLineWidth(5)
             for path in document.getPaths():
                 if path.closed:
                     gl.glBegin(gl.GL_LINE_LOOP)
@@ -64,6 +65,7 @@ class View:
                 for point in path:
                     gl.glVertex3f(point.real, point.imag, 0)
                 gl.glEnd()
+            gl.glLineWidth(1)
         for node in document:
             self._renderDocument(gl, node)
 

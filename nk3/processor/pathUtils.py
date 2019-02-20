@@ -6,7 +6,6 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 Move = NamedTuple('Move', [('xy', Optional[complex]), ('z', float), ('speed', float)])
-TreeNode = NamedTuple("TreeNode", [("contour", List[complex]), ("children", List["TreeNode"]), ("hole", bool)])
 
 
 class Path:
@@ -16,17 +15,32 @@ class Path:
 
     def addDepthAtDistance(self, depth: float, distance: float) -> None:
         self.__depth_at_distance.append((distance, depth))
+        self.__depth_at_distance.sort(key=lambda n: (n[0], -n[1]))
+
+    def getTotalDepthDistance(self) -> float:
+        return self.__depth_at_distance[-1][0]
+
+    def getDepthAt(self, distance: float) -> float:
+        for idx in range(len(self.__depth_at_distance) - 1):
+            d0 = self.__depth_at_distance[idx]
+            d1 = self.__depth_at_distance[idx + 1]
+            if d0[0] <= distance < d1[0]:
+                return d0[1] + (d1[1] - d0[1]) * (distance - d0[0]) / (d1[0] - d0[0])
+        return self.__depth_at_distance[-1][1]
+
+    def getMaxDepth(self) -> float:
+        value = self.__depth_at_distance[0][1]
+        for distance, depth in self.__depth_at_distance:
+            value = min(value, depth)
+        return value
 
     def iterateDepthPoints(self) -> Iterator[Tuple[complex, float]]:
-        self.__depth_at_distance.sort(key=lambda n: (n[0], -n[1]))
-        total_distance = self.__depth_at_distance[-1][0]
-
         done_distance = 0.0
         p0 = self.__points[0]
         point_index = 1
         depth_index = 0
         yield (p0, self.__depth_at_distance[depth_index][1])
-        while done_distance < total_distance:
+        while depth_index + 1 < len(self.__depth_at_distance):
             p1 = self.__points[(point_index + 1) % len(self.__points)]
             next_move_distance = done_distance + abs(p1 - p0)
 
@@ -45,8 +59,6 @@ class Path:
                 done_distance = next_depth_distance
                 depth_index += 1
                 yield (p1, self.__depth_at_distance[depth_index][1])
-                if depth_index + 1 == len(self.__depth_at_distance):
-                    break
             p0 = p1
 
     def length(self) -> float:

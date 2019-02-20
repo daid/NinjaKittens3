@@ -9,9 +9,8 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class TabGenerator:
-    def __init__(self, settings: Settings, path: pathUtils.Path, max_depth_per_point: List[float]):
+    def __init__(self, settings: Settings, path: pathUtils.Path):
         self.__path = path
-        self.__max_depth_per_point = max_depth_per_point
 
         self.__tab_height = settings.tab_height
         self.__tab_top_width = settings.tool_diameter
@@ -32,31 +31,21 @@ class TabGenerator:
         self.__addTab(f * 2.5)
 
     def __addTab(self, offset: float) -> None:
-        if offset < self.__tab_bottom_width / 2.0:
-            offset += pathUtils.length(self.__path)
+        max_depth = self.__path.getMaxDepth()
+        while offset < self.__path.getTotalDepthDistance():
+            bottom_start = offset - self.__tab_bottom_width / 2.0
+            bottom_end = offset + self.__tab_bottom_width / 2.0
+            top_start = offset - self.__tab_top_width / 2.0
+            top_end = offset + self.__tab_top_width / 2.0
 
-        bottom_start = offset - self.__tab_bottom_width / 2.0
-        bottom_end = offset + self.__tab_bottom_width / 2.0
-        top_start = offset - self.__tab_top_width / 2.0
-        top_end = offset + self.__tab_top_width/ 2.0
-        pathUtils.insertPoint(bottom_start, self.__path, self.__max_depth_per_point)
-        pathUtils.insertPoint(top_start, self.__path, self.__max_depth_per_point)
-        pathUtils.insertPoint(top_end, self.__path, self.__max_depth_per_point)
-        pathUtils.insertPoint(bottom_end, self.__path, self.__max_depth_per_point)
+            self.__addDepth(bottom_start, max_depth)
+            self.__addDepth(bottom_end, max_depth)
+            self.__addDepth(top_start, max_depth + self.__tab_height)
+            self.__addDepth(top_end, max_depth + self.__tab_height)
 
-        a = 0.0
-        p0 = None
-        for repeat in range(2):
-            for n in range(0, len(self.__path)):
-                p1 = self.__path[n]
-                if p0 is not None:
-                    a += abs(p0 - p1)
-                    if bottom_start <= a <= top_start:
-                        self.__max_depth_per_point[n] += self.__tab_height * (a - bottom_start) / (self.__tab_bottom_width - self.__tab_top_width) * 2
-                    elif top_start <= a <= top_end:
-                        self.__max_depth_per_point[n] += self.__tab_height
-                    elif top_end <= a <= bottom_end:
-                        self.__max_depth_per_point[n] += self.__tab_height * -(a - bottom_end) / (self.__tab_bottom_width - self.__tab_top_width) * 2
-                    elif a >= bottom_end:
-                        return
-                p0 = p1
+            offset += self.__path.length()
+
+    def __addDepth(self, offset: float, depth: float):
+        current_depth = self.__path.getDepthAt(offset)
+        depth = max(depth, current_depth)
+        self.__path.addDepthAtDistance(depth, offset)

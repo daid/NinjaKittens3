@@ -23,7 +23,7 @@ class Processor:
         # Convert 2d paths from pyclipper to 3d paths
         return self.__process2dTo3d(path_tree)
 
-    def __process2d(self) -> pathUtils.TreeNode:
+    def __process2d(self) -> pathUtils.Paths:
         if self.__job.settings.cut_offset != 0.0:
             result = self.__job.closedPaths.union()
             if self.__job.openPaths:
@@ -31,7 +31,7 @@ class Processor:
             return result.offset(self.__job.settings.cut_offset, tree=True)
         return self.__job.closedPaths.union()
 
-    def __process2dTo3d(self, path_tree: pathUtils.TreeNode) -> List[Move]:
+    def __process2dTo3d(self, path_tree: pathUtils.Paths) -> List[Move]:
         cut_depth_total = self.__job.settings.cut_depth_total
         cut_depth_pass = self.__job.settings.cut_depth_pass
         if self.__job.settings.attack_angle < 90:
@@ -47,9 +47,6 @@ class Processor:
         self.__moves.append(Move(None, self.__job.settings.travel_height, self.__job.settings.travel_speed))
         for paths in DepthFirstIterator(path_tree, lambda n: n.children):
             path = paths[0]
-            max_depth_per_point = [-cut_depth_total] * len(path)
-            if self.__needTabs(paths):
-                TabGenerator(self.__job.settings, path, max_depth_per_point)
             f = 0
             path.addDepthAtDistance(0, 0)
             path_length = max(path.length(), attack_length)
@@ -63,6 +60,9 @@ class Processor:
                 path.addDepthAtDistance(depth, f)
             f += min(path.length(), attack_length)
             path.addDepthAtDistance(depths[-1], f)
+
+            if self.__needTabs(paths):
+                TabGenerator(self.__job.settings, path)
 
             self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
             for point, height in path.iterateDepthPoints():
