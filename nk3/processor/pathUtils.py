@@ -100,6 +100,10 @@ class Paths:
     def addPath(self, points: List[complex]) -> None:
         self.__paths.append(Path(points))
 
+    def combine(self, other: "Paths") -> None:
+        self.__paths += other.__paths
+        self.__children += other.__children
+
     def _toClipper(self) -> List[List[Tuple[float, float]]]:
         return [path._toClipper() for path in self.__paths]
 
@@ -134,3 +138,6 @@ class Paths:
 
     def __iter__(self):
         return iter(self.__paths)
+
+    def __len__(self):
+        return len(self.__paths)

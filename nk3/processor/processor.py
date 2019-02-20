@@ -46,35 +46,37 @@ class Processor:
 
         self.__moves.append(Move(None, self.__job.settings.travel_height, self.__job.settings.travel_speed))
         for paths in DepthFirstIterator(path_tree, lambda n: n.children):
-            path = paths[0]
-            f = 0
-            path.addDepthAtDistance(0, 0)
-            path_length = max(path.length(), attack_length)
-            for depth in depths:
-                if self.__needPocket(paths):
-                    pass #for p in self.__concentricInfill([path] + [n.contour for n in node.children], self.__job.settings.pocket_offset):
-                    #    # TODO: This assumes we can safely moves to any point in our pocket, which is not always the case.
-                    #    self.__closedPathToMoves(p, depth)
-                path.addDepthAtDistance(depth, f + attack_length)
-                f += path_length
-                path.addDepthAtDistance(depth, f)
-            f += min(path.length(), attack_length)
-            path.addDepthAtDistance(depths[-1], f)
+            if self.__needPocket(paths):
+                result = paths.offset(-abs(self.__job.settings.pocket_offset))
+                for n in range(10):
+                    # TODO: This assumes we can safely moves to any point in our pocket, which is not always the case.
+                    paths.combine(result)
+                    result = result.offset(-abs(self.__job.settings.pocket_offset))
+            for path in paths:
+                f = 0
+                path.addDepthAtDistance(0, 0)
+                path_length = max(path.length(), attack_length)
+                for depth in depths:
+                    path.addDepthAtDistance(depth, f + attack_length)
+                    f += path_length
+                    path.addDepthAtDistance(depth, f)
+                f += min(path.length(), attack_length)
+                path.addDepthAtDistance(depths[-1], f)
 
-            if self.__needTabs(paths):
-                TabGenerator(self.__job.settings, path)
+                if self.__needTabs(paths):
+                    TabGenerator(self.__job.settings, path)
 
-            self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
-            for point, height in path.iterateDepthPoints():
-                self.__moves.append(Move(point, height, self.__job.settings.cut_feedrate))
-            self.__moves.append(Move(self.__moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
+                self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
+                for point, height in path.iterateDepthPoints():
+                    self.__moves.append(Move(point, height, self.__job.settings.cut_feedrate))
+                self.__moves.append(Move(self.__moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
         self.__moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
         return self.__moves
 
-    def __needPocket(self, paths):
-        if self.__job.settings.pocket_offset > 0.0 and not paths.is_hole:
+    def __needPocket(self, paths: pathUtils.Paths):
+        if self.__job.settings.pocket_offset > 0.0 and not paths.isHole:
             return True
-        if self.__job.settings.pocket_offset < 0.0 and paths.is_hole:
+        if self.__job.settings.pocket_offset < 0.0 and paths.isHole:
             return True
         return False
 
@@ -87,9 +89,3 @@ class Processor:
             if path.length() > 0:
                 return True
         return False
-
-    def __concentricInfill(self, paths, offset):
-        result = pathUtils.offset(paths, -abs(offset))
-        if len(result) > 0:
-            return self.__concentricInfill(result, offset) + result
-        return []
