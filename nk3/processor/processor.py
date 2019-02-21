@@ -53,14 +53,19 @@ class Processor:
                     for child in paths.children:
                         paths.combine(child)
                         child.clear()
-                result = paths.offset(-abs(self.__job.settings.pocket_offset))
+                prev = paths
+                result = prev.offset(-abs(self.__job.settings.pocket_offset))
                 while len(result) > 0:
-                    paths.combine(result)
-                    result = result.offset(-abs(self.__job.settings.pocket_offset))
+                    prev.addChild(result)
+                    prev = result
+                    result = prev.offset(-abs(self.__job.settings.pocket_offset))
 
+        for paths in DepthFirstIterator(path_tree, lambda n: n.children):
             for path in paths:
                 if path.length() == 0.0:
                     continue
+                if self.__moves[-1].xy is not None:
+                    path.shiftStartTowards(self.__moves[-1].xy)
 
                 # Add enough cut distance to cut out each depth for the path
                 f = 0

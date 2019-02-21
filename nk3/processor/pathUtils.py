@@ -14,6 +14,18 @@ class Path:
         self.__depth_at_distance = []  # type: List[Tuple[float, float]]
         self.__closed = closed
 
+    def shiftStartTowards(self, point: complex) -> None:
+        if not self.__closed:
+            return
+        assert len(self.__depth_at_distance) == 0
+
+        best_index = None
+        for idx in range(len(self.__points)):
+            if best_index is None or abs(point - self.__points[best_index]) > abs(point - self.__points[idx]):
+                best_index = idx
+        if best_index is not None:
+            self.__points = self.__points[best_index:] + self.__points[:best_index]
+
     def addDepthAtDistance(self, depth: float, distance: float) -> None:
         self.__depth_at_distance.append((distance, depth))
         self.__depth_at_distance.sort(key=lambda n: (n[0], -n[1]))
@@ -41,7 +53,7 @@ class Path:
         if not self.__closed:
             points = points + list(reversed(points[1:-1]))
         p0 = points[0]
-        point_index = 1
+        point_index = 0
         depth_index = 0
         yield (p0, self.__depth_at_distance[depth_index][1])
         while depth_index + 1 < len(self.__depth_at_distance):
@@ -112,6 +124,9 @@ class Paths:
 
     def addPath(self, points: List[complex], closed: bool) -> None:
         self.__paths.append(Path(points, closed))
+
+    def addChild(self, child: "Paths") -> None:
+        self.__children.append(child)
 
     def combine(self, other: "Paths") -> None:
         self.__paths += other.__paths

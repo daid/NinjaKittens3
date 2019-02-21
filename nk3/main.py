@@ -133,10 +133,6 @@ class Application(QObject):
         if not self.__qml_engine.rootObjects():
             return -1
 
-        self.loadFile(QUrl(r"file:///C:/Software/CNC/NinjaKittens3/test.dxf"))
-        self.__document_list[0].tool_index = 0
-        self.__document_list[0].operation_index = 1
-
         return self.__app.exec_()
 
     @qtSlot
