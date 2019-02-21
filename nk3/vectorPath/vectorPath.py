@@ -46,3 +46,6 @@ class VectorPath:
 
     def __iter__(self):
         return iter(self.__points)
+
+    def getPoints(self):
+        return self.__points.copy()

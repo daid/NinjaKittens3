@@ -26,9 +26,9 @@ class Collector:
                 self.__result[collection_index] = Job(operation_instance)
             for path in document.getPaths():
                 if path.closed:
-                    self.__result[collection_index].addClosed(path)
+                    self.__result[collection_index].addClosed(path.getPoints())
                 else:
-                    self.__result[collection_index].addOpen(path)
+                    self.__result[collection_index].addOpen(path.getPoints())
         for child in document:
             self.__collect(child, collection_index)
 

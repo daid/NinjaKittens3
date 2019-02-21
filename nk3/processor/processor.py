@@ -20,16 +20,18 @@ class Processor:
         # Process paths with pyclipper (offsets)
         path_tree = self.__process2d()
         # TODO: Calculate problem areas
-        # Convert 2d paths from pyclipper to 3d paths
+        # TODO: Order the paths
+        # Convert 2d paths to 3d paths
         return self.__process2dTo3d(path_tree)
 
     def __process2d(self) -> pathUtils.Paths:
         if self.__job.settings.cut_offset != 0.0:
             result = self.__job.closedPaths.union()
             if self.__job.openPaths:
-                log.warning("Job has open paths, will be ignored...")
+                log.warning("Job has %d open paths, will be ignored...", len(self.__job.openPaths))
             return result.offset(self.__job.settings.cut_offset, tree=True)
-        return self.__job.closedPaths.union()
+        self.__job.closedPaths.combine(self.__job.openPaths)
+        return self.__job.closedPaths
 
     def __process2dTo3d(self, path_tree: pathUtils.Paths) -> List[Move]:
         cut_depth_total = self.__job.settings.cut_depth_total
@@ -37,7 +39,7 @@ class Processor:
         if self.__job.settings.attack_angle < 90:
             attack_length = cut_depth_pass / math.tan(math.radians(self.__job.settings.attack_angle))
         else:
-            attack_length = None
+            attack_length = 0.0
 
         depths = [-cut_depth_pass]
         while depths[-1] > -cut_depth_total:
@@ -55,15 +57,27 @@ class Processor:
                 while len(result) > 0:
                     paths.combine(result)
                     result = result.offset(-abs(self.__job.settings.pocket_offset))
+
             for path in paths:
+                if path.length() == 0.0:
+                    continue
+
+                # Add enough cut distance to cut out each depth for the path
                 f = 0
                 path.addDepthAtDistance(0, 0)
+                # Note: if the path is shorter then the distance we need to go for the attack, we go the full attack distance for each depth pass.
+                #       this generates a nice downwards spiral on small holes
                 path_length = max(path.length(), attack_length)
                 for depth in depths:
                     path.addDepthAtDistance(depth, f + attack_length)
                     f += path_length
                     path.addDepthAtDistance(depth, f)
-                f += min(path.length(), attack_length)
+
+                # Move a bit extra to cut away the attack length at maximum depth.
+                if path.closed:
+                    f += min(path.length(), attack_length)
+                elif attack_length > 0.0:
+                    f += path.length()
                 path.addDepthAtDistance(depths[-1], f)
 
                 if self.__needTabs(paths):

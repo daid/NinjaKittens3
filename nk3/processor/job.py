@@ -17,10 +17,10 @@ class Job:
         self.__closed_paths = pathUtils.Paths()
 
     def addOpen(self, points: List[complex]) -> None:
-        self.__open_paths.addPath(points)
+        self.__open_paths.addPath(points, False)
 
     def addClosed(self, points: List[complex]) -> None:
-        self.__closed_paths.addPath(points)
+        self.__closed_paths.addPath(points, True)
 
     @property
     def settings(self) -> Settings:

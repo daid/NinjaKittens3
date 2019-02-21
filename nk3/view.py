@@ -2,6 +2,7 @@ import logging
 import math
 
 from nk3.depthFirstIterator import DepthFirstIterator
+from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -108,6 +109,8 @@ class View:
     def home(self):
         combined_aabb = None
         for document in DepthFirstIterator(self.__application.document_list):
+            if not isinstance(document, DocumentNode):
+                continue
             aabb = document.getAABB()
             if aabb is not None:
                 if combined_aabb is None:

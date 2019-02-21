@@ -9,9 +9,10 @@ Move = NamedTuple('Move', [('xy', Optional[complex]), ('z', float), ('speed', fl
 
 
 class Path:
-    def __init__(self, points: List[complex]) -> None:
+    def __init__(self, points: List[complex], closed: bool) -> None:
         self.__points = points
         self.__depth_at_distance = []  # type: List[Tuple[float, float]]
+        self.__closed = closed
 
     def addDepthAtDistance(self, depth: float, distance: float) -> None:
         self.__depth_at_distance.append((distance, depth))
@@ -36,12 +37,15 @@ class Path:
 
     def iterateDepthPoints(self) -> Iterator[Tuple[complex, float]]:
         done_distance = 0.0
-        p0 = self.__points[0]
+        points = self.__points
+        if not self.__closed:
+            points = points + list(reversed(points[1:-1]))
+        p0 = points[0]
         point_index = 1
         depth_index = 0
         yield (p0, self.__depth_at_distance[depth_index][1])
         while depth_index + 1 < len(self.__depth_at_distance):
-            p1 = self.__points[(point_index + 1) % len(self.__points)]
+            p1 = points[(point_index + 1) % len(points)]
             next_move_distance = done_distance + abs(p1 - p0)
 
             next_depth_distance = self.__depth_at_distance[depth_index + 1][0]
@@ -62,8 +66,13 @@ class Path:
             p0 = p1
 
     def length(self) -> float:
+        if len(self.__points) < 1:
+            return 0.0
         result = 0.0
-        p0 = self.__points[-1]
+        if self.__closed:
+            p0 = self.__points[-1]
+        else:
+            p0 = self.__points[0]
         for p1 in self.__points:
             result += abs(p0 - p1)
             p0 = p1
@@ -71,6 +80,10 @@ class Path:
 
     def _toClipper(self) -> List[Tuple[float, float]]:
         return [(p.real * 1000.0, p.imag * 1000.0) for p in self.__points]
+
+    @property
+    def closed(self):
+        return self.__closed
 
     def __len__(self):
         return len(self.__points)
@@ -97,8 +110,8 @@ class Paths:
         else:
             return Paths()._fromClipper(offset.Execute(amount * 1000.0))
 
-    def addPath(self, points: List[complex]) -> None:
-        self.__paths.append(Path(points))
+    def addPath(self, points: List[complex], closed: bool) -> None:
+        self.__paths.append(Path(points, closed))
 
     def combine(self, other: "Paths") -> None:
         self.__paths += other.__paths
@@ -114,14 +127,14 @@ class Paths:
         self.__paths.clear()
         self.__children.clear()
         for path in paths:
-            self.__paths.append(Path([complex(p[0] / 1000.0, p[1] / 1000) for p in path]))
+            self.__paths.append(Path([complex(p[0] / 1000.0, p[1] / 1000) for p in path], True))
         return self
 
     def _fromClipperTree(self, node: pyclipper.PyPolyNode) -> "Paths":
         self.__paths.clear()
         self.__children.clear()
         self.__is_hole = node.IsHole
-        self.__paths.append(Path([complex(p[0] / 1000.0, p[1] / 1000) for p in node.Contour]))
+        self.__paths.append(Path([complex(p[0] / 1000.0, p[1] / 1000) for p in node.Contour], not node.IsOpen))
         for child in node.Childs:
             c = Paths()
             c._fromClipperTree(child)

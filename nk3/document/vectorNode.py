@@ -13,7 +13,7 @@ class DocumentVectorNode(DocumentNode):
         super().__init__(name)
         self.__vector_paths = VectorPaths()
 
-    def getPaths(self):
+    def getPaths(self) -> VectorPaths:
         return self.__vector_paths
 
     def getAABB(self) -> Optional[Tuple[complex, complex]]:
