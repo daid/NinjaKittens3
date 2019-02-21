@@ -103,7 +103,7 @@ class Application(QObject):
 
         Storage().load(self.__cut_tool_list)
         if self.__cut_tool_list.size() == 0:
-            self.createNewTool("?")
+            self.createNewTool("Tool ?")
 
         self.__qml_engine.rootContext().setContextProperty("cut_tool_list", self.__cut_tool_list)
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)

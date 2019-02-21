@@ -14,15 +14,16 @@ log = logging.getLogger(__name__.split(".")[-1])
 class Processor:
     def __init__(self, job: Job) -> None:
         self.__job = job
-        self.__moves = []
 
     def process(self):
         # Process paths with pyclipper (offsets)
         path_tree = self.__process2d()
         # TODO: Calculate problem areas
+        # Generate pockets
+        self.__processPockets(path_tree)
         # TODO: Order the paths
         # Convert 2d paths to 3d paths
-        return self.__process2dTo3d(path_tree)
+        return self.__processToMoves(path_tree)
 
     def __process2d(self) -> pathUtils.Paths:
         if self.__job.settings.cut_offset != 0.0:
@@ -33,20 +34,7 @@ class Processor:
         self.__job.closedPaths.combine(self.__job.openPaths)
         return self.__job.closedPaths
 
-    def __process2dTo3d(self, path_tree: pathUtils.Paths) -> List[Move]:
-        cut_depth_total = self.__job.settings.cut_depth_total
-        cut_depth_pass = self.__job.settings.cut_depth_pass
-        if self.__job.settings.attack_angle < 90:
-            attack_length = cut_depth_pass / math.tan(math.radians(self.__job.settings.attack_angle))
-        else:
-            attack_length = 0.0
-
-        depths = [-cut_depth_pass]
-        while depths[-1] > -cut_depth_total:
-            depths.append(depths[-1] - cut_depth_pass)
-        depths[-1] = -cut_depth_total
-
-        self.__moves.append(Move(None, self.__job.settings.travel_height, self.__job.settings.travel_speed))
+    def __processPockets(self, path_tree: pathUtils.Paths):
         for paths in DepthFirstIterator(path_tree, lambda n: n.children):
             if self.__needPocket(paths):
                 if not paths.isHole:
@@ -60,40 +48,55 @@ class Processor:
                     prev = result
                     result = prev.offset(-abs(self.__job.settings.pocket_offset))
 
+    def __processToMoves(self, path_tree: pathUtils.Paths) -> List[Move]:
+        cut_depth_total = self.__job.settings.cut_depth_total
+        cut_depth_pass = self.__job.settings.cut_depth_pass
+        if self.__job.settings.attack_angle < 90:
+            attack_length = cut_depth_pass / math.tan(math.radians(self.__job.settings.attack_angle))
+        else:
+            attack_length = 0.0
+
+        depths = [-cut_depth_pass]
+        while depths[-1] > -cut_depth_total:
+            depths.append(depths[-1] - cut_depth_pass)
+        depths[-1] = -cut_depth_total
+
+        moves = []
+        moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
         for paths in DepthFirstIterator(path_tree, lambda n: n.children):
             for path in paths:
                 if path.length() == 0.0:
                     continue
-                if self.__moves[-1].xy is not None:
-                    path.shiftStartTowards(self.__moves[-1].xy)
+                if moves[-1].xy is not None:
+                    path.shiftStartTowards(moves[-1].xy)
 
                 # Add enough cut distance to cut out each depth for the path
-                f = 0
+                total_distance = 0
                 path.addDepthAtDistance(0, 0)
                 # Note: if the path is shorter then the distance we need to go for the attack, we go the full attack distance for each depth pass.
                 #       this generates a nice downwards spiral on small holes
-                path_length = max(path.length(), attack_length)
+                depth_pass_distance = max(path.length(), attack_length)
                 for depth in depths:
-                    path.addDepthAtDistance(depth, f + attack_length)
-                    f += path_length
-                    path.addDepthAtDistance(depth, f)
+                    path.addDepthAtDistance(depth, total_distance + attack_length)
+                    total_distance += depth_pass_distance
+                    path.addDepthAtDistance(depth, total_distance)
 
                 # Move a bit extra to cut away the attack length at maximum depth.
                 if path.closed:
-                    f += min(path.length(), attack_length)
+                    total_distance += min(path.length(), attack_length)
                 elif attack_length > 0.0:
-                    f += path.length()
-                path.addDepthAtDistance(depths[-1], f)
+                    total_distance += path.length()
+                path.addDepthAtDistance(depths[-1], total_distance)
 
                 if self.__needTabs(paths):
                     TabGenerator(self.__job.settings, path)
 
-                self.__moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
+                moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
                 for point, height in path.iterateDepthPoints():
-                    self.__moves.append(Move(point, height, self.__job.settings.cut_feedrate))
-                self.__moves.append(Move(self.__moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
-        self.__moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
-        return self.__moves
+                    moves.append(Move(point, height, self.__job.settings.cut_feedrate))
+                moves.append(Move(moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
+        moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
+        return moves
 
     def __needPocket(self, paths: pathUtils.Paths):
         if self.__job.settings.pocket_offset > 0.0 and not paths.isHole:

@@ -1,6 +1,5 @@
 import logging
 import configparser
-import sys
 import os
 import re
 import importlib
@@ -11,11 +10,12 @@ from nk3.jobOperationInstance import JobOperationInstance
 
 log = logging.getLogger(__name__.split(".")[-1])
 
-
 class Storage:
     def __init__(self) -> None:
-        home = os.environ.get("APPDATA", os.environ.get("HOMEPATH", os.environ.get("HOME")))
-        self.__configuration_file = os.path.join(home, "NinjaKittens3", "nk3.conf")
+        config_base_path = os.environ.get("APPDATA", None)
+        if config_base_path is None:
+            config_base_path = os.path.expanduser("~/.config")
+        self.__configuration_file = os.path.join(config_base_path, "NinjaKittens3", "nk3.conf")
 
     def load(self, tools: QObjectList) -> bool:
         cp = configparser.ConfigParser()
