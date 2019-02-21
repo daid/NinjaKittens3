@@ -177,11 +177,3 @@ class Application(QObject):
 
     def _onQuit(self):
         Storage().save(self.__cut_tool_list)
-
-if __name__ == '__main__':
-    os.putenv("QML_DISABLE_DISK_CACHE", "1")
-    logging.basicConfig(format="%(asctime)s:%(levelname)10s:%(name)20s:%(message)s", level=logging.INFO)
-    log.info("Creating application")
-    app = Application()
-    log.info("Starting application")
-    sys.exit(app.start())

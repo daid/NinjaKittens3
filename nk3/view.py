@@ -9,7 +9,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 MYPY = False
 if MYPY:
-    from nk3.main import Application
+    from nk3.application import Application
 
 
 class View:
