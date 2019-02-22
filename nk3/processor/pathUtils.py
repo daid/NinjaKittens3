@@ -8,6 +8,10 @@ log = logging.getLogger(__name__.split(".")[-1])
 Move = NamedTuple('Move', [('xy', Optional[complex]), ('z', float), ('speed', float)])
 
 
+def dot(p0: complex, p1: complex) -> float:
+    return p0.real * p1.real + p0.imag * p1.imag
+
+
 class Path:
     def __init__(self, points: List[complex], closed: bool) -> None:
         self.__points = points
@@ -31,7 +35,26 @@ class Path:
             if best_index is None or abs(point - self.__points[best_index]) > abs(point - self.__points[idx]):
                 best_index = idx
         if best_index is not None:
-            self.__points = self.__points[best_index:] + self.__points[:best_index]
+            p0 = self.__points[best_index - 1]
+            p1 = self.__points[best_index]
+            p2 = self.__points[(best_index + 1) % len(self.__points)]
+            dist0 = abs(p0 - p1)
+            dist2 = abs(p2 - p1)
+            norm0 = (p0 - p1) / dist0
+            norm2 = (p2 - p1) / dist2
+            dot0 = dot(point - p1, norm0)
+            dot2 = dot(point - p1, norm2)
+            dot0 = max(0.0, min(dot0, dist0))
+            dot2 = max(0.0, min(dot2, dist2))
+            q0 = p1 + norm0 * dot0
+            q2 = p1 + norm2 * dot2
+            if abs(q0 - point) > abs(q2 - point):
+                q0 = q2
+                best_index = (best_index + 1) % len(self.__points)
+            if abs(q0 - self.__points[best_index]) == 0.0:
+                self.__points = self.__points[best_index:] + self.__points[:best_index]
+            else:
+                self.__points = [q0] + self.__points[best_index:] + self.__points[:best_index]
 
     def addDepthAtDistance(self, depth: float, distance: float) -> None:
         self.__depth_at_distance.append((distance, depth))
