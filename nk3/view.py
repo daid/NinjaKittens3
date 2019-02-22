@@ -49,8 +49,7 @@ class View:
             gl.glColor4ub(0xFF, 0xFF, 0xFF, 0xFF)
             gl.glBegin(gl.GL_LINE_STRIP)
             for move in move_data:
-                if move.xy is not None:
-                    gl.glVertex3f(move.xy.real, move.xy.imag, move.z)
+                gl.glVertex3f(move.xy.real, move.xy.imag, move.z)
             gl.glEnd()
 
     def _renderDocument(self, gl, document):
@@ -108,9 +107,7 @@ class View:
 
     def home(self):
         combined_aabb = None
-        for document in DepthFirstIterator(self.__application.document_list):
-            if not isinstance(document, DocumentNode):
-                continue
+        for document in DepthFirstIterator(self.__application.document_list, include_root=False):
             aabb = document.getAABB()
             if aabb is not None:
                 if combined_aabb is None:

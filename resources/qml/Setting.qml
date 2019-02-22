@@ -19,7 +19,7 @@ RowLayout {
         verticalAlignment: Text.AlignVCenter
         text: setting.value
         placeholderText: setting.type.default_value
-        validator: DoubleValidator{}
+        validator: RegExpValidator { regExp: /[0-9]*\.?[0-9]*/ }
         Keys.onReleased: {
             setting.value = text
         }

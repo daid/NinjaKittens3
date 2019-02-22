@@ -13,6 +13,13 @@ class Path:
         self.__points = points
         self.__depth_at_distance = []  # type: List[Tuple[float, float]]
         self.__closed = closed
+        self.__tags = set()
+
+    def addTag(self, tag: str) -> None:
+        self.__tags.add(tag)
+
+    def hasTag(self, tag: str) -> bool:
+        return tag in self.__tags
 
     def shiftStartTowards(self, point: complex) -> None:
         if not self.__closed:
@@ -102,6 +109,7 @@ class Path:
 
     def __getitem__(self, item):
         return self.__points[item]
+
 
 class Paths:
     def __init__(self) -> None:

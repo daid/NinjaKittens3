@@ -22,8 +22,9 @@ class Processor:
         # Generate pockets
         self.__processPockets(path_tree)
         # TODO: Order the paths
+        path_list = self.__orderPaths(path_tree)
         # Convert 2d paths to 3d paths
-        return self.__processToMoves(path_tree)
+        return self.__processToMoves(path_list)
 
     def __process2d(self) -> pathUtils.Paths:
         if self.__job.settings.cut_offset != 0.0:
@@ -35,20 +36,32 @@ class Processor:
         return self.__job.closedPaths
 
     def __processPockets(self, path_tree: pathUtils.Paths):
-        for paths in DepthFirstIterator(path_tree, lambda n: n.children):
+        for paths in DepthFirstIterator(path_tree, include_root=False, iter_function=lambda n: n.children):
             if self.__needPocket(paths):
-                if not paths.isHole:
-                    for child in paths.children:
-                        paths.combine(child)
-                        child.clear()
+                # Combine our childs into ourselfs, so the pocket becomes a single Paths group.
+                for child in paths.children:
+                    paths.combine(child)
+                    child.clear()
                 prev = paths
                 result = prev.offset(-abs(self.__job.settings.pocket_offset))
                 while len(result) > 0:
-                    prev.addChild(result)
+                    paths.addChild(result)
                     prev = result
                     result = prev.offset(-abs(self.__job.settings.pocket_offset))
+            elif self.__needTabs(paths):
+                for path in paths:
+                    path.addTag("tabs")
 
-    def __processToMoves(self, path_tree: pathUtils.Paths) -> List[Move]:
+    def __orderPaths(self, path_tree: pathUtils.Paths) -> List[pathUtils.Path]:
+        result = []
+        for paths in DepthFirstIterator(path_tree, iter_function=lambda n: n.children):
+            for path in paths:
+                if path.length() == 0.0:
+                    continue
+                result.append(path)
+        return result
+
+    def __processToMoves(self, path_list: List[pathUtils.Path]) -> List[Move]:
         cut_depth_total = self.__job.settings.cut_depth_total
         cut_depth_pass = self.__job.settings.cut_depth_pass
         if self.__job.settings.attack_angle < 90:
@@ -61,51 +74,47 @@ class Processor:
             depths.append(depths[-1] - cut_depth_pass)
         depths[-1] = -cut_depth_total
 
-        moves = []
-        moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
-        for paths in DepthFirstIterator(path_tree, lambda n: n.children):
-            for path in paths:
-                if path.length() == 0.0:
-                    continue
-                if moves[-1].xy is not None:
-                    path.shiftStartTowards(moves[-1].xy)
+        moves = [Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed)]
+        for path in path_list:
+            if moves[-1].xy is not None:
+                path.shiftStartTowards(moves[-1].xy)
 
-                # Add enough cut distance to cut out each depth for the path
-                total_distance = 0
-                path.addDepthAtDistance(0, 0)
-                # Note: if the path is shorter then the distance we need to go for the attack, we go the full attack distance for each depth pass.
-                #       this generates a nice downwards spiral on small holes
-                depth_pass_distance = max(path.length(), attack_length)
-                for depth in depths:
-                    path.addDepthAtDistance(depth, total_distance + attack_length)
-                    total_distance += depth_pass_distance
-                    path.addDepthAtDistance(depth, total_distance)
+            # Add enough cut distance to cut out each depth for the path
+            total_distance = 0
+            path.addDepthAtDistance(0, 0)
+            # Note: if the path is shorter then the distance we need to go for the attack, we go the full attack distance for each depth pass.
+            #       this generates a nice downwards spiral on small holes
+            depth_pass_distance = max(path.length(), attack_length)
+            for depth in depths:
+                path.addDepthAtDistance(depth, total_distance + attack_length)
+                total_distance += depth_pass_distance
+                path.addDepthAtDistance(depth, total_distance)
 
-                # Move a bit extra to cut away the attack length at maximum depth.
-                if path.closed:
-                    total_distance += min(path.length(), attack_length)
-                elif attack_length > 0.0:
-                    total_distance += path.length()
-                path.addDepthAtDistance(depths[-1], total_distance)
+            # Move a bit extra to cut away the attack length at maximum depth.
+            if path.closed:
+                total_distance += min(path.length(), attack_length)
+            elif attack_length > 0.0:
+                total_distance += path.length()
+            path.addDepthAtDistance(depths[-1], total_distance)
 
-                if self.__needTabs(paths):
-                    TabGenerator(self.__job.settings, path)
+            if path.hasTag("tabs"):
+                TabGenerator(self.__job.settings, path)
 
-                moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
-                for point, height in path.iterateDepthPoints():
-                    moves.append(Move(point, height, self.__job.settings.cut_feedrate))
-                moves.append(Move(moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
+            moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
+            for point, height in path.iterateDepthPoints():
+                moves.append(Move(point, height, self.__job.settings.cut_feedrate))
+            moves.append(Move(moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
         moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
         return moves
 
-    def __needPocket(self, paths: pathUtils.Paths):
+    def __needPocket(self, paths: pathUtils.Paths) -> bool:
         if self.__job.settings.pocket_offset > 0.0 and not paths.isHole:
             return True
         if self.__job.settings.pocket_offset < 0.0 and paths.isHole:
             return True
         return False
 
-    def __needTabs(self, paths):
+    def __needTabs(self, paths: pathUtils.Paths) -> bool:
         if self.__needPocket(paths):
             return False
         if self.__job.settings.tab_height <= 0.0 or self.__job.settings.pocket_offset > 0.0:
