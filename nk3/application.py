@@ -11,7 +11,7 @@ from typing import List
 from nk3.QObjectBase import qtSlot
 from nk3.QObjectList import QObjectList
 from nk3.toolInstance import ToolInstance
-from nk3.toolType import ToolType
+from nk3.cutToolType import CutToolType
 from nk3.jobOperationInstance import JobOperationInstance
 
 from nk3.fileReader.fileReader import FileReader
@@ -171,7 +171,7 @@ class Application(QObject):
 
     @qtSlot
     def createNewTool(self, tool_name: str) -> None:
-        instance = ToolInstance(tool_name, ToolType())
+        instance = ToolInstance(tool_name, CutToolType())
         for operation_type in instance.type.getOperationTypes():
             instance.operations.append(JobOperationInstance(instance, operation_type))
         self.__cut_tool_list.append(instance)
