@@ -5,7 +5,7 @@ import re
 import importlib
 
 from nk3.QObjectList import QObjectList
-from nk3.cutToolInstance import CutToolInstance
+from nk3.toolInstance import ToolInstance
 from nk3.jobOperationInstance import JobOperationInstance
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -24,7 +24,7 @@ class Storage:
         for section in filter(lambda key: re.fullmatch("tool_[0-9]+", key), cp.sections()):
             module_name, _, class_name = cp[section]["type"].rpartition(".")
             type_instance = getattr(importlib.import_module(module_name), class_name)()
-            tool_instance = CutToolInstance(cp[section]["name"], type_instance)
+            tool_instance = ToolInstance(cp[section]["name"], type_instance)
             for setting in tool_instance:
                 if setting.type.key in cp[section]:
                     setting.value = cp[section][setting.type.key]
@@ -45,7 +45,7 @@ class Storage:
     def save(self, tools: QObjectList) -> None:
         cp = configparser.ConfigParser()
         for tool_index, tool in enumerate(tools):
-            assert isinstance(tool, CutToolInstance)
+            assert isinstance(tool, ToolInstance)
             self._addSettingContainer(cp, "tool_%d" % (tool_index), tool)
             for operation_index, operation in enumerate(tool.operations):
                 self._addSettingContainer(cp, "tool_%d_operation_%d" % (tool_index, operation_index), operation)

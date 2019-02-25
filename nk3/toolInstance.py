@@ -10,17 +10,17 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 from typing import Dict
 
-from nk3.cutToolType import CutToolType
+from nk3.toolType import ToolType
 from nk3.QObjectList import QObjectList
 from nk3.QObjectBase import QObjectBaseProperty, qtSlot
 from nk3.settingInstance import SettingInstance
 
 
-class CutToolInstance(QObjectList):
+class ToolInstance(QObjectList):
     name = QObjectBaseProperty(str, "")
     operations = QObjectBaseProperty(QObjectList, None)
 
-    def __init__(self, name: str, cut_tool_type: CutToolType) -> None:
+    def __init__(self, name: str, cut_tool_type: ToolType) -> None:
         super().__init__("setting")
         self.name = name
         self.operations = QObjectList("operation")

@@ -10,13 +10,14 @@ from typing import List
 
 from nk3.QObjectBase import qtSlot
 from nk3.QObjectList import QObjectList
-from nk3.cutToolInstance import CutToolInstance
-from nk3.cutToolType import CutToolType
+from nk3.toolInstance import ToolInstance
+from nk3.toolType import ToolType
 from nk3.jobOperationInstance import JobOperationInstance
 
 from nk3.fileReader.fileReader import FileReader
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.export import Export
+from nk3.processor.pathUtils import Move
 from nk3.view import View
 from nk3.configuration.storage import Storage
 
@@ -26,7 +27,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 class MainWindow(QQuickWindow):
     requestRepaint = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
         self._gl = None
@@ -36,37 +37,37 @@ class MainWindow(QQuickWindow):
         self.beforeRendering.connect(self._render, type=Qt.DirectConnection)
         self.requestRepaint.connect(self.update)
 
-    def _initialize(self):
+    def _initialize(self) -> None:
         profile = QOpenGLVersionProfile()
         profile.setVersion(2, 0)
         self._gl = QOpenGLContext.currentContext().versionFunctions(profile)
         self._gl.initializeOpenGLFunctions()
 
-    def _render(self):
+    def _render(self) -> None:
         if self._gl is None:
             self._initialize()
         Application.getInstance().getView().render(self._gl, self.size())
 
 
 class MouseHandler(QQuickItem):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.setAcceptedMouseButtons(Qt.AllButtons)
         self.__last_pos = None
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event) -> None:
         self.setFocus(True)  # Steal focus from whatever had it, so we unfocus text boxes.
         self.__last_pos = event.pos()
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event) -> None:
         pass
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event) -> None:
         Application.getInstance().getView().yaw += (event.pos().x() - self.__last_pos.x())
         Application.getInstance().getView().pitch += (event.pos().y() - self.__last_pos.y())
         self.__last_pos = event.pos()
 
-    def wheelEvent(self, event):
+    def wheelEvent(self, event) -> None:
         Application.getInstance().getView().zoom *= 1.0 - (event.angleDelta().y() / 120.0) * 0.1
 
 
@@ -77,7 +78,7 @@ class Application(QObject):
     def getInstance(cls, *args) -> "Application":
         return cls._instance
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         assert Application._instance is None
         Application._instance = self
@@ -112,24 +113,24 @@ class Application(QObject):
         self.__app.aboutToQuit.connect(self._onQuit)
 
     @property
-    def document_list(self):
+    def document_list(self) -> QObjectList:
         return self.__document_list
 
     @property
-    def move_data(self):
+    def move_data(self) -> List[Move]:
         return self.__move_data
 
-    def __onMoveData(self, move_data):
+    def __onMoveData(self, move_data) -> None:
         self.__move_data = move_data
         self.repaint()
 
-    def getView(self):
+    def getView(self) -> View:
         return self.__view
 
-    def repaint(self):
+    def repaint(self) -> None:
         self.__qml_engine.rootObjects()[0].requestRepaint.emit()
 
-    def start(self):
+    def start(self) -> int:
         if not self.__qml_engine.rootObjects():
             return -1
 
@@ -170,10 +171,10 @@ class Application(QObject):
 
     @qtSlot
     def createNewTool(self, tool_name: str) -> None:
-        instance = CutToolInstance(tool_name, CutToolType())
+        instance = ToolInstance(tool_name, ToolType())
         for operation_type in instance.type.getOperationTypes():
             instance.operations.append(JobOperationInstance(instance, operation_type))
         self.__cut_tool_list.append(instance)
 
-    def _onQuit(self):
+    def _onQuit(self) -> None:
         Storage().save(self.__cut_tool_list)
