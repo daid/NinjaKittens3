@@ -5,7 +5,7 @@ from nk3.settingType import SettingType
 
 
 class SettingInstance(QObjectBase):
-    value = QObjectBaseProperty(str, "")
+    value = QObjectBaseProperty[str]("")
 
     def __init__(self, setting_type: SettingType):
         super().__init__()

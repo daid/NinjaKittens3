@@ -4,10 +4,10 @@ from typing import Optional, Tuple
 
 
 class DocumentNode(QObjectList):
-    name = QObjectBaseProperty(str, "")
-    tool_index = QObjectBaseProperty(int, -1)
-    operation_index = QObjectBaseProperty(int, -1)
-    color = QObjectBaseProperty(int, 0)
+    name = QObjectBaseProperty[str]("")
+    tool_index = QObjectBaseProperty[int](-1)
+    operation_index = QObjectBaseProperty[int](-1)
+    color = QObjectBaseProperty[int](0)
 
     def __init__(self, name):
         super().__init__("node")

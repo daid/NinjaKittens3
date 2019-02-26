@@ -1,9 +1,19 @@
-from collections import namedtuple
 import inspect
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
-from typing import List
+from typing import List, Generic, TypeVar, Any, Type, Dict
 
-QObjectBaseProperty = namedtuple("QObjectBaseProperty", ["type", "value"])
+T = TypeVar("T")
+
+
+class QObjectBaseProperty(Generic[T]):
+    def __init__(self, default_value):
+        self.default_value = default_value
+
+    def __set__(self, instance, value: T) -> None:
+        pass
+
+    def __get__(self, instance, owner) -> T:
+        pass
 
 
 class QObjectBaseMeta(type(QObject)):
@@ -11,17 +21,17 @@ class QObjectBaseMeta(type(QObject)):
         new_dct = {}
         for k, v in dct.items():
             if isinstance(v, QObjectBaseProperty):
-                mcs.createProperty(new_dct, k, v)
+                mcs.createProperty(new_dct, k, v.__orig_class__.__args__[0], v.default_value)
         dct.update(new_dct)
         return super().__new__(mcs, name, bases, dct)
 
     @staticmethod
-    def createProperty(dct, name, property_data):
+    def createProperty(dct: Dict[str, Any], name: str, property_type: Type[Any], default_value: Any) -> None:
         value_key = "__%s" % (name)
 
         signal = pyqtSignal()
         signal_name = "%sChanged" % (name)
-        @pyqtProperty(property_data.type, notify=signal)
+        @pyqtProperty(property_type, notify=signal)
         def f(self):
             return getattr(self, value_key)
         @f.setter
@@ -29,7 +39,7 @@ class QObjectBaseMeta(type(QObject)):
             setattr(self, value_key, value)
             getattr(self, signal_name).emit()
 
-        dct[value_key] = property_data.value
+        dct[value_key] = default_value
         dct[name] = f
         dct[signal_name] = signal
 

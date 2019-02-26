@@ -8,7 +8,7 @@ from nk3.settingInstance import SettingInstance
 
 
 class JobOperationInstance(QObjectList):
-    name = QObjectBaseProperty(str, "")
+    name = QObjectBaseProperty[str]("")
 
     def __init__(self, tool_instance: "ToolInstance", job_operation_type: JobOperationType) -> None:
         super().__init__("setting")
