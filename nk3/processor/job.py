@@ -1,8 +1,8 @@
 import logging
 
-from typing import List, Tuple
+from typing import List
 
-from nk3.jobOperationInstance import JobOperationInstance
+from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 from nk3.processor import pathUtils
 from nk3.processor.settings import Settings
 

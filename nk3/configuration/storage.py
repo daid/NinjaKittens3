@@ -5,8 +5,8 @@ import re
 import importlib
 
 from nk3.QObjectList import QObjectList
-from nk3.toolInstance import ToolInstance
-from nk3.jobOperationInstance import JobOperationInstance
+from nk3.machine.tool.toolInstance import ToolInstance
+from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -22,16 +22,18 @@ class Storage:
         if not cp.read(self.__configuration_file):
             return False
         for section in filter(lambda key: re.fullmatch("tool_[0-9]+", key), cp.sections()):
-            module_name, _, class_name = cp[section]["type"].rpartition(".")
-            type_instance = getattr(importlib.import_module(module_name), class_name)()
+            type_instance = self.__getInstance(cp[section]["type"])
+            if type_instance is None:
+                continue
             tool_instance = ToolInstance(cp[section]["name"], type_instance)
             for setting in tool_instance:
                 if setting.type.key in cp[section]:
                     setting.value = cp[section][setting.type.key]
             
             for sub_section in filter(lambda key: re.fullmatch("%s_operation_[0-9]+" % (section), key), cp.sections()):
-                module_name, _, class_name = cp[sub_section]["type"].rpartition(".")
-                type_instance = getattr(importlib.import_module(module_name), class_name)()
+                type_instance = self.__getInstance(cp[sub_section]["type"])
+                if type_instance is None:
+                    continue
                 operation_instance = JobOperationInstance(tool_instance, type_instance)
                 operation_instance.name = cp[sub_section]["name"]
                 for setting in operation_instance:
@@ -41,6 +43,19 @@ class Storage:
                 tool_instance.operations.append(operation_instance)
             tools.append(tool_instance)
         return True
+
+    @staticmethod
+    def __getInstance(full_class_name: str):
+        module_name, _, class_name = full_class_name.rpartition(".")
+        try:
+            type_instance = getattr(importlib.import_module(module_name), class_name)()
+        except ModuleNotFoundError:
+            log.warning("Failed to find module: %s", module_name)
+            return None
+        except AttributeError:
+            log.warning("Failed to find %s in module %s", class_name, module_name)
+            return None
+        return type_instance
 
     def save(self, tools: QObjectList) -> None:
         cp = configparser.ConfigParser()

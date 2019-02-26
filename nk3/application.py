@@ -3,16 +3,16 @@ import logging
 import os
 
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject
-from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QMouseEvent
+from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
 from typing import List
 
 from nk3.QObjectBase import qtSlot
 from nk3.QObjectList import QObjectList
-from nk3.toolInstance import ToolInstance
-from nk3.cutToolType import CutToolType
-from nk3.jobOperationInstance import JobOperationInstance
+from nk3.machine.tool.toolInstance import ToolInstance
+from nk3.machine.tool.cutToolType import CutToolType
+from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 
 from nk3.fileReader.fileReader import FileReader
 from nk3.processor.dispatcher import Dispatcher

@@ -1,17 +1,17 @@
 import logging
 
-from typing import Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from nk3.toolType import ToolType
-from nk3.jobOperations.cutCenter import CutCenterOperation
-from nk3.jobOperations.cutInside import CutInsideOperation
-from nk3.jobOperations.cutOutside import CutOutsideOperation
-from nk3.jobOperations.cutOutsideWithPocket import CutOutsideWithPocketOperation
-from nk3.jobOperations.cutPocket import CutPocketOperation
+from nk3.machine.tool.toolType import ToolType
+from nk3.machine.operation.router.cutCenter import CutCenterOperation
+from nk3.machine.operation.router.cutInside import CutInsideOperation
+from nk3.machine.operation.router.cutOutside import CutOutsideOperation
+from nk3.machine.operation.router.cutOutsideWithPocket import CutOutsideWithPocketOperation
+from nk3.machine.operation.router.cutPocket import CutPocketOperation
 from nk3.processor.settings import Settings
 from nk3.settingType import SettingType
 if TYPE_CHECKING:
-    from nk3.toolInstance import ToolInstance
+    from nk3.machine.tool.toolInstance import ToolInstance
 
 log = logging.getLogger(__name__.split(".")[-1])
 

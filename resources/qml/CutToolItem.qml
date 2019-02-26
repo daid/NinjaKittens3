@@ -68,8 +68,8 @@ Column {
                     Instantiator {
                         model: tool.operation_types
                         MenuItem {
-                            text: "Add: " + operation.default_name
-                            onTriggered: tool.addOperation(operation)
+                            text: "Add: " + operation_type.default_name
+                            onTriggered: tool.addOperation(operation_type)
                         }
                         onObjectAdded: operation_popup.insertItem(index, object)
                         onObjectRemoved: operation_popup.removeItem(object)
