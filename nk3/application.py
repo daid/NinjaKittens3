@@ -133,7 +133,6 @@ class Application(QObject):
     def start(self) -> int:
         if not self.__qml_engine.rootObjects():
             return -1
-
         return self.__app.exec_()
 
     @qtSlot

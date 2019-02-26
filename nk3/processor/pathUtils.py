@@ -56,6 +56,24 @@ class Path:
             else:
                 self.__points = [q0] + self.__points[best_index:] + self.__points[:best_index]
 
+    def scoreCornering(self, start_offset, end_offset):
+        p0 = self.__points[0]
+        p1 = self.__points[0]
+        offset = 0.0
+        idx = 0
+        corner_dot_values = []
+        while offset < end_offset:
+            p2 = self.__points[idx]
+            idx = (idx + 1) % len(self.__points)
+            offset += abs(p1 - p0)
+            if start_offset < offset < end_offset and p0 != p1 and p1 != p2:
+                norm0 = (p1 - p0) / abs(p1 - p0)
+                norm2 = (p1 - p2) / abs(p1 - p2)
+                corner_dot_values.append(1.0 + dot(norm0, norm2))
+            p0 = p1
+            p1 = p2
+        return sum(corner_dot_values)
+
     def addDepthAtDistance(self, depth: float, distance: float) -> None:
         self.__depth_at_distance.append((distance, depth))
         self.__depth_at_distance.sort(key=lambda n: (n[0], -n[1]))

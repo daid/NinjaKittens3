@@ -6,6 +6,9 @@ from nk3.document.node import DocumentNode
 import importlib
 import pkgutil
 import os
+import logging
+
+log = logging.getLogger(__name__.split(".")[-1])
 
 
 class FileReader(ABC):
