@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__.split(".")[-1])
 
 
-## The CutTool defines which settings are available for cutting tools
-class CutToolType(ToolType):
+## The RouterTool defines which settings are available for CNC router cutting tools
+class RouterToolType(ToolType):
     def __init__(self) -> None:
         super().__init__([
             SettingType(key="tool_diameter", label="Endmill diameter", type="dimension", default="6.0"),
