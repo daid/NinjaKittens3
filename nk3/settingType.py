@@ -29,6 +29,8 @@ class SettingType(QObject):
     def unit(self):
         if self.__type == "dimension":
             return "mm"
+        if self.__type == "angle":
+            return "deg"
         if self.__type == "speed":
             return "mm/min"
         if self.__type == "percentage":

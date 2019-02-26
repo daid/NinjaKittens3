@@ -12,7 +12,7 @@ class Settings:
         self.cut_feedrate = 600.0
         self.plunge_feedrate = 60
 
-        self.attack_angle = 15
+        self.attack_angle = 0.0
 
         self.travel_height = 5.0
         self.travel_speed = 1200

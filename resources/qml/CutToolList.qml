@@ -7,7 +7,7 @@ import NK3 1.0 as NK3
 Column {
     spacing: 1
     Repeater {
-        model: cut_tool_list
+        model: NK3.Application.active_machine.tools
         CutToolItem {
         }
     }

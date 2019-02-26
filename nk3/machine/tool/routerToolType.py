@@ -24,7 +24,7 @@ class RouterToolType(ToolType):
             SettingType(key="cut_depth_pass", label="Cut depth per pass", type="dimension", default="1.0"),
             SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="1200"),
             SettingType(key="plunge_feedrate", label="Plungerate", type="speed", default="180"),
-        ],[
+        ], [
             CutOutsideOperation(),
             CutOutsideWithPocketOperation(),
             CutInsideOperation(),

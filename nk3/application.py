@@ -1,15 +1,18 @@
+import PyQt5
 import sys
 import logging
 import os
 
-from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject
-from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile
+from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint
+from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QAbstractOpenGLFunctions, QMouseEvent, QWheelEvent
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
-from typing import List
+from typing import List, Optional, Any
 
-from nk3.QObjectBase import qtSlot
+from nk3.QObjectBase import qtSlot, QObjectBase, QObjectBaseProperty
 from nk3.QObjectList import QObjectList
+from nk3.machine.machineInstance import MachineInstance
+from nk3.machine.routerMachineType import RouterMachineType
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.tool.routerToolType import RouterToolType
 from nk3.machine.operation.jobOperationInstance import JobOperationInstance
@@ -27,10 +30,10 @@ log = logging.getLogger(__name__.split(".")[-1])
 class MainWindow(QQuickWindow):
     requestRepaint = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject=None) -> None:
         super().__init__(parent)
 
-        self._gl = None
+        self._gl = None  # type: Optional[QAbstractOpenGLFunctions]
         self._gl_context = None
 
         self.setClearBeforeRendering(False)
@@ -50,32 +53,36 @@ class MainWindow(QQuickWindow):
 
 
 class MouseHandler(QQuickItem):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QObject) -> None:
         super().__init__(parent)
         self.setAcceptedMouseButtons(Qt.AllButtons)
-        self.__last_pos = None
+        self.__last_pos = None  # type: Optional[QPoint]
 
-    def mousePressEvent(self, event) -> None:
+    def mousePressEvent(self, event: QMouseEvent) -> None:
         self.setFocus(True)  # Steal focus from whatever had it, so we unfocus text boxes.
         self.__last_pos = event.pos()
 
-    def mouseReleaseEvent(self, event) -> None:
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         pass
 
-    def mouseMoveEvent(self, event) -> None:
-        Application.getInstance().getView().yaw += (event.pos().x() - self.__last_pos.x())
-        Application.getInstance().getView().pitch += (event.pos().y() - self.__last_pos.y())
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if self.__last_pos is not None:
+            Application.getInstance().getView().yaw += (event.pos().x() - self.__last_pos.x())
+            Application.getInstance().getView().pitch += (event.pos().y() - self.__last_pos.y())
         self.__last_pos = event.pos()
 
-    def wheelEvent(self, event) -> None:
+    def wheelEvent(self, event: QWheelEvent) -> None:
         Application.getInstance().getView().zoom *= 1.0 - (event.angleDelta().y() / 120.0) * 0.1
 
 
-class Application(QObject):
-    _instance = None
+class Application(QObjectBase):
+    _instance = None  # type: Optional["Application"]
+
+    active_machine = QObjectBaseProperty(MachineInstance, None)
 
     @classmethod
-    def getInstance(cls, *args) -> "Application":
+    def getInstance(cls, *args: Any) -> "Application":
+        assert cls._instance is not None
         return cls._instance
 
     def __init__(self) -> None:
@@ -92,21 +99,20 @@ class Application(QObject):
         qmlRegisterType(MouseHandler, "NK3", 1, 0, "MouseHandler")
         qmlRegisterSingletonType(Application, "NK3", 1, 0, "Application", Application.getInstance)
 
-        self.__move_data = None
+        self.__move_data = []  # type: List[Move]
 
-        self.__cut_tool_list = QObjectList("tool")
+        self.active_machine = MachineInstance("machine", RouterMachineType())
 
         self.__document_list = QObjectList("node")
         self.__document_list.rowsInserted.connect(lambda parent, first, last: self.__view.home())
 
-        self.__dispatcher = Dispatcher(self.__cut_tool_list, self.__document_list)
+        self.__dispatcher = Dispatcher(self.active_machine, self.__document_list)
         self.__dispatcher.onMoveData = self.__onMoveData
 
-        Storage().load(self.__cut_tool_list)
-        if self.__cut_tool_list.size() == 0:
+        Storage().load(self.active_machine)
+        if self.active_machine.tools.size() == 0:
             self.createNewTool("Tool ?")
 
-        self.__qml_engine.rootContext().setContextProperty("cut_tool_list", self.__cut_tool_list)
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)
         self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
 
@@ -120,7 +126,7 @@ class Application(QObject):
     def move_data(self) -> List[Move]:
         return self.__move_data
 
-    def __onMoveData(self, move_data) -> None:
+    def __onMoveData(self, move_data: List[Move]) -> None:
         self.__move_data = move_data
         self.repaint()
 
@@ -170,10 +176,10 @@ class Application(QObject):
 
     @qtSlot
     def createNewTool(self, tool_name: str) -> None:
-        instance = ToolInstance(tool_name, RouterToolType())
+        instance = ToolInstance(tool_name, self.active_machine, RouterToolType())
         for operation_type in instance.type.getOperationTypes():
             instance.operations.append(JobOperationInstance(instance, operation_type))
-        self.__cut_tool_list.append(instance)
+        self.active_machine.tools.append(instance)
 
     def _onQuit(self) -> None:
-        Storage().save(self.__cut_tool_list)
+        Storage().save(self.active_machine)

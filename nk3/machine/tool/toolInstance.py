@@ -2,6 +2,7 @@ import logging
 
 from PyQt5.QtCore import pyqtProperty
 
+from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 from nk3.machine.operation.jobOperationType import JobOperationType
 from nk3.processor.settings import Settings
@@ -20,10 +21,11 @@ class ToolInstance(QObjectList):
     name = QObjectBaseProperty(str, "")
     operations = QObjectBaseProperty(QObjectList, None)
 
-    def __init__(self, name: str, cut_tool_type: ToolType) -> None:
+    def __init__(self, name: str, machine: MachineInstance, cut_tool_type: ToolType) -> None:
         super().__init__("setting")
         self.name = name
         self.operations = QObjectList("operation")
+        self.__machine = machine
         self.__type = cut_tool_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
 
@@ -58,6 +60,7 @@ class ToolInstance(QObjectList):
         return self.__type.getOperationTypes()
 
     def fillProcessorSettings(self, settings: Settings) -> None:
+        self.__machine.fillProcessorSettings(settings)
         self.__type.fillProcessorSettings(self, settings)
 
     def getSettingValue(self, key: str) -> str:

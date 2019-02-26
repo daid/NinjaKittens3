@@ -1,9 +1,20 @@
 from collections import namedtuple
 import inspect
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
-from typing import List
+from typing import List, Any, TYPE_CHECKING
 
-QObjectBaseProperty = namedtuple("QObjectBaseProperty", ["type", "value"])
+if TYPE_CHECKING:
+    class QObjectBaseProperty:
+        def __init__(self, type, value):
+            pass
+
+        def __set__(self, instance, value: Any) -> None:
+            pass
+
+        def __get__(self, instance, owner) -> Any:
+            pass
+else:
+    QObjectBaseProperty = namedtuple("QObjectBaseProperty", ["type", "value"])
 
 
 class QObjectBaseMeta(type(QObject)):

@@ -5,10 +5,12 @@ import re
 import importlib
 
 from nk3.QObjectList import QObjectList
+from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 
 log = logging.getLogger(__name__.split(".")[-1])
+
 
 class Storage:
     def __init__(self) -> None:
@@ -17,7 +19,7 @@ class Storage:
             config_base_path = os.path.expanduser("~/.config")
         self.__configuration_file = os.path.join(config_base_path, "NinjaKittens3", "nk3.conf")
 
-    def load(self, tools: QObjectList) -> bool:
+    def load(self, machine: MachineInstance) -> bool:
         cp = configparser.ConfigParser()
         if not cp.read(self.__configuration_file):
             return False
@@ -25,7 +27,7 @@ class Storage:
             type_instance = self.__getInstance(cp[section]["type"])
             if type_instance is None:
                 continue
-            tool_instance = ToolInstance(cp[section]["name"], type_instance)
+            tool_instance = ToolInstance(cp[section]["name"], machine, type_instance)
             for setting in tool_instance:
                 if setting.type.key in cp[section]:
                     setting.value = cp[section][setting.type.key]
@@ -41,7 +43,7 @@ class Storage:
                         setting.value = cp[sub_section][setting.type.key]
 
                 tool_instance.operations.append(operation_instance)
-            tools.append(tool_instance)
+            machine.tools.append(tool_instance)
         return True
 
     @staticmethod
@@ -57,9 +59,9 @@ class Storage:
             return None
         return type_instance
 
-    def save(self, tools: QObjectList) -> None:
+    def save(self, machine: MachineInstance) -> None:
         cp = configparser.ConfigParser()
-        for tool_index, tool in enumerate(tools):
+        for tool_index, tool in enumerate(machine.tools):
             assert isinstance(tool, ToolInstance)
             self._addSettingContainer(cp, "tool_%d" % (tool_index), tool)
             for operation_index, operation in enumerate(tool.operations):
