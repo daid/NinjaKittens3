@@ -18,8 +18,8 @@ from nk3.settingInstance import SettingInstance
 
 
 class ToolInstance(QObjectList):
-    name = QObjectBaseProperty(str, "")
-    operations = QObjectBaseProperty(QObjectList, None)
+    name = QObjectBaseProperty[str]("")
+    operations = QObjectBaseProperty[QObjectList](None)
 
     def __init__(self, name: str, machine: MachineInstance, cut_tool_type: ToolType) -> None:
         super().__init__("setting")

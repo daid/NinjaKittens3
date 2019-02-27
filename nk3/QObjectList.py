@@ -1,12 +1,12 @@
 from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, pyqtProperty, pyqtSlot, QObject
-from typing import List, TypeVar
+from typing import List, TypeVar, Generic
 
 from nk3.QObjectBase import QObjectBaseMeta, qtSlot
 
 T = TypeVar('T')
 
 
-class QObjectList(QAbstractListModel, metaclass=QObjectBaseMeta):
+class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
     RoleItem = Qt.UserRole + 1
 
     def __init__(self, entry_name: str) -> None:

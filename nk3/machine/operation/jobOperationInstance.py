@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class JobOperationInstance(QObjectList):
-    name = QObjectBaseProperty(str, "")
+    name = QObjectBaseProperty[str]("")
 
     def __init__(self, tool_instance: "ToolInstance", job_operation_type: JobOperationType) -> None:
         super().__init__("setting")
