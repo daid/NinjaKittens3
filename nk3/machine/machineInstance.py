@@ -16,7 +16,7 @@ from nk3.QObjectBase import QObjectBaseProperty, qtSlot
 from nk3.settingInstance import SettingInstance
 
 
-class MachineInstance(QObjectList):
+class MachineInstance(QObjectList[SettingInstance]):
     name = QObjectBaseProperty[str]("")
     tools = QObjectBaseProperty[QObjectList](None)
 
@@ -50,11 +50,11 @@ class MachineInstance(QObjectList):
                 return
 
     @property
-    def type(self):
+    def type(self) -> MachineType:
         return self.__type
 
     @pyqtProperty(QObjectList, constant=True)
-    def tool_types(self):
+    def tool_types(self) -> QObjectList[ToolType]:
         return self.__type.getToolTypes()
 
     def fillProcessorSettings(self, settings: Settings) -> None:

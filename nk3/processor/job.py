@@ -10,7 +10,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Job:
-    def __init__(self, operation: JobOperationInstance):
+    def __init__(self, operation: JobOperationInstance) -> None:
         self.__settings = Settings()
         operation.fillProcessorSettings(self.__settings)
         self.__open_paths = pathUtils.Paths()
@@ -27,9 +27,9 @@ class Job:
         return self.__settings
 
     @property
-    def closedPaths(self):
+    def closedPaths(self) -> pathUtils.Paths:
         return self.__closed_paths
 
     @property
-    def openPaths(self):
+    def openPaths(self) -> pathUtils.Paths:
         return self.__open_paths

@@ -53,11 +53,11 @@ class ToolInstance(QObjectList):
                 return
 
     @property
-    def type(self):
+    def type(self) -> ToolType:
         return self.__type
 
     @pyqtProperty(QObjectList, constant=True)
-    def operation_types(self):
+    def operation_types(self) -> QObjectList[JobOperationType]:
         return self.__type.getOperationTypes()
 
     def fillProcessorSettings(self, settings: Settings) -> None:

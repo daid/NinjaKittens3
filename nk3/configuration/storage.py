@@ -3,11 +3,13 @@ import configparser
 import os
 import re
 import importlib
+from typing import Any
 
 from nk3.QObjectList import QObjectList
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.operation.jobOperationInstance import JobOperationInstance
+from nk3.settingInstance import SettingInstance
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -47,7 +49,7 @@ class Storage:
         return True
 
     @staticmethod
-    def __getInstance(full_class_name: str):
+    def __getInstance(full_class_name: str) -> Any:
         module_name, _, class_name = full_class_name.rpartition(".")
         try:
             type_instance = getattr(importlib.import_module(module_name), class_name)()
@@ -71,7 +73,7 @@ class Storage:
         cp.write(open(self.__configuration_file, "wt"))
 
     @staticmethod
-    def _addSettingContainer(cp: configparser.ConfigParser, section: str, setting_container) -> None:
+    def _addSettingContainer(cp: configparser.ConfigParser, section: str, setting_container: QObjectList[SettingInstance]) -> None:
         cp.add_section(section)
         cp.set(section, "name", setting_container.name)
         cp.set(section, "type", "%s.%s" % (type(setting_container.type).__module__, type(setting_container.type).__name__))
