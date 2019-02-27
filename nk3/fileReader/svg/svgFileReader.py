@@ -2,7 +2,7 @@ import logging
 import re
 import math
 
-from typing import Iterator
+from typing import Iterable, Optional
 from xml.etree import ElementTree
 
 from nk3.document.node import DocumentNode
@@ -15,12 +15,12 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 class SVGFileReader(FileReader):
     @staticmethod
-    def getExtensions() -> Iterator[str]:
+    def getExtensions() -> Iterable[str]:
         return "svg",
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.__xml = None
+        self.__xml = None  # type: Optional[ElementTree.ElementTree]
         dpi = 90
         self.__transform_stack = [ComplexTransform.scale(complex(25.4/dpi, -25.4/dpi))]
 
@@ -32,7 +32,7 @@ class SVGFileReader(FileReader):
         root_node.getPaths().stitch()
         return root_node
 
-    def __processGTag(self, tag, node):
+    def __processGTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         for child in tag:
             if child.get("transform"):
                 self.__pushTransform(child.get("transform"))
@@ -60,14 +60,14 @@ class SVGFileReader(FileReader):
             if child.get("transform"):
                 self.__transform_stack.pop()
 
-    def __processLineTag(self, tag, node):
+    def __processLineTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         x1 = float(tag.get('x1', 0))
         y1 = float(tag.get('y1', 0))
         x2 = float(tag.get('x2', 0))
         y2 = float(tag.get('y2', 0))
         node.getPaths().addLine(complex(x1, y1), complex(x2, y2))
 
-    def __processPolylineTag(self, tag, node):
+    def __processPolylineTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
         values = list(map(float, re.split('[, \t]+', tag.get('points', '').strip())))
         p0 = complex(values[0], values[1])
@@ -76,7 +76,7 @@ class SVGFileReader(FileReader):
             paths.addLine(p0, p1)
             p0 = p1
 
-    def __processPolygonTag(self, tag, node):
+    def __processPolygonTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
         values = list(map(float, re.split('[, \t]+', tag.get('points', '').strip())))
         start = p0 = complex(values[0], values[1])
@@ -86,14 +86,14 @@ class SVGFileReader(FileReader):
             p0 = p1
         paths.addLine(p0, start)
 
-    def __processCircleTag(self, tag, node):
+    def __processCircleTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         cx = float(tag.get('cx', '0'))
         cy = float(tag.get('cy', '0'))
         r = float(tag.get('r', '0'))
         paths = node.getPaths()
         paths.addCircle(complex(cx, cy), r)
 
-    def __processEllipseTag(self, tag, node):
+    def __processEllipseTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         cx = float(tag.get('cx', '0'))
         cy = float(tag.get('cy', '0'))
         rx = float(tag.get('rx', '0'))
@@ -101,7 +101,7 @@ class SVGFileReader(FileReader):
         paths = node.getPaths()
         paths.addArcByAngle(complex(cx, cy), complex(rx, ry), 0, 360)
 
-    def __processRectTag(self, tag, node):
+    def __processRectTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
         x = float(tag.get("x", 0))
         y = float(tag.get("y", 0))
@@ -110,15 +110,15 @@ class SVGFileReader(FileReader):
 
         if w <= 0 or h <= 0:
             return
-        rx = tag.get('rx')
-        ry = tag.get('ry')
-        if rx is not None or ry is not None:
-            if ry is None:
-                ry = rx
-            elif rx is None:
-                rx = ry
-            rx = float(rx)
-            ry = float(ry)
+        rx_str = tag.get('rx')
+        ry_str = tag.get('ry')
+        if rx_str is not None or ry_str is not None:
+            if ry_str is None:
+                ry_str = rx_str
+            elif rx_str is None:
+                rx_str = ry_str
+            rx = float(rx_str)
+            ry = float(ry_str)
             if rx > w / 2:
                 rx = w / 2
             if ry > h / 2:
@@ -143,7 +143,7 @@ class SVGFileReader(FileReader):
             paths.addLine(complex(x, y+h), complex(x, y))
             paths.addLine(complex(x, y), complex(x+w, y))
 
-    def __processPathTag(self, tag, node):
+    def __processPathTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
         path_string = tag.get("d", "").replace(",", " ")
         start = None
@@ -280,8 +280,8 @@ class SVGFileReader(FileReader):
     def __pushTransform(self, transform: str) -> None:
         t = ComplexTransform()
         for match in re.finditer("([a-z]+)\\(([^\\)]*)\\)", transform.lower()):
-            func, params = match.groups()
-            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?", params)))
+            func, params_str = match.groups()
+            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?", params_str)))
             if func == "translate" and len(params) > 1:
                 t = ComplexTransform.translate(complex(params[0], params[1])).combine(t)
             elif func == "rotate" and len(params) == 1:

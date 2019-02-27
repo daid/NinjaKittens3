@@ -1,3 +1,4 @@
+from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 from nk3.machine.operation.jobOperationType import JobOperationType
 from nk3.processor.settings import Settings
 from nk3.settingType import SettingType
@@ -7,7 +8,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class CutPocketOperation(JobOperationType):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Pocket", [
             SettingType(key="cut_depth_total", label="Cut depth", type="dimension", default="6.0"),
             SettingType(key="pocket_overlap", label="Pocket overlap", type="percentage", default="50"),

@@ -1,4 +1,7 @@
 import logging
+
+from nk3.fileReader.dxf.node.container import DxfContainerNode
+from nk3.fileReader.dxf.node.node import DxfNode
 from .dxfConst import group_type
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -10,15 +13,14 @@ class DXFParser:
         #       However, I fail to find an real-life example of this.
         self.__file = open(filename, "rt")
 
-    def parse(self, root_entity):
-        current_entity = root_entity
+    def parse(self, root_entity: DxfContainerNode) -> None:
+        current_entity = root_entity  # type: DxfNode
         while True:
-            group_code = self.__file.readline().strip()
-            if group_code == "":
+            group_code_str = self.__file.readline().strip()
+            if group_code_str == "":
                 self.__file.close()
-                self.__file = None
                 return
-            group_code = int(group_code)
+            group_code = int(group_code_str)
             value = self.__file.readline().strip()
             if group_code in group_type:
                 try:

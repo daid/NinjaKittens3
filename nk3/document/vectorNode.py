@@ -9,7 +9,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class DocumentVectorNode(DocumentNode):
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         super().__init__(name)
         self.__vector_paths = VectorPaths()
 

@@ -3,9 +3,9 @@ group_ranges = {
     (10, 59): float,  # Double precision 3D point
     (60, 79): int,  # 16-bit integer value
     (90, 99): int,  # 32-bit integer value
-    (100, ): str,  # String (255 characters maximum; less for Unicode strings)
-    (102, ): str,  # String (255 characters maximum; less for Unicode strings)
-    (105, ): str,  # String representing hexadecimal (hex) handle value
+    (100, 100): str,  # String (255 characters maximum; less for Unicode strings)
+    (102, 102): str,  # String (255 characters maximum; less for Unicode strings)
+    (105, 105): str,  # String representing hexadecimal (hex) handle value
     (140, 147): float,  # Double precision scalar floating-point value
     (170, 175): int,  # 16-bit integer value
     (280, 289): int,  # 8-bit integer value
@@ -26,11 +26,11 @@ group_ranges = {
     (460, 469): float,  # Double - precision floating - point value
     (470, 479): str,  # String
     (480, 481): str,  # String representing hex handle value
-    (999, ): str,  # Comment (string)
+    (999, 999): str,  # Comment (string)
     (1000, 1009): str,  # String (255 characters maximum; less for Unicode strings)
     (1010, 1059): float,  # Double - precision floating - point value
     (1060, 1070): int,  # 16-bit integer value
-    (1071, ): int,  # 32-bit integer value
+    (1071, 1071): int,  # 32-bit integer value
 }
 
 # DXF has colors specified in the range 0-255, this table converts this to RGB colors
@@ -296,8 +296,5 @@ colors = [
 
 group_type = {}
 for k, v in group_ranges.items():
-    if len(k) == 1:
-        group_type[k[0]] = v
-    else:
-        for n in range(k[0], k[1] + 1):
-            group_type[n] = v
+    for n in range(k[0], k[1] + 1):
+        group_type[n] = v

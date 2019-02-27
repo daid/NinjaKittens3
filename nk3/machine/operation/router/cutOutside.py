@@ -1,10 +1,11 @@
+from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 from nk3.machine.operation.jobOperationType import JobOperationType
 from nk3.processor.settings import Settings
 from nk3.settingType import SettingType
 
 
 class CutOutsideOperation(JobOperationType):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Outside", [
             SettingType(key="cut_depth_total", label="Cut depth", type="dimension", default="6.0"),
             SettingType(key="tab_height", label="Tab height", type="dimension", default="2.5"),

@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Iterator
+from typing import Optional, Iterator, List
 from .node import DxfNode
 from . import nodeInfo
 
@@ -7,9 +7,9 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class DxfContainerNode(DxfNode):
-    def __init__(self, parent, name, end_of_container_node_name):
+    def __init__(self, parent: Optional[DxfNode], name: str, end_of_container_node_name: str):
         super().__init__(parent, name)
-        self.__children = []
+        self.__children = []  # type: List[DxfNode]
         self.__end_of_container_node_name = end_of_container_node_name
 
     def processNewEntity(self, name: str) -> DxfNode:
@@ -32,7 +32,7 @@ class DxfContainerNode(DxfNode):
     def __iter__(self) -> Iterator[DxfNode]:
         return iter(self.__children)
 
-    def dump(self, indent=0):
+    def dump(self, indent: int=0) -> None:
         super().dump(indent)
         for child in self.__children:
             child.dump(indent + 1)

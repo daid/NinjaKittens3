@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from typing import Iterator, Type, Dict
+from typing import Type, Dict, TYPE_CHECKING, Iterable
 
 from nk3.document.node import DocumentNode
 import importlib
@@ -10,11 +10,15 @@ import logging
 
 log = logging.getLogger(__name__.split(".")[-1])
 
+if TYPE_CHECKING:
+    from .dxf.dxfFileReader import DXFFileReader
+    from .svg.svgFileReader import SVGFileReader
+
 
 class FileReader(ABC):
     __EXTENSION_MAPPING = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @abstractmethod
@@ -23,7 +27,7 @@ class FileReader(ABC):
 
     @staticmethod
     @abstractmethod
-    def getExtensions() -> Iterator[str]:
+    def getExtensions() -> Iterable[str]:
         pass
 
     @staticmethod

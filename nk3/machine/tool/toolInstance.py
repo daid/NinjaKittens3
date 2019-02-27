@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class ToolInstance(QObjectList):
     name = QObjectBaseProperty[str]("")
-    operations = QObjectBaseProperty[QObjectList](None)
+    operations = QObjectBaseProperty[QObjectList[JobOperationInstance]](QObjectList[JobOperationInstance]("PLACEHOLDER"))
 
     def __init__(self, name: str, machine: "MachineInstance", cut_tool_type: ToolType) -> None:
         super().__init__("setting")

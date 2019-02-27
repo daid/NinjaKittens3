@@ -22,7 +22,10 @@ class QObjectBaseProperty(Generic[T]):
             # as it's used for the pyqt property trickery.
             return object
         else:
-            return self.__orig_class__.__args__[0]
+            result = self.__orig_class__.__args__[0]
+            if hasattr(result, "__origin__"): # In case of Generics, we need to grab the origin class, instead of the proxy.
+                result = result.__origin__
+            return result
 
 if TYPE_CHECKING:  # mypy does not like the construct we use to get the metaclass of QObject. So fake a different metaclass.
     QObjectMetaClass = type

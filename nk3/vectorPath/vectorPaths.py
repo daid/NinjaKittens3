@@ -1,7 +1,7 @@
 import logging
 import math
 import cmath
-from typing import Optional, List
+from typing import Optional, List, Iterator
 
 from nk3.vectorPath.nurbs import NURBS
 from nk3.vectorPath.vectorPath import VectorPath
@@ -90,7 +90,7 @@ class VectorPaths:
 
         self.addArcByAngle(complex(cx, cy), radius, angle_start, angle_start + angle_extent, rotation=rotation)
 
-    def addArcByAngle(self, center: complex, radius: complex, start_angle: float, end_angle: float, *, rotation=0.0) -> None:
+    def addArcByAngle(self, center: complex, radius: complex, start_angle: float, end_angle: float, *, rotation: float=0.0) -> None:
         point_count = math.ceil((abs(start_angle - end_angle) / 180 * math.pi * max(radius.real, radius.imag)) / self.__RESOLUTION)
         path = None
         c = cmath.rect(1.0, math.radians(rotation))
@@ -116,7 +116,7 @@ class VectorPaths:
 
     def addNurbs(self, nurbs: NURBS) -> None:
         points = nurbs.calculate(nurbs.pointCount())
-        distance = 0
+        distance = 0.0
         for p0, p1 in zip(points[0:-1], points[1:]):
             distance += abs(self.__transform_stack[-1] * p1 - self.__transform_stack[-1] * p0)
         if distance < 1.0:
@@ -188,7 +188,7 @@ class VectorPaths:
             source.close()
         return False
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[VectorPath]:
         return iter(self.__paths)
 
     def debugExport(self, filename: str) -> None:

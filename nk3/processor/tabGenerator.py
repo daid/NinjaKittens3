@@ -9,7 +9,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class TabGenerator:
-    def __init__(self, settings: Settings, path: pathUtils.Path):
+    def __init__(self, settings: Settings, path: pathUtils.Path) -> None:
         self.__path = path
 
         self.__tab_height = settings.tab_height
@@ -61,7 +61,7 @@ class TabGenerator:
 
             offset += self.__path.length()
 
-    def __addDepth(self, offset: float, depth: float):
+    def __addDepth(self, offset: float, depth: float) -> None:
         current_depth = self.__path.getDepthAt(offset)
         depth = max(depth, current_depth)
         self.__path.addDepthAtDistance(depth, offset)

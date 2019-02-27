@@ -9,7 +9,7 @@ class DocumentNode(QObjectList):
     operation_index = QObjectBaseProperty[int](-1)
     color = QObjectBaseProperty[int](0)
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         super().__init__("node")
         self.name = name
 
