@@ -37,7 +37,7 @@ class ComplexTransform:
             m0[2] * m1[6] + m0[5] * m1[7] + m0[8] * m1[8],
         ])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.__matrix)
 
     @staticmethod

@@ -1,5 +1,5 @@
 import logging
-from typing import List, NamedTuple, Tuple, Optional, Iterator
+from typing import List, NamedTuple, Tuple, Optional, Iterator, Set
 import pyclipper
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -17,7 +17,7 @@ class Path:
         self.__points = points
         self.__depth_at_distance = []  # type: List[Tuple[float, float]]
         self.__closed = closed
-        self.__tags = set()
+        self.__tags = set()  # type: Set[str]
 
     def addTag(self, tag: str) -> None:
         self.__tags.add(tag)
@@ -56,7 +56,7 @@ class Path:
             else:
                 self.__points = [q0] + self.__points[best_index:] + self.__points[:best_index]
 
-    def scoreCornering(self, start_offset, end_offset):
+    def scoreCornering(self, start_offset: float, end_offset: float) -> float:
         p0 = self.__points[0]
         p1 = self.__points[0]
         offset = 0.0
@@ -142,13 +142,13 @@ class Path:
         return [(p.real * 1000.0, p.imag * 1000.0) for p in self.__points]
 
     @property
-    def closed(self):
+    def closed(self) -> bool:
         return self.__closed
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__points)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> complex:
         return self.__points[item]
 
 
@@ -163,7 +163,7 @@ class Paths:
         clipper.AddPaths(self._toClipper(), pyclipper.PT_SUBJECT, True)
         return Paths()._fromClipper(clipper.Execute(pyclipper.CT_UNION))
 
-    def offset(self, amount: float, *, tree=False) -> "Paths":
+    def offset(self, amount: float, *, tree: bool=False) -> "Paths":
         offset = pyclipper.PyclipperOffset()
         offset.AddPaths(self._toClipper(), pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON)
         if tree:
@@ -181,7 +181,7 @@ class Paths:
         self.__paths += other.__paths
         self.__children += other.__children
 
-    def clear(self):
+    def clear(self) -> None:
         self.__paths.clear()
 
     def _toClipper(self) -> List[List[Tuple[float, float]]]:
@@ -213,11 +213,11 @@ class Paths:
     def isHole(self) -> bool:
         return self.__is_hole
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> Path:
         return self.__paths[item]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Path]:
         return iter(self.__paths)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__paths)

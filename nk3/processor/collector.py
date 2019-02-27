@@ -1,7 +1,8 @@
 import logging
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Iterator
 
+from nk3.QObjectList import QObjectList
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
 from nk3.machine.machineInstance import MachineInstance
@@ -11,7 +12,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Collector:
-    def __init__(self, document_list, machine: MachineInstance) -> None:
+    def __init__(self, document_list: QObjectList[DocumentNode], machine: MachineInstance) -> None:
         self.__result = {}  # type: Dict[Tuple[int, int], Job]
         self.__machine = machine
         for document in document_list:
@@ -33,5 +34,5 @@ class Collector:
         for child in document:
             self.__collect(child, collection_index)
 
-    def getJobs(self):
+    def getJobs(self) -> Iterator[Job]:
         return map(lambda n: n[1], sorted(self.__result.items()))

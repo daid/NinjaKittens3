@@ -2,8 +2,7 @@ import logging
 
 from PyQt5.QtCore import pyqtProperty
 
-from nk3.machine.operation.jobOperationInstance import JobOperationInstance
-from nk3.machine.operation.jobOperationType import JobOperationType
+from nk3.machine.tool.toolType import ToolType
 from nk3.processor.settings import Settings
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -11,6 +10,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 from typing import Dict
 
 from nk3.machine.machineType import MachineType
+from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.QObjectList import QObjectList
 from nk3.QObjectBase import QObjectBaseProperty, qtSlot
 from nk3.settingInstance import SettingInstance
@@ -23,7 +23,7 @@ class MachineInstance(QObjectList):
     def __init__(self, name: str, machine_type: MachineType) -> None:
         super().__init__("setting")
         self.name = name
-        self.tools = QObjectList("tool")
+        self.tools = QObjectList[ToolInstance]("tool")
         self.__type = machine_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
 
@@ -33,8 +33,8 @@ class MachineInstance(QObjectList):
             self.__setting_instances[instance.type.key] = instance
 
     @qtSlot
-    def addTool(self, operation: JobOperationType) -> None:
-        self.tools.append(JobOperationInstance(self, operation))
+    def addTool(self, tool: ToolType) -> None:
+        self.tools.append(ToolInstance("TOOL", self, tool))
 
     @qtSlot
     def removeTool(self, index: int) -> None:

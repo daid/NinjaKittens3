@@ -1,9 +1,9 @@
 from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, pyqtProperty, pyqtSlot, QObject
-from typing import List, TypeVar, Generic
+from typing import List, TypeVar, Generic, Dict, Any, Iterator
 
 from nk3.QObjectBase import QObjectBaseMeta, qtSlot
 
-T = TypeVar('T')
+T = TypeVar('T', bound=QObject)
 
 
 class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
@@ -14,15 +14,15 @@ class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
         self.__entries = []  # type: List[T]
         self.__entry_name = entry_name.encode("utf-8")
 
-    def roleNames(self):  ## Part of QAbstractListModel
+    def roleNames(self) -> Dict[int, bytes]:  ## Part of QAbstractListModel
         return {
             self.RoleItem: self.__entry_name,
         }
 
-    def rowCount(self, parent):  ## Part of QAbstractListModel
+    def rowCount(self, parent: QObject) -> int:  ## Part of QAbstractListModel
         return len(self.__entries)
 
-    def data(self, index, role):  ## Part of QAbstractListModel
+    def data(self, index: QModelIndex, role: int) -> Any:  ## Part of QAbstractListModel
         if not index.isValid():
             return QVariant()
         if role == self.RoleItem:
@@ -51,7 +51,7 @@ class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
         self.__entries.insert(index, item)
         self.endInsertRows()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[T]:
         return iter(self.__entries)
 
     def __len__(self) -> int:

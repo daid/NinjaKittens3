@@ -18,7 +18,7 @@ class ToolType(QObjectBase):
     def __init__(self, settings: List[SettingType], operations: List[JobOperationType]) -> None:
         super().__init__()
         self.__settings = settings
-        self.__operations = QObjectList("operation_type")
+        self.__operations = QObjectList[JobOperationType]("operation_type")
         for operation in operations:
             self.__operations.append(operation)
 

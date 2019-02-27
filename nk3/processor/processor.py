@@ -15,7 +15,7 @@ class Processor:
     def __init__(self, job: Job) -> None:
         self.__job = job
 
-    def process(self):
+    def process(self) -> List[Move]:
         # Process paths with pyclipper (offsets)
         path_tree = self.__process2d()
         # TODO: Calculate problem areas
@@ -35,7 +35,7 @@ class Processor:
         self.__job.closedPaths.combine(self.__job.openPaths)
         return self.__job.closedPaths
 
-    def __processPockets(self, path_tree: pathUtils.Paths):
+    def __processPockets(self, path_tree: pathUtils.Paths) -> None:
         for paths in DepthFirstIterator(path_tree, include_root=False, iter_function=lambda n: n.children):
             if self.__needPocket(paths):
                 # Combine our childs into ourselfs, so the pocket becomes a single Paths group.
@@ -80,7 +80,7 @@ class Processor:
                 path.shiftStartTowards(moves[-1].xy)
 
             # Add enough cut distance to cut out each depth for the path
-            total_distance = 0
+            total_distance = 0.0
             path.addDepthAtDistance(0, 0)
             # Note: if the path is shorter then the distance we need to go for the attack, we go the full attack distance for each depth pass.
             #       this generates a nice downwards spiral on small holes

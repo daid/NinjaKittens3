@@ -1,13 +1,16 @@
 import logging
+from typing import List
+
+from nk3.processor.pathUtils import Move
 
 log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Export:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def export(self, filename, moves):
+    def export(self, filename: str, moves: List[Move]) -> None:
         log.info("Exporting to %s", filename)
         f = open(filename, "wt")
         f.write(";NinjaKittens3 export!\n")

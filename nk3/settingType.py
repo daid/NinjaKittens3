@@ -1,8 +1,10 @@
+from typing import Any
+
 from PyQt5.QtCore import QObject, pyqtProperty
 
 
 class SettingType(QObject):
-    def __init__(self, key, label, type, default):
+    def __init__(self, key: str, label: str, type: str, default: Any) -> None:
         super().__init__()
         self.__key = key
         self.__label = label
@@ -10,23 +12,23 @@ class SettingType(QObject):
         self.__default_value = default
 
     @pyqtProperty(str, constant=True)
-    def key(self):
+    def key(self) -> str:
         return self.__key
 
     @pyqtProperty(str, constant=True)
-    def label(self):
+    def label(self) -> str:
         return self.__label
 
     @pyqtProperty(str, constant=True)
-    def type(self):
+    def type(self) -> str:
         return self.__type
 
     @pyqtProperty(str, constant=True)
-    def default_value(self):
+    def default_value(self) -> str:
         return self.__default_value
 
     @pyqtProperty(str, constant=True)
-    def unit(self):
+    def unit(self) -> str:
         if self.__type == "dimension":
             return "mm"
         if self.__type == "angle":

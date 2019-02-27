@@ -4,13 +4,13 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Settings:
-    def __init__(self):
+    def __init__(self) -> None:
         self.tool_diameter = 0.0
         self.cut_offset = 0.0
         self.cut_depth_pass = 1.0
         self.cut_depth_total = 6.0
         self.cut_feedrate = 600.0
-        self.plunge_feedrate = 60
+        self.plunge_feedrate = 60.0
 
         self.attack_angle = 0.0
 

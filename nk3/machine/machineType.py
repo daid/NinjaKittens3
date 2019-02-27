@@ -18,7 +18,7 @@ class MachineType(QObjectBase):
     def __init__(self, settings: List[SettingType], tools: List[ToolType]) -> None:
         super().__init__()
         self.__settings = settings
-        self.__tools = QObjectList("tool_type")
+        self.__tools = QObjectList[ToolType]("tool_type")
         for tool in tools:
             self.__tools.append(tool)
 

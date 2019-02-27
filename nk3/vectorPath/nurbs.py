@@ -17,7 +17,7 @@ class NURBS:
     def addKnot(self, knot: float) -> None:
         self._knots.append(knot)
 
-    def pointCount(self):
+    def pointCount(self) -> int:
         return len(self._points)
 
     def calculate(self, segments: int) -> List[complex]:
@@ -55,7 +55,7 @@ class NURBS:
             else:
                 a = self._F(i, n, u) * Nin1u
             if Ni1n1u == 0.0:
-                b = 0
+                b = 0.0
             else:
                 b = self._G(i, n, u) * Ni1n1u
             return a + b

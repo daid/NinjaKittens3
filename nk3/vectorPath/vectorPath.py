@@ -1,17 +1,18 @@
 import logging
+from typing import List, Iterator
 
 log = logging.getLogger(__name__.split(".")[-1])
 
 
 class VectorPath:
     def __init__(self) -> None:
-        self.__points = []
+        self.__points = []  # type: List[complex]
         self.__closed = False
 
     def add(self, point: complex) -> None:
         self.__points.append(point)
 
-    def join(self, other: "VectorPath"):
+    def join(self, other: "VectorPath") -> None:
         if abs(self.end - other.start) < 0.001:
             self.__points += other.__points[1:]
         else:
@@ -35,17 +36,17 @@ class VectorPath:
         return self.__points[-1]
 
     @property
-    def closed(self):
+    def closed(self) -> bool:
         return self.__closed
 
-    def reverse(self):
+    def reverse(self) -> None:
         self.__points = self.__points[::-1]
 
-    def close(self):
+    def close(self) -> None:
         self.__closed = True
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[complex]:
         return iter(self.__points)
 
-    def getPoints(self):
+    def getPoints(self) -> List[complex]:
         return self.__points.copy()
