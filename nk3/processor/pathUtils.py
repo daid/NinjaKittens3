@@ -1,5 +1,5 @@
 import logging
-from typing import List, NamedTuple, Tuple, Optional, Iterator, Set
+from typing import List, NamedTuple, Tuple, Iterable, Set, Iterator
 import pyclipper
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -95,7 +95,7 @@ class Path:
             value = min(value, depth)
         return value
 
-    def iterateDepthPoints(self) -> Iterator[Tuple[complex, float]]:
+    def iterateDepthPoints(self) -> Iterable[Tuple[complex, float]]:
         done_distance = 0.0
         points = self.__points
         if not self.__closed:
@@ -206,7 +206,7 @@ class Paths:
         return self
 
     @property
-    def children(self) -> Iterator:
+    def children(self) -> Iterator["Paths"]:
         return iter(self.__children)
 
     @property

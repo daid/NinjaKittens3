@@ -25,7 +25,7 @@ class MachineType(QObjectBase):
     def getSettingTypes(self) -> Iterator[SettingType]:
         return iter(self.__settings)
 
-    def getToolTypes(self) -> QObjectList:
+    def getToolTypes(self) -> QObjectList[ToolType]:
         return self.__tools
 
     def fillProcessorSettings(self, instance: "MachineInstance", settings: Settings) -> None:

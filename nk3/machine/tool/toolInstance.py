@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from nk3.machine.machineInstance import MachineInstance
 
 
-class ToolInstance(QObjectList):
+class ToolInstance(QObjectList[SettingInstance]):
     name = QObjectBaseProperty[str]("")
     operations = QObjectBaseProperty[QObjectList[JobOperationInstance]](QObjectList[JobOperationInstance]("PLACEHOLDER"))
 

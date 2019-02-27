@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from nk3.machine.tool.toolInstance import ToolInstance
 
 
-class JobOperationInstance(QObjectList):
+class JobOperationInstance(QObjectList[SettingInstance]):
     name = QObjectBaseProperty[str]("")
 
     def __init__(self, tool_instance: "ToolInstance", job_operation_type: JobOperationType) -> None:

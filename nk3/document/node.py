@@ -3,7 +3,7 @@ from nk3.QObjectBase import QObjectBaseProperty
 from typing import Optional, Tuple
 
 
-class DocumentNode(QObjectList):
+class DocumentNode(QObjectList["DocumentNode"]):
     name = QObjectBaseProperty[str]("")
     tool_index = QObjectBaseProperty[int](-1)
     operation_index = QObjectBaseProperty[int](-1)

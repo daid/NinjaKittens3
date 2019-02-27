@@ -120,7 +120,7 @@ class Application(QObjectBase):
         self.__app.aboutToQuit.connect(self._onQuit)
 
     @property
-    def document_list(self) -> QObjectList:
+    def document_list(self) -> QObjectList[DocumentNode]:
         return self.__document_list
 
     @property
