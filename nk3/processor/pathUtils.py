@@ -5,7 +5,7 @@ import pyclipper
 log = logging.getLogger(__name__.split(".")[-1])
 
 
-Move = NamedTuple('Move', [('xy', Optional[complex]), ('z', float), ('speed', float)])
+Move = NamedTuple('Move', [('xy', complex), ('z', float), ('speed', float)])
 
 
 def dot(p0: complex, p1: complex) -> float:

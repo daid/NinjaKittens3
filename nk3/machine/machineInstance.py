@@ -17,8 +17,8 @@ from nk3.settingInstance import SettingInstance
 
 
 class MachineInstance(QObjectList):
-    name = QObjectBaseProperty(str, "")
-    tools = QObjectBaseProperty(QObjectList, None)
+    name = QObjectBaseProperty[str]("")
+    tools = QObjectBaseProperty[QObjectList](None)
 
     def __init__(self, name: str, machine_type: MachineType) -> None:
         super().__init__("setting")

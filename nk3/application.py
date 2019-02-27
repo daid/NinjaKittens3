@@ -11,6 +11,7 @@ from typing import List, Optional, Any
 
 from nk3.QObjectBase import qtSlot, QObjectBase, QObjectBaseProperty
 from nk3.QObjectList import QObjectList
+from nk3.document.node import DocumentNode
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.routerMachineType import RouterMachineType
 from nk3.machine.tool.toolInstance import ToolInstance
@@ -78,7 +79,7 @@ class MouseHandler(QQuickItem):
 class Application(QObjectBase):
     _instance = None  # type: Optional["Application"]
 
-    active_machine = QObjectBaseProperty(MachineInstance, None)
+    active_machine = QObjectBaseProperty[MachineInstance](MachineInstance("machine", RouterMachineType()))
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
@@ -103,7 +104,7 @@ class Application(QObjectBase):
 
         self.active_machine = MachineInstance("machine", RouterMachineType())
 
-        self.__document_list = QObjectList("node")
+        self.__document_list = QObjectList[DocumentNode]("node")
         self.__document_list.rowsInserted.connect(lambda parent, first, last: self.__view.home())
 
         self.__dispatcher = Dispatcher(self.active_machine, self.__document_list)

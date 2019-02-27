@@ -1,27 +1,41 @@
 import inspect
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
-from typing import List, Generic, TypeVar, Any, Type, Dict
+from typing import List, Generic, TypeVar, Any, Type, Dict, TYPE_CHECKING, Union, Callable
 
 T = TypeVar("T")
 
 
 class QObjectBaseProperty(Generic[T]):
-    def __init__(self, default_value):
+    def __init__(self, default_value: T) -> None:
         self.default_value = default_value
 
-    def __set__(self, instance, value: T) -> None:
+    def __set__(self, instance: Any, value: T) -> None:
         pass
 
-    def __get__(self, instance, owner) -> T:
+    def __get__(self, instance: Any, owner: Any) -> T:
         pass
 
+    def getDefinedType(self) -> type:
+        if TYPE_CHECKING:
+            # mypy is not aware of the __orig_class__ that the Generic assigns.
+            # So make it happy with a fake return. This type does not propegate anyhow,
+            # as it's used for the pyqt property trickery.
+            return object
+        else:
+            return self.__orig_class__.__args__[0]
 
-class QObjectBaseMeta(type(QObject)):
-    def __new__(mcs, name, bases, dct):
-        new_dct = {}
+if TYPE_CHECKING:  # mypy does not like the construct we use to get the metaclass of QObject. So fake a different metaclass.
+    QObjectMetaClass = type
+else:
+    QObjectMetaClass = type(QObject)
+
+
+class QObjectBaseMeta(QObjectMetaClass):
+    def __new__(mcs, name: str, bases: Any, dct: Any) -> Any:
+        new_dct = {}  # type: Dict[str, Any]
         for k, v in dct.items():
             if isinstance(v, QObjectBaseProperty):
-                mcs.createProperty(new_dct, k, v.__orig_class__.__args__[0], v.default_value)
+                mcs.createProperty(new_dct, k, v.getDefinedType(), v.default_value)
         dct.update(new_dct)
         return super().__new__(mcs, name, bases, dct)
 
@@ -32,15 +46,15 @@ class QObjectBaseMeta(type(QObject)):
         signal = pyqtSignal()
         signal_name = "%sChanged" % (name)
         @pyqtProperty(property_type, notify=signal)
-        def f(self):
+        def getter(self: Any) -> Any:
             return getattr(self, value_key)
-        @f.setter
-        def f(self, value):
+        @getter.setter
+        def setter(self: Any, value: Any) -> None:
             setattr(self, value_key, value)
             getattr(self, signal_name).emit()
 
         dct[value_key] = default_value
-        dct[name] = f
+        dct[name] = setter
         dct[signal_name] = signal
 
 
@@ -48,14 +62,14 @@ class QObjectBase(QObject, metaclass=QObjectBaseMeta):
     pass
 
 
-def _toQtType(t):
+def _toQtType(t: type) -> Union[type, str]:
     if t == List[str]:
         return "QStringList"
     return t
 
 
 ## Type annotation aware version of pyqtSlot
-def qtSlot(f):
+def qtSlot(f: Callable[..., Any]) -> Callable[..., Any]:
     sig = inspect.signature(f)
     result_type = sig.return_annotation
     assert result_type != sig.empty, "Return annotation missing"

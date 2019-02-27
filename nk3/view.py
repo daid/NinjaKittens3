@@ -1,6 +1,9 @@
 import logging
 import math
 
+from PyQt5.QtCore import QPoint
+from PyQt5.QtGui import QAbstractOpenGLFunctions
+
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
@@ -13,14 +16,14 @@ if MYPY:
 
 
 class View:
-    def __init__(self, application: "Application"):
+    def __init__(self, application: "Application") -> None:
         self.__application = application
-        self.__zoom = 30
-        self.__yaw = 0
-        self.__pitch = 0
+        self.__zoom = 30.0
+        self.__yaw = 0.0
+        self.__pitch = 0.0
         self.__view_position = complex(0, 0)
 
-    def render(self, gl, size):
+    def render(self, gl: QAbstractOpenGLFunctions, size: QPoint) -> None:
         gl.glViewport(0, 0, size.width(), size.height())
         gl.glUseProgram(0)
         gl.glEnable(gl.GL_DEPTH_TEST)
@@ -35,7 +38,7 @@ class View:
         gl.glLoadIdentity()
         self._renderDocuments(gl)
 
-    def _renderDocuments(self, gl):
+    def _renderDocuments(self, gl: QAbstractOpenGLFunctions) -> None:
         gl.glTranslatef(0, 0, -self.__zoom)
         gl.glRotatef(-self.__pitch, 1, 0, 0)
         gl.glRotatef(-self.__yaw, 0, 0, 1)
@@ -52,7 +55,7 @@ class View:
                 gl.glVertex3f(move.xy.real, move.xy.imag, move.z)
             gl.glEnd()
 
-    def _renderDocument(self, gl, document):
+    def _renderDocument(self, gl: QAbstractOpenGLFunctions, document: DocumentNode) -> None:
         if isinstance(document, DocumentVectorNode):
             color = document.color
             gl.glColor4ub(color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, 0xFF)
@@ -93,7 +96,7 @@ class View:
 
     @zoom.setter
     def zoom(self, zoom: float) -> None:
-        self.__zoom = max(zoom, 1)
+        self.__zoom = max(zoom, 1.0)
         self.__application.repaint()
 
     @property
@@ -105,7 +108,7 @@ class View:
         self.__view_position = view_position
         self.__application.repaint()
 
-    def home(self):
+    def home(self) -> None:
         combined_aabb = None
         for document in DepthFirstIterator(self.__application.document_list, include_root=False):
             aabb = document.getAABB()
@@ -123,7 +126,7 @@ class View:
             self.zoom = zoom
 
     @staticmethod
-    def glPerspective(gl, fov, window_size, near, far):
+    def glPerspective(gl: QAbstractOpenGLFunctions, fov: float, window_size: QPoint, near: float, far: float) -> None:
         aspect = window_size.width() / window_size.height()
         y = math.tan(fov / 360 * math.pi) * near
         if aspect > 1.0:
