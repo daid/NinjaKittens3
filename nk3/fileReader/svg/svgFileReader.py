@@ -5,6 +5,7 @@ import math
 from typing import Iterable, Optional
 from xml.etree import ElementTree
 
+from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
 from nk3.fileReader.fileReader import FileReader
@@ -29,7 +30,8 @@ class SVGFileReader(FileReader):
         root_node = DocumentVectorNode(filename)
         root_node.getPaths().setTransformStack(self.__transform_stack)
         self.__processGTag(self.__xml.getroot(), root_node)
-        root_node.getPaths().stitch()
+        for node in DepthFirstIterator(root_node):
+            node.getPaths().stitch()
         return root_node
 
     def __processGTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
@@ -40,19 +42,19 @@ class SVGFileReader(FileReader):
             if child_tag == "g" or child_tag == "a":
                 self.__processGTag(child, node)
             elif child_tag == "line":
-                self.__processLineTag(child, node)
+                self.__processLineTag(child, self.__getNodeFor(child, node))
             elif child_tag == "polyline":
-                self.__processPolylineTag(child, node)
+                self.__processPolylineTag(child, self.__getNodeFor(child, node))
             elif child_tag == "polygon":
-                self.__processPolygonTag(child, node)
+                self.__processPolygonTag(child, self.__getNodeFor(child, node))
             elif child_tag == "circle":
-                self.__processCircleTag(child, node)
+                self.__processCircleTag(child, self.__getNodeFor(child, node))
             elif child_tag == "ellipse":
-                self.__processEllipseTag(child, node)
+                self.__processEllipseTag(child, self.__getNodeFor(child, node))
             elif child_tag == "path":
-                self.__processPathTag(child, node)
+                self.__processPathTag(child, self.__getNodeFor(child, node))
             elif child_tag == "rect":
-                self.__processRectTag(child, node)
+                self.__processRectTag(child, self.__getNodeFor(child, node))
             elif child_tag in ("desc", "title", "animate", "animateColor", "animateTransform", "script", "namedview", "metadata"):
                 pass  # ignore these tags, as they contain no value for us.
             else:
@@ -302,3 +304,26 @@ class SVGFileReader(FileReader):
             else:
                 log.warning("Ignoring transform: %s %s", func, params)
         self.__transform_stack.append(t.combine(self.__transform_stack[-1]))
+
+    def __getNodeFor(self, tag: ElementTree.Element, base_node: DocumentVectorNode) -> DocumentVectorNode:
+        color_name = "NoColor"
+
+        style = tag.get("style", "")
+        for style_part in style.split(";"):
+            key, _, value = style_part.partition(":")
+            if key == "stroke":
+                color_name = value
+
+        color = None
+        if color_name.startswith("#"):
+            color = int(color_name[1:], 16)
+
+        for child in base_node:
+            if child.name == color_name:
+                return child
+        child = DocumentVectorNode(color_name)
+        if color is not None:
+            child.color = color
+        base_node.append(child)
+        child.getPaths().setTransformStack(self.__transform_stack)
+        return child
