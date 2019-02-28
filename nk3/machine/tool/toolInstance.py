@@ -19,12 +19,11 @@ if TYPE_CHECKING:
 
 
 class ToolInstance(QObjectList[SettingInstance]):
-    name = QObjectBaseProperty[str]("")
+    name = QObjectBaseProperty[str]("?")
     operations = QObjectBaseProperty[QObjectList[JobOperationInstance]](QObjectList[JobOperationInstance]("PLACEHOLDER"))
 
-    def __init__(self, name: str, machine: "MachineInstance", cut_tool_type: ToolType) -> None:
+    def __init__(self, machine: "MachineInstance", cut_tool_type: ToolType) -> None:
         super().__init__("setting")
-        self.name = name
         self.operations = QObjectList[JobOperationInstance]("operation")
         self.__machine = machine
         self.__type = cut_tool_type

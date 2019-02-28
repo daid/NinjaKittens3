@@ -79,7 +79,8 @@ class MouseHandler(QQuickItem):
 class Application(QObjectBase):
     _instance = None  # type: Optional["Application"]
 
-    active_machine = QObjectBaseProperty[MachineInstance](MachineInstance("machine", RouterMachineType()))
+    machine_list = QObjectBaseProperty[QObjectList[MachineInstance]](QObjectList[MachineInstance]("PLACEHOLDER"))
+    active_machine = QObjectBaseProperty[MachineInstance](MachineInstance("PLACEHOLDER", RouterMachineType()))
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
@@ -102,7 +103,7 @@ class Application(QObjectBase):
 
         self.__move_data = []  # type: List[Move]
 
-        self.active_machine = MachineInstance("machine", RouterMachineType())
+        self.machine_list = QObjectList[MachineInstance]("machine")
 
         self.__document_list = QObjectList[DocumentNode]("node")
         self.__document_list.rowsInserted.connect(lambda parent, first, last: self.__view.home())
@@ -110,9 +111,12 @@ class Application(QObjectBase):
         self.__dispatcher = Dispatcher(self.active_machine, self.__document_list)
         self.__dispatcher.onMoveData = self.__onMoveData
 
-        Storage().load(self.active_machine)
+        Storage().load(self.machine_list)
+        if self.machine_list.size() == 0:
+            self.machine_list.append(MachineInstance("machine", RouterMachineType()))
+        self.active_machine = self.machine_list[0]
         if self.active_machine.tools.size() == 0:
-            self.createNewTool("Tool ?")
+            self.createNewTool()
 
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)
         self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
@@ -176,11 +180,11 @@ class Application(QObjectBase):
         Export().export(filename.toLocalFile(), self.__move_data)
 
     @qtSlot
-    def createNewTool(self, tool_name: str) -> None:
-        instance = ToolInstance(tool_name, self.active_machine, RouterToolType())
+    def createNewTool(self) -> None:
+        instance = ToolInstance(self.active_machine, RouterToolType())
         for operation_type in instance.type.getOperationTypes():
             instance.operations.append(JobOperationInstance(instance, operation_type))
         self.active_machine.tools.append(instance)
 
     def _onQuit(self) -> None:
-        Storage().save(self.active_machine)
+        Storage().save(self.machine_list)

@@ -3,7 +3,7 @@ import configparser
 import os
 import re
 import importlib
-from typing import Any
+from typing import Any, Type
 
 from nk3.QObjectList import QObjectList
 from nk3.machine.machineInstance import MachineInstance
@@ -21,31 +21,41 @@ class Storage:
             config_base_path = os.path.expanduser("~/.config")
         self.__configuration_file = os.path.join(config_base_path, "NinjaKittens3", "nk3.conf")
 
-    def load(self, machine: MachineInstance) -> bool:
+    def load(self, machines: QObjectList[MachineInstance]) -> bool:
         cp = configparser.ConfigParser()
         if not cp.read(self.__configuration_file):
             return False
-        for section in filter(lambda key: re.fullmatch("tool_[0-9]+", key), cp.sections()):
-            type_instance = self.__getInstance(cp[section]["type"])
+        for machine_section in filter(lambda key: re.fullmatch("machine_[0-9]+", key), cp.sections()):
+            type_instance = self.__getInstance(cp[machine_section]["type"])
             if type_instance is None:
                 continue
-            tool_instance = ToolInstance(cp[section]["name"], machine, type_instance)
-            for setting in tool_instance:
-                if setting.type.key in cp[section]:
-                    setting.value = cp[section][setting.type.key]
-            
-            for sub_section in filter(lambda key: re.fullmatch("%s_operation_[0-9]+" % (section), key), cp.sections()):
-                type_instance = self.__getInstance(cp[sub_section]["type"])
+            machine_instance = MachineInstance(cp[machine_section]["name"], type_instance)
+            machines.append(machine_instance)
+            for setting in machine_instance:
+                if setting.type.key in cp[machine_section]:
+                    setting.value = cp[machine_section][setting.type.key]
+
+            for tool_section in filter(lambda key: re.fullmatch("%s_tool_[0-9]+" % (machine_section), key), cp.sections()):
+                type_instance = self.__getInstance(cp[tool_section]["type"])
                 if type_instance is None:
                     continue
-                operation_instance = JobOperationInstance(tool_instance, type_instance)
-                operation_instance.name = cp[sub_section]["name"]
-                for setting in operation_instance:
-                    if setting.type.key in cp[sub_section]:
-                        setting.value = cp[sub_section][setting.type.key]
+                tool_instance = ToolInstance(machine_instance, type_instance)
+                machine_instance.tools.append(tool_instance)
+                for setting in tool_instance:
+                    if setting.type.key in cp[tool_section]:
+                        setting.value = cp[tool_section][setting.type.key]
 
-                tool_instance.operations.append(operation_instance)
-            machine.tools.append(tool_instance)
+                for operation_section in filter(lambda key: re.fullmatch("%s_operation_[0-9]+" % (tool_section), key), cp.sections()):
+                    type_instance = self.__getInstance(cp[operation_section]["type"])
+                    if type_instance is None:
+                        continue
+                    operation_instance = JobOperationInstance(tool_instance, type_instance)
+                    operation_instance.name = cp[operation_section]["name"]
+                    for setting in operation_instance:
+                        if setting.type.key in cp[operation_section]:
+                            setting.value = cp[operation_section][setting.type.key]
+
+                    tool_instance.operations.append(operation_instance)
         return True
 
     @staticmethod
@@ -61,13 +71,14 @@ class Storage:
             return None
         return type_instance
 
-    def save(self, machine: MachineInstance) -> None:
+    def save(self, machines: QObjectList[MachineInstance]) -> None:
         cp = configparser.ConfigParser()
-        for tool_index, tool in enumerate(machine.tools):
-            assert isinstance(tool, ToolInstance)
-            self._addSettingContainer(cp, "tool_%d" % (tool_index), tool)
-            for operation_index, operation in enumerate(tool.operations):
-                self._addSettingContainer(cp, "tool_%d_operation_%d" % (tool_index, operation_index), operation)
+        for machine_index, machine in enumerate(machines):
+            self._addSettingContainer(cp, "machine_%d" % (machine_index), machine)
+            for tool_index, tool in enumerate(machine.tools):
+                self._addSettingContainer(cp, "machine_%d_tool_%d" % (machine_index, tool_index), tool)
+                for operation_index, operation in enumerate(tool.operations):
+                    self._addSettingContainer(cp, "machine_%d_tool_%d_operation_%d" % (machine_index, tool_index, operation_index), operation)
 
         os.makedirs(os.path.dirname(self.__configuration_file), exist_ok=True)
         cp.write(open(self.__configuration_file, "wt"))
