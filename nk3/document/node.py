@@ -1,5 +1,5 @@
-from nk3.QObjectList import QObjectList
-from nk3.QObjectBase import QObjectBaseProperty
+from nk3.qt.QObjectList import QObjectList
+from nk3.qt.QObjectBase import QObjectBaseProperty
 from typing import Optional, Tuple
 
 

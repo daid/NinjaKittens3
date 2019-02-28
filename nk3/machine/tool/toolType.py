@@ -2,8 +2,8 @@ import logging
 
 from typing import Iterator, List, TYPE_CHECKING
 
-from nk3.QObjectBase import QObjectBase
-from nk3.QObjectList import QObjectList
+from nk3.qt.QObjectBase import QObjectBase
+from nk3.qt.QObjectList import QObjectList
 from nk3.machine.operation.jobOperationType import JobOperationType
 from nk3.processor.settings import Settings
 from nk3.settingType import SettingType

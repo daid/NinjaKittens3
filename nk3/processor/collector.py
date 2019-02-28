@@ -2,7 +2,7 @@ import logging
 
 from typing import Dict, Tuple, Iterator
 
-from nk3.QObjectList import QObjectList
+from nk3.qt.QObjectList import QObjectList
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
 from nk3.machine.machineInstance import MachineInstance

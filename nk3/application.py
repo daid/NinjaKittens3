@@ -1,4 +1,3 @@
-import PyQt5
 import sys
 import logging
 import os
@@ -9,8 +8,8 @@ from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingl
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
 from typing import List, Optional, Any
 
-from nk3.QObjectBase import qtSlot, QObjectBase, QObjectBaseProperty
-from nk3.QObjectList import QObjectList
+from nk3.qt.QObjectBase import qtSlot, QObjectBase, QObjectBaseProperty
+from nk3.qt.QObjectList import QObjectList
 from nk3.document.node import DocumentNode
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.routerMachineType import RouterMachineType

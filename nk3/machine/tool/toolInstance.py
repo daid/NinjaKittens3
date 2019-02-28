@@ -11,8 +11,8 @@ log = logging.getLogger(__name__.split(".")[-1])
 from typing import Dict, TYPE_CHECKING
 
 from nk3.machine.tool.toolType import ToolType
-from nk3.QObjectList import QObjectList
-from nk3.QObjectBase import QObjectBaseProperty, qtSlot
+from nk3.qt.QObjectList import QObjectList
+from nk3.qt.QObjectBase import QObjectBaseProperty, qtSlot
 from nk3.settingInstance import SettingInstance
 if TYPE_CHECKING:
     from nk3.machine.machineInstance import MachineInstance

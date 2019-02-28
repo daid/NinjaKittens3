@@ -11,8 +11,8 @@ from typing import Dict
 
 from nk3.machine.machineType import MachineType
 from nk3.machine.tool.toolInstance import ToolInstance
-from nk3.QObjectList import QObjectList
-from nk3.QObjectBase import QObjectBaseProperty, qtSlot
+from nk3.qt.QObjectList import QObjectList
+from nk3.qt.QObjectBase import QObjectBaseProperty, qtSlot
 from nk3.settingInstance import SettingInstance
 
 

@@ -1,6 +1,6 @@
 from PyQt5.QtCore import pyqtProperty, QObject
 
-from nk3.QObjectBase import QObjectBase, QObjectBaseProperty
+from nk3.qt.QObjectBase import QObjectBase, QObjectBaseProperty
 from nk3.settingType import SettingType
 
 

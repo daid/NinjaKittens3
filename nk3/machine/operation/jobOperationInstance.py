@@ -1,8 +1,8 @@
 from typing import Dict, TYPE_CHECKING
 
 from nk3.machine.operation.jobOperationType import JobOperationType
-from nk3.QObjectList import QObjectList
-from nk3.QObjectBase import QObjectBaseProperty
+from nk3.qt.QObjectList import QObjectList
+from nk3.qt.QObjectBase import QObjectBaseProperty
 from nk3.processor.settings import Settings
 from nk3.settingInstance import SettingInstance
 if TYPE_CHECKING:

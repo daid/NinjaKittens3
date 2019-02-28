@@ -3,9 +3,9 @@ import configparser
 import os
 import re
 import importlib
-from typing import Any, Type
+from typing import Any
 
-from nk3.QObjectList import QObjectList
+from nk3.qt.QObjectList import QObjectList
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.operation.jobOperationInstance import JobOperationInstance

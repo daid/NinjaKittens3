@@ -1,7 +1,7 @@
-from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, pyqtProperty, pyqtSlot, QObject
+from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, QObject
 from typing import List, TypeVar, Generic, Dict, Any, Iterator, TYPE_CHECKING
 
-from nk3.QObjectBase import QObjectBaseMeta, qtSlot
+from nk3.qt.QObjectBase import QObjectBaseMeta, qtSlot
 
 T = TypeVar('T', bound=QObject)
 

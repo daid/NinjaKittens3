@@ -3,7 +3,7 @@ import threading
 import time
 from typing import Any, List
 
-from nk3.QObjectList import QObjectList
+from nk3.qt.QObjectList import QObjectList
 from nk3.document.node import DocumentNode
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.tool.toolInstance import ToolInstance
