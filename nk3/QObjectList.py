@@ -1,10 +1,14 @@
 from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, pyqtProperty, pyqtSlot, QObject
-from typing import List, TypeVar, Generic, Dict, Any, Iterator
+from typing import List, TypeVar, Generic, Dict, Any, Iterator, TYPE_CHECKING
 
 from nk3.QObjectBase import QObjectBaseMeta, qtSlot
 
 T = TypeVar('T', bound=QObject)
 
+if not TYPE_CHECKING:
+    # Workaround for python < 3.7, Generic[] has a metaclass, which conflicts with our QObjectBaseMeta
+    # So replace it with an empty class at runtime.
+    Generic = {T: type("Generic[T]", (), {})}
 
 class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
     RoleItem = Qt.UserRole + 1

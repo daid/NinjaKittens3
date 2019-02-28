@@ -53,7 +53,7 @@ class Storage:
         module_name, _, class_name = full_class_name.rpartition(".")
         try:
             type_instance = getattr(importlib.import_module(module_name), class_name)()
-        except ModuleNotFoundError:
+        except ImportError:
             log.warning("Failed to find module: %s", module_name)
             return None
         except AttributeError:

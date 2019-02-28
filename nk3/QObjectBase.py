@@ -59,6 +59,11 @@ class QObjectBaseMeta(QObjectMetaClass):
         dct[value_key] = default_value
         dct[name] = setter
         dct[signal_name] = signal
+    
+    # Workaround for python < 3.7, which lacks the __class_getitem__
+    # And will call the __getitem__ of the metaclass for generics
+    def __getitem__(self, key: Any) -> Any:
+        return self
 
 
 class QObjectBase(QObject, metaclass=QObjectBaseMeta):
