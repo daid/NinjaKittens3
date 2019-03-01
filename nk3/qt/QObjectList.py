@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, QObject
+from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, QObject, pyqtSignal
 from typing import List, TypeVar, Generic, Dict, Any, Iterator, TYPE_CHECKING
 
 from nk3.qt.QObjectBase import QObjectBaseMeta, qtSlot
@@ -12,6 +12,9 @@ if not TYPE_CHECKING:
 
 class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
     RoleItem = Qt.UserRole + 1
+
+    onAdd = pyqtSignal(QObject)
+    onRemove = pyqtSignal(QObject)
 
     def __init__(self, entry_name: str) -> None:
         super().__init__()
@@ -47,11 +50,13 @@ class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
 
     def remove(self, index: int) -> None:
         self.beginRemoveRows(QModelIndex(), index, index)
+        self.onRemove.emit(self.__entries[index])
         del self.__entries[index]
         self.endRemoveRows()
 
     def insert(self, index: int, item: T) -> None:
         self.beginInsertRows(QModelIndex(), index, index)
+        self.onAdd.emit(item)
         self.__entries.insert(index, item)
         self.endInsertRows()
 

@@ -5,7 +5,7 @@ from typing import List, Generic, TypeVar, Any, Type, Dict, TYPE_CHECKING, Union
 T = TypeVar("T")
 
 
-class QObjectBaseProperty(Generic[T]):
+class QProperty(Generic[T]):
     def __init__(self, default_value: T) -> None:
         self.default_value = default_value
 
@@ -27,6 +27,7 @@ class QObjectBaseProperty(Generic[T]):
                 result = result.__origin__
             return result
 
+
 if TYPE_CHECKING:  # mypy does not like the construct we use to get the metaclass of QObject. So fake a different metaclass.
     QObjectMetaClass = type
 else:
@@ -37,15 +38,17 @@ class QObjectBaseMeta(QObjectMetaClass):
     def __new__(mcs, name: str, bases: Any, dct: Any) -> Any:
         new_dct = {}  # type: Dict[str, Any]
         for k, v in dct.items():
-            if isinstance(v, QObjectBaseProperty):
+            if isinstance(v, QProperty):
                 mcs.createProperty(new_dct, k, v.getDefinedType(), v.default_value)
         dct.update(new_dct)
         return super().__new__(mcs, name, bases, dct)
 
     @staticmethod
     def createProperty(dct: Dict[str, Any], name: str, property_type: Type[Any], default_value: Any) -> None:
-        value_key = "__%s" % (name)
+        if issubclass(property_type, QObject):
+            property_type = QObject
 
+        value_key = "__%s" % (name)
         signal = pyqtSignal()
         signal_name = "%sChanged" % (name)
         @pyqtProperty(property_type, notify=signal)
@@ -62,6 +65,7 @@ class QObjectBaseMeta(QObjectMetaClass):
     
     # Workaround for python < 3.7, which lacks the __class_getitem__
     # And will call the __getitem__ of the metaclass for generics
+    # So this is called for the QObjectList class when it is used as Generic
     def __getitem__(self, key: Any) -> Any:
         return self
 

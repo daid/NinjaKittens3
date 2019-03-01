@@ -39,9 +39,9 @@ NK3.MainWindow {
             ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                text: "Export"
+                text: NK3.Application.active_machine.export.save_button_text
                 onClicked: {
-                    export_file_dialog.visible = true
+                    export_loader.item.visible = true
                 }
             }
             ToolButton {
@@ -98,14 +98,8 @@ NK3.MainWindow {
         }
     }
 
-    FileDialog {
-        id: export_file_dialog
-        title: "Please choose a file"
-        nameFilters: ["GCode files (*.gcode *.nc *.g)"]
-        selectExisting: false
-
-        onAccepted: {
-            NK3.Application.exportFile(fileUrls[0]);
-        }
+    Loader {
+        id: export_loader
+        source: NK3.Application.active_machine.export.qml_source
     }
 }

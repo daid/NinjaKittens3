@@ -1,24 +1,25 @@
 import logging
+from typing import Dict
 
 from PyQt5.QtCore import pyqtProperty
 
+from nk3.export.export import Export
 from nk3.machine.tool.toolType import ToolType
 from nk3.processor.settings import Settings
-
-log = logging.getLogger(__name__.split(".")[-1])
-
-from typing import Dict
-
 from nk3.machine.machineType import MachineType
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.qt.QObjectList import QObjectList
-from nk3.qt.QObjectBase import QObjectBaseProperty, qtSlot
+from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.settingInstance import SettingInstance
 
 
+log = logging.getLogger(__name__.split(".")[-1])
+
+
 class MachineInstance(QObjectList[SettingInstance]):
-    name = QObjectBaseProperty[str]("")
-    tools = QObjectBaseProperty[QObjectList[ToolInstance]](QObjectList[ToolInstance]("PLACEHOLDER"))
+    name = QProperty[str]("")
+    tools = QProperty[QObjectList[ToolInstance]](QObjectList[ToolInstance]("PLACEHOLDER"))
+    export = QProperty[Export](Export())
 
     def __init__(self, name: str, machine_type: MachineType) -> None:
         super().__init__("setting")

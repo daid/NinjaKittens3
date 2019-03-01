@@ -2,7 +2,7 @@ from typing import Dict, TYPE_CHECKING
 
 from nk3.machine.operation.jobOperationType import JobOperationType
 from nk3.qt.QObjectList import QObjectList
-from nk3.qt.QObjectBase import QObjectBaseProperty
+from nk3.qt.QObjectBase import QProperty
 from nk3.processor.settings import Settings
 from nk3.settingInstance import SettingInstance
 if TYPE_CHECKING:
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class JobOperationInstance(QObjectList[SettingInstance]):
-    name = QObjectBaseProperty[str]("")
+    name = QProperty[str]("")
 
     def __init__(self, tool_instance: "ToolInstance", job_operation_type: JobOperationType) -> None:
         super().__init__("setting")

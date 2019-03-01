@@ -1,13 +1,13 @@
 from nk3.qt.QObjectList import QObjectList
-from nk3.qt.QObjectBase import QObjectBaseProperty
+from nk3.qt.QObjectBase import QProperty
 from typing import Optional, Tuple
 
 
 class DocumentNode(QObjectList["DocumentNode"]):
-    name = QObjectBaseProperty[str]("")
-    tool_index = QObjectBaseProperty[int](-1)
-    operation_index = QObjectBaseProperty[int](-1)
-    color = QObjectBaseProperty[int](0)
+    name = QProperty[str]("")
+    tool_index = QProperty[int](-1)
+    operation_index = QProperty[int](-1)
+    color = QProperty[int](0)
 
     def __init__(self, name: str) -> None:
         super().__init__("node")

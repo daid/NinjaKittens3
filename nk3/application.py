@@ -8,7 +8,8 @@ from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingl
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
 from typing import List, Optional, Any
 
-from nk3.qt.QObjectBase import qtSlot, QObjectBase, QObjectBaseProperty
+from nk3.depthFirstIterator import DepthFirstIterator
+from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.document.node import DocumentNode
 from nk3.machine.machineInstance import MachineInstance
@@ -19,7 +20,7 @@ from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 
 from nk3.fileReader.fileReader import FileReader
 from nk3.processor.dispatcher import Dispatcher
-from nk3.processor.export import Export
+from nk3.export.export import Export
 from nk3.processor.pathUtils import Move
 from nk3.view import View
 from nk3.configuration.storage import Storage
@@ -78,8 +79,8 @@ class MouseHandler(QQuickItem):
 class Application(QObjectBase):
     _instance = None  # type: Optional["Application"]
 
-    machine_list = QObjectBaseProperty[QObjectList[MachineInstance]](QObjectList[MachineInstance]("PLACEHOLDER"))
-    active_machine = QObjectBaseProperty[MachineInstance](MachineInstance("PLACEHOLDER", RouterMachineType()))
+    machine_list = QProperty[QObjectList[MachineInstance]](QObjectList[MachineInstance]("PLACEHOLDER"))
+    active_machine = QProperty[MachineInstance](MachineInstance("PLACEHOLDER", RouterMachineType()))
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
@@ -107,8 +108,9 @@ class Application(QObjectBase):
         self.__document_list = QObjectList[DocumentNode]("node")
         self.__document_list.rowsInserted.connect(lambda parent, first, last: self.__view.home())
 
-        self.__dispatcher = Dispatcher(self.active_machine, self.__document_list)
+        self.__dispatcher = Dispatcher(self.__document_list)
         self.__dispatcher.onMoveData = self.__onMoveData
+        self.active_machineChanged.connect(self.__onActiveMachineChanged)
 
         Storage().load(self.machine_list)
         if self.machine_list.size() == 0:
@@ -129,6 +131,12 @@ class Application(QObjectBase):
     @property
     def move_data(self) -> List[Move]:
         return self.__move_data
+
+    def __onActiveMachineChanged(self):
+        for node in DepthFirstIterator(self.__document_list):
+            node.tool_index = -1
+            node.operation_index = -1
+        self.__dispatcher.setActiveMachine(self.active_machine)
 
     def __onMoveData(self, move_data: List[Move]) -> None:
         self.__move_data = move_data
@@ -173,10 +181,6 @@ class Application(QObjectBase):
         for ext in types.keys():
             result.append("%s (*.%s)" % (ext, ext))
         return result
-
-    @qtSlot
-    def exportFile(self, filename: QUrl) -> None:
-        Export().export(filename.toLocalFile(), self.__move_data)
 
     @qtSlot
     def createNewTool(self) -> None:

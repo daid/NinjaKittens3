@@ -12,15 +12,15 @@ from typing import Dict, TYPE_CHECKING
 
 from nk3.machine.tool.toolType import ToolType
 from nk3.qt.QObjectList import QObjectList
-from nk3.qt.QObjectBase import QObjectBaseProperty, qtSlot
+from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.settingInstance import SettingInstance
 if TYPE_CHECKING:
     from nk3.machine.machineInstance import MachineInstance
 
 
 class ToolInstance(QObjectList[SettingInstance]):
-    name = QObjectBaseProperty[str]("?")
-    operations = QObjectBaseProperty[QObjectList[JobOperationInstance]](QObjectList[JobOperationInstance]("PLACEHOLDER"))
+    name = QProperty[str]("?")
+    operations = QProperty[QObjectList[JobOperationInstance]](QObjectList[JobOperationInstance]("PLACEHOLDER"))
 
     def __init__(self, machine: "MachineInstance", cut_tool_type: ToolType) -> None:
         super().__init__("setting")
