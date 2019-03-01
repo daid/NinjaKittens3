@@ -1,29 +1,27 @@
-import sys
 import logging
 import os
+import sys
+from typing import List, Optional, Any
 
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint
 from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QAbstractOpenGLFunctions, QMouseEvent, QWheelEvent
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
-from typing import List, Optional, Any
 
+from nk3.configuration.storage import Storage
 from nk3.depthFirstIterator import DepthFirstIterator
+from nk3.document.node import DocumentNode
+from nk3.fileReader.fileReader import FileReader
+from nk3.machine.machineInstance import MachineInstance
+from nk3.machine.operation.jobOperationInstance import JobOperationInstance
+from nk3.machine.routerMachineType import RouterMachineType
+from nk3.machine.tool.routerToolType import RouterToolType
+from nk3.machine.tool.toolInstance import ToolInstance
+from nk3.processor.dispatcher import Dispatcher
+from nk3.processor.pathUtils import Move
 from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
-from nk3.document.node import DocumentNode
-from nk3.machine.machineInstance import MachineInstance
-from nk3.machine.routerMachineType import RouterMachineType
-from nk3.machine.tool.toolInstance import ToolInstance
-from nk3.machine.tool.routerToolType import RouterToolType
-from nk3.machine.operation.jobOperationInstance import JobOperationInstance
-
-from nk3.fileReader.fileReader import FileReader
-from nk3.processor.dispatcher import Dispatcher
-from nk3.export.export import Export
-from nk3.processor.pathUtils import Move
 from nk3.view import View
-from nk3.configuration.storage import Storage
 
 log = logging.getLogger(__name__.split(".")[-1])
 

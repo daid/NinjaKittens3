@@ -1,16 +1,17 @@
 import logging
 import threading
 import time
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from PyQt5.QtCore import QModelIndex
-from nk3.qt.QObjectList import QObjectList
+
 from nk3.document.node import DocumentNode
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.processor.collector import Collector
 from nk3.processor.pathUtils import Move
 from nk3.processor.processor import Processor
+from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 
 log = logging.getLogger(__name__.split(".")[-1])

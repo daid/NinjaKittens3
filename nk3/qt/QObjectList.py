@@ -1,5 +1,6 @@
-from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, QObject, pyqtSignal
 from typing import List, TypeVar, Generic, Dict, Any, Iterator, TYPE_CHECKING
+
+from PyQt5.QtCore import Qt, QAbstractListModel, QVariant, QModelIndex, QObject, pyqtSignal
 
 from nk3.qt.QObjectBase import QObjectBaseMeta, qtSlot
 

@@ -4,14 +4,13 @@ from typing import Dict
 from PyQt5.QtCore import pyqtProperty
 
 from nk3.export.export import Export
-from nk3.machine.tool.toolType import ToolType
-from nk3.processor.settings import Settings
 from nk3.machine.machineType import MachineType
 from nk3.machine.tool.toolInstance import ToolInstance
-from nk3.qt.QObjectList import QObjectList
+from nk3.machine.tool.toolType import ToolType
+from nk3.processor.settings import Settings
 from nk3.qt.QObjectBase import QProperty, qtSlot
+from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
-
 
 log = logging.getLogger(__name__.split(".")[-1])
 
