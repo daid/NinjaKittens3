@@ -132,7 +132,7 @@ class Application(QObjectBase):
     def move_data(self) -> List[Move]:
         return self.__move_data
 
-    def __onActiveMachineChanged(self):
+    def __onActiveMachineChanged(self) -> None:
         for node in DepthFirstIterator(self.__document_list):
             node.tool_index = -1
             node.operation_index = -1

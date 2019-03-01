@@ -1,10 +1,9 @@
 import logging
 import threading
 import time
-from typing import Any, List
+from typing import Any, List, Optional
 
 from PyQt5.QtCore import QModelIndex
-
 from nk3.qt.QObjectList import QObjectList
 from nk3.document.node import DocumentNode
 from nk3.machine.machineInstance import MachineInstance
@@ -20,7 +19,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 class Dispatcher:
     def __init__(self, document_list: QObjectList[DocumentNode]) -> None:
         self.onMoveData = lambda moves: None
-        self.__machine = None
+        self.__machine = None  # type: Optional[MachineInstance]
         self.__document_list = document_list
 
         self.__trigger = threading.Event()
@@ -28,8 +27,9 @@ class Dispatcher:
         self.__thread.start()
 
         self.__document_list.rowsInserted.connect(self.__documentInserted)
+        self.__document_list.rowsAboutToBeRemoved.connect(self.__documentRemoved)
 
-    def setActiveMachine(self, machine: MachineInstance):
+    def setActiveMachine(self, machine: MachineInstance) -> None:
         if self.__machine is not None:
             self.__disconnectTrigger(self.__machine)
         self.__machine = machine
@@ -65,10 +65,21 @@ class Dispatcher:
                 self.__connectToDocumentNode(document)
         self.trigger()
 
+    def __documentRemoved(self, parent: QModelIndex, first: int, last: int) -> None:
+        for n in range(first, last + 1):
+            for document in self.__document_list:
+                self.__disconnectFromDocumentNode(document)
+        self.trigger()
+
     def __connectToDocumentNode(self, document: DocumentNode) -> None:
         document.operation_indexChanged.connect(self.trigger)
         for child in document:
             self.__connectToDocumentNode(child)
+
+    def __disconnectFromDocumentNode(self, document: DocumentNode) -> None:
+        document.operation_indexChanged.disconnect(self.trigger)
+        for child in document:
+            self.__disconnectFromDocumentNode(child)
 
     def trigger(self) -> None:
         self.__trigger.set()
@@ -86,10 +97,12 @@ class Dispatcher:
 
     def __process(self) -> None:
         # Collect all paths from nodes and match them with the respective operations
-        collector = Collector(self.__document_list, self.__machine)
         moves = []  # type: List[Move]
-        for job in collector.getJobs():
-            moves += Processor(job).process()
+        machine = self.__machine
+        if machine is not None:
+            collector = Collector(self.__document_list, machine)
+            for job in collector.getJobs():
+                moves += Processor(job).process()
         # Notify the main application of new processed data.
         # The main application can display this and export it.
         self.onMoveData(moves)
