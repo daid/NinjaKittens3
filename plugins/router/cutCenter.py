@@ -14,7 +14,7 @@ class CutCenterOperation(JobOperationType):
             SettingType(key="tab_height", label="Tab height", type="dimension", default="2.5"),
         ])
 
-    def fillProcessorSettings(self, instance: "JobOperationInstance", settings: Settings) -> None:
+    def fillProcessorSettings(self, instance: JobOperationInstance, settings: Settings) -> None:
         settings.cut_depth_total = float(instance.getSettingValue("cut_depth_total"))
         settings.cut_offset = 0.0
         settings.tab_height = float(instance.getSettingValue("tab_height"))

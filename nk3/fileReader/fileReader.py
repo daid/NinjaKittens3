@@ -1,12 +1,11 @@
+import importlib
+import logging
+import os
+import pkgutil
 from abc import ABC, abstractmethod
-
 from typing import Type, Dict, TYPE_CHECKING, Iterable
 
 from nk3.document.node import DocumentNode
-import importlib
-import pkgutil
-import os
-import logging
 
 log = logging.getLogger(__name__.split(".")[-1])
 

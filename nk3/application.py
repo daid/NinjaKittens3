@@ -4,7 +4,8 @@ import sys
 from typing import List, Optional, Any
 
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint
-from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QAbstractOpenGLFunctions, QMouseEvent, QWheelEvent
+from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QAbstractOpenGLFunctions, QMouseEvent, \
+    QWheelEvent
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
 
@@ -14,14 +15,20 @@ from nk3.document.node import DocumentNode
 from nk3.fileReader.fileReader import FileReader
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.operation.jobOperationInstance import JobOperationInstance
-from nk3.machine.routerMachineType import RouterMachineType
-from nk3.machine.tool.routerToolType import RouterToolType
 from nk3.machine.tool.toolInstance import ToolInstance
+from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.pathUtils import Move
 from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.view import View
+from plugins.router.cutCenter import CutCenterOperation
+from plugins.router.cutInside import CutInsideOperation
+from plugins.router.cutOutside import CutOutsideOperation
+from plugins.router.cutOutsideWithPocket import CutOutsideWithPocketOperation
+from plugins.router.cutPocket import CutPocketOperation
+from plugins.router.routerMachineType import RouterMachineType
+from plugins.router.routerToolType import RouterToolType
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -89,7 +96,9 @@ class Application(QObjectBase):
         super().__init__()
         assert Application._instance is None
         Application._instance = self
-        
+
+        PluginRegistry.getInstance().findPlugins(os.path.join(os.getcwd(), "plugins"))
+
         self.__app = QGuiApplication(sys.argv)
         self.__qml_engine = QQmlApplicationEngine(self.__app)
 

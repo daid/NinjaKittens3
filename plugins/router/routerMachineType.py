@@ -1,11 +1,11 @@
 import logging
-
 from typing import TYPE_CHECKING
 
 from nk3.machine.machineType import MachineType
-from nk3.machine.tool.routerToolType import RouterToolType
 from nk3.processor.settings import Settings
 from nk3.settingType import SettingType
+from .routerToolType import RouterToolType
+
 if TYPE_CHECKING:
     from nk3.machine.machineInstance import MachineInstance
 
