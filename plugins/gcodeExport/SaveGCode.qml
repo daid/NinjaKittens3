@@ -6,6 +6,11 @@ import NK3 1.0 as NK3
 
 
 FileDialog {
+    function activate()
+    {
+        export_file_dialog.visible = true;
+    }
+
     id: export_file_dialog
     title: "Please choose a file"
     nameFilters: ["GCode files (*.gcode *.nc *.g)"]

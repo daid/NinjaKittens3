@@ -25,6 +25,8 @@ class PluginRegistry:
             for file in files:
                 if not file.endswith(".py"):
                     continue
+                if file.startswith("_"):
+                    continue
                 module_name = "%s.%s" % (module_path, file[:-3])
                 module = importlib.import_module(module_name)
                 for attr_name in dir(module):

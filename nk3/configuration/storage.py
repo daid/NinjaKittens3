@@ -10,6 +10,7 @@ from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 from nk3.machine.operation.jobOperationType import JobOperationType
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.tool.toolType import ToolType
+from nk3.export import Export
 from nk3.pluginRegistry import PluginRegistry
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
@@ -39,6 +40,7 @@ class Storage:
             for setting in machine_instance:
                 if setting.type.key in cp[machine_section]:
                     setting.value = cp[machine_section][setting.type.key]
+            machine_instance.export = self.__getInstance(Export, "GCodeExport")
 
             for tool_section in filter(lambda key: re.fullmatch("%s_tool_[0-9]+" % (machine_section), key), cp.sections()):
                 type_instance = self.__getInstance(ToolType, cp[tool_section]["type"])

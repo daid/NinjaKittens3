@@ -40,9 +40,7 @@ NK3.MainWindow {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 text: NK3.Application.active_machine.export.save_button_text
-                onClicked: {
-                    export_loader.item.visible = true
-                }
+                onClicked: export_loader.item.activate()
             }
             ToolButton {
                 anchors.top: parent.top

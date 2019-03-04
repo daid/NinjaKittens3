@@ -3,7 +3,7 @@ from typing import Dict
 
 from PyQt5.QtCore import pyqtProperty
 
-from nk3.export.export import Export
+from nk3.export import Export
 from nk3.machine.machineType import MachineType
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.tool.toolType import ToolType
