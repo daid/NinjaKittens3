@@ -32,7 +32,7 @@ class Storage:
         if not cp.read(self.__configuration_file):
             return False
         for machine_section in filter(lambda key: re.fullmatch("machine_[0-9]+", key), cp.sections()):
-            type_instance = self.__getInstance(MachineType, cp[machine_section]["type"])
+            type_instance = self.__getInstance(MachineType, cp.get(machine_section, "type", fallback=""))
             if type_instance is None:
                 continue
             machine_instance = MachineInstance(cp[machine_section]["name"], type_instance)
@@ -40,10 +40,14 @@ class Storage:
                 if setting.type.key in cp[machine_section]:
                     setting.value = cp[machine_section][setting.type.key]
 
-            export = self.__getInstance(Export, cp[machine_section].get("export", ""))
+            export_section = "%s_export" % (machine_section)
+            export = self.__getInstance(Export, cp.get(export_section, "type", fallback=""))
             if export is None:
                 continue
             machine_instance.export = export
+            for setting in export:
+                if setting.type.key in cp[export_section]:
+                    setting.value = cp[export_section][setting.type.key]
 
             for tool_section in filter(lambda key: re.fullmatch("%s_tool_[0-9]+" % (machine_section), key), cp.sections()):
                 type_instance = self.__getInstance(ToolType, cp[tool_section]["type"])
@@ -82,7 +86,7 @@ class Storage:
         cp = configparser.ConfigParser()
         for machine_index, machine in enumerate(machines):
             self._addSettingContainer(cp, "machine_%d" % (machine_index), machine)
-            cp.set("machine_%d" % (machine_index), "export", type(machine.export).__name__)
+            self._addSettingContainer(cp, "machine_%d_export" % (machine_index), machine.export)
             for tool_index, tool in enumerate(machine.tools):
                 self._addSettingContainer(cp, "machine_%d_tool_%d" % (machine_index, tool_index), tool)
                 for operation_index, operation in enumerate(tool.operations):
@@ -94,7 +98,11 @@ class Storage:
     @staticmethod
     def _addSettingContainer(cp: configparser.ConfigParser, section: str, setting_container: QObjectList[SettingInstance]) -> None:
         cp.add_section(section)
-        cp.set(section, "name", setting_container.name)
-        cp.set(section, "type", type(setting_container.type).__name__)
+        if hasattr(setting_container, "name"):
+            cp.set(section, "name", setting_container.name)
+        if hasattr(setting_container, "type"):
+            cp.set(section, "type", type(setting_container.type).__name__)
+        else:
+            cp.set(section, "type", type(setting_container).__name__)
         for setting in setting_container:
             cp.set(section, setting.type.key, setting.value)
