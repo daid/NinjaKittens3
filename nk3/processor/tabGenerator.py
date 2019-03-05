@@ -3,13 +3,13 @@ import logging
 from typing import List
 
 from nk3.processor import pathUtils
-from nk3.processor.settings import Settings
+from nk3.processor.processorSettings import ProcessorSettings
 
 log = logging.getLogger(__name__.split(".")[-1])
 
 
 class TabGenerator:
-    def __init__(self, settings: Settings, path: pathUtils.Path) -> None:
+    def __init__(self, settings: ProcessorSettings, path: pathUtils.Path) -> None:
         self.__path = path
 
         self.__tab_height = settings.tab_height

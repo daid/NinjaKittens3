@@ -24,7 +24,7 @@ class Collector:
             if collection_index not in self.__result:
                 tool_instance = self.__machine.tools[collection_index[0]]
                 operation_instance = tool_instance.operations[collection_index[1]]
-                self.__result[collection_index] = Job(operation_instance)
+                self.__result[collection_index] = Job(self.__machine, tool_instance, operation_instance)
             for path in document.getPaths():
                 if path.closed:
                     self.__result[collection_index].addClosed(path.getPoints())

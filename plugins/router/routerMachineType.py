@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from nk3.machine.machineType import MachineType
-from nk3.processor.settings import Settings
+from nk3.processor.processorSettings import ProcessorSettings
 from nk3.settingType import SettingType
 from .routerToolType import RouterToolType
 
@@ -20,5 +20,5 @@ class RouterMachineType(MachineType):
             RouterToolType()
         ])
 
-    def fillProcessorSettings(self, instance: "MachineInstance", settings: Settings) -> None:
+    def fillProcessorSettings(self, instance: "MachineInstance", settings: ProcessorSettings) -> None:
         settings.attack_angle = float(instance.getSettingValue("attack_angle"))

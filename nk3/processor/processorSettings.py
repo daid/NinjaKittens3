@@ -3,7 +3,7 @@ import logging
 log = logging.getLogger(__name__.split(".")[-1])
 
 
-class Settings:
+class ProcessorSettings:
     def __init__(self) -> None:
         self.tool_diameter = 0.0
         self.cut_offset = 0.0

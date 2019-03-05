@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from nk3.machine.tool.toolType import ToolType
-from nk3.processor.settings import Settings
+from nk3.processor.processorSettings import ProcessorSettings
 from nk3.settingType import SettingType
 from .cutCenter import CutCenterOperation
 from .cutInside import CutInsideOperation
@@ -25,14 +25,14 @@ class RouterToolType(ToolType):
             SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="1200"),
             SettingType(key="plunge_feedrate", label="Plungerate", type="speed", default="180"),
         ], [
-            CutOutsideOperation(),
-            CutOutsideWithPocketOperation(),
-            CutInsideOperation(),
-            CutPocketOperation(),
-            CutCenterOperation(),
+            CutOutsideOperation,
+            CutOutsideWithPocketOperation,
+            CutInsideOperation,
+            CutPocketOperation,
+            CutCenterOperation,
         ])
 
-    def fillProcessorSettings(self, instance: "ToolInstance", settings: Settings) -> None:
+    def fillProcessorSettings(self, instance: "ToolInstance", settings: ProcessorSettings) -> None:
         settings.tool_diameter = float(instance.getSettingValue("tool_diameter"))
         settings.cut_depth_pass = float(instance.getSettingValue("cut_depth_pass"))
         settings.cut_feedrate = float(instance.getSettingValue("cut_feedrate"))

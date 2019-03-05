@@ -5,7 +5,7 @@ from typing import Iterator, List, TYPE_CHECKING
 from nk3.qt.QObjectBase import QObjectBase
 from nk3.qt.QObjectList import QObjectList
 from nk3.machine.tool.toolType import ToolType
-from nk3.processor.settings import Settings
+from nk3.processor.processorSettings import ProcessorSettings
 from nk3.settingType import SettingType
 if TYPE_CHECKING:
     from nk3.machine.machineInstance import MachineInstance
@@ -28,5 +28,5 @@ class MachineType(QObjectBase):
     def getToolTypes(self) -> QObjectList[ToolType]:
         return self.__tools
 
-    def fillProcessorSettings(self, instance: "MachineInstance", settings: Settings) -> None:
+    def fillProcessorSettings(self, instance: "MachineInstance", settings: ProcessorSettings) -> None:
         raise NotImplementedError

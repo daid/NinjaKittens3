@@ -2,16 +2,20 @@ import logging
 
 from typing import List
 
-from nk3.machine.operation.jobOperationInstance import JobOperationInstance
+from nk3.machine.machineInstance import MachineInstance
+from nk3.machine.operation import Operation
+from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.processor import pathUtils
-from nk3.processor.settings import Settings
+from nk3.processor.processorSettings import ProcessorSettings
 
 log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Job:
-    def __init__(self, operation: JobOperationInstance) -> None:
-        self.__settings = Settings()
+    def __init__(self, machine: MachineInstance, tool: ToolInstance, operation: Operation) -> None:
+        self.__settings = ProcessorSettings()
+        machine.fillProcessorSettings(self.__settings)
+        tool.fillProcessorSettings(self.__settings)
         operation.fillProcessorSettings(self.__settings)
         self.__open_paths = pathUtils.Paths()
         self.__closed_paths = pathUtils.Paths()
@@ -23,7 +27,7 @@ class Job:
         self.__closed_paths.addPath(points, True)
 
     @property
-    def settings(self) -> Settings:
+    def settings(self) -> ProcessorSettings:
         return self.__settings
 
     @property

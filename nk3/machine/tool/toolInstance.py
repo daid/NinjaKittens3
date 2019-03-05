@@ -2,13 +2,12 @@ import logging
 
 from PyQt5.QtCore import pyqtProperty
 
-from nk3.machine.operation.jobOperationInstance import JobOperationInstance
-from nk3.machine.operation.jobOperationType import JobOperationType
-from nk3.processor.settings import Settings
+from nk3.machine.operation import Operation
+from nk3.processor.processorSettings import ProcessorSettings
 
 log = logging.getLogger(__name__.split(".")[-1])
 
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, List
 
 from nk3.machine.tool.toolType import ToolType
 from nk3.qt.QObjectList import QObjectList
@@ -20,11 +19,11 @@ if TYPE_CHECKING:
 
 class ToolInstance(QObjectList[SettingInstance]):
     name = QProperty[str]("?")
-    operations = QProperty[QObjectList[JobOperationInstance]](QObjectList[JobOperationInstance]("PLACEHOLDER"))
+    operations = QProperty[QObjectList[Operation]](QObjectList[Operation]("PLACEHOLDER"))
 
     def __init__(self, machine: "MachineInstance", cut_tool_type: ToolType) -> None:
         super().__init__("setting")
-        self.operations = QObjectList[JobOperationInstance]("operation")
+        self.operations = QObjectList[Operation]("operation")
         self.__machine = machine
         self.__type = cut_tool_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
@@ -35,8 +34,10 @@ class ToolInstance(QObjectList[SettingInstance]):
             self.__setting_instances[instance.type.key] = instance
 
     @qtSlot
-    def addOperation(self, operation: JobOperationType) -> None:
-        self.operations.append(JobOperationInstance(self, operation))
+    def addOperation(self, operation_name: str) -> None:
+        for operation in self.__type.getOperationTypes():
+            if operation.DEFAULT_NAME == operation_name:
+                self.operations.append(operation())
 
     @qtSlot
     def removeOperation(self, index: int) -> None:
@@ -55,11 +56,11 @@ class ToolInstance(QObjectList[SettingInstance]):
     def type(self) -> ToolType:
         return self.__type
 
-    @pyqtProperty(QObjectList, constant=True)
-    def operation_types(self) -> QObjectList[JobOperationType]:
-        return self.__type.getOperationTypes()
+    @pyqtProperty("QStringList", constant=True)
+    def operation_types(self) -> List[str]:
+        return [operation.DEFAULT_NAME for operation in self.__type.getOperationTypes()]
 
-    def fillProcessorSettings(self, settings: Settings) -> None:
+    def fillProcessorSettings(self, settings: ProcessorSettings) -> None:
         self.__machine.fillProcessorSettings(settings)
         self.__type.fillProcessorSettings(self, settings)
 

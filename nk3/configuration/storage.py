@@ -6,8 +6,7 @@ from typing import Type, TypeVar, Optional
 
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.machineType import MachineType
-from nk3.machine.operation.jobOperationInstance import JobOperationInstance
-from nk3.machine.operation.jobOperationType import JobOperationType
+from nk3.machine.operation import Operation
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.tool.toolType import ToolType
 from nk3.machine.export import Export
@@ -61,10 +60,9 @@ class Storage:
                         setting.value = cp[tool_section][setting.type.key]
 
                 for operation_section in filter(lambda key: re.fullmatch("%s_operation_[0-9]+" % (tool_section), key), cp.sections()):
-                    type_instance = self.__getInstance(JobOperationType, cp[operation_section]["type"])
-                    if type_instance is None:
+                    operation_instance = self.__getInstance(Operation, cp[operation_section]["type"])
+                    if operation_instance is None:
                         continue
-                    operation_instance = JobOperationInstance(tool_instance, type_instance)
                     operation_instance.name = cp[operation_section]["name"]
                     for setting in operation_instance:
                         if setting.type.key in cp[operation_section]:

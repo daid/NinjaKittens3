@@ -7,7 +7,7 @@ from nk3.machine.export import Export
 from nk3.machine.machineType import MachineType
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.tool.toolType import ToolType
-from nk3.processor.settings import Settings
+from nk3.processor.processorSettings import ProcessorSettings
 from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
@@ -57,7 +57,7 @@ class MachineInstance(QObjectList[SettingInstance]):
     def tool_types(self) -> QObjectList[ToolType]:
         return self.__type.getToolTypes()
 
-    def fillProcessorSettings(self, settings: Settings) -> None:
+    def fillProcessorSettings(self, settings: ProcessorSettings) -> None:
         self.__type.fillProcessorSettings(self, settings)
 
     def getSettingValue(self, key: str) -> str:

@@ -15,21 +15,13 @@ from nk3.document.node import DocumentNode
 from nk3.fileReader.fileReader import FileReader
 from nk3.machine.export import Export
 from nk3.machine.machineInstance import MachineInstance
-from nk3.machine.operation.jobOperationInstance import JobOperationInstance
-from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.pathUtils import Move
 from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.view import View
-from plugins.router.cutCenter import CutCenterOperation
-from plugins.router.cutInside import CutInsideOperation
-from plugins.router.cutOutside import CutOutsideOperation
-from plugins.router.cutOutsideWithPocket import CutOutsideWithPocketOperation
-from plugins.router.cutPocket import CutPocketOperation
 from plugins.router.routerMachineType import RouterMachineType
-from plugins.router.routerToolType import RouterToolType
 
 log = logging.getLogger(__name__.split(".")[-1])
 
