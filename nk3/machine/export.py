@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import nk3.application
 from nk3.processor.pathUtils import Move
@@ -17,14 +17,15 @@ class Export(QObjectList[SettingInstance]):
     save_button_text = QProperty[str]("?")
     qml_source = QProperty[str]("")
 
-    def __init__(self, settings: List[SettingType]) -> None:
+    def __init__(self, settings: Optional[List[SettingType]] = None) -> None:
         super().__init__("setting")
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
 
-        for setting_type in settings:
-            instance = SettingInstance(setting_type)
-            self.append(instance)
-            self.__setting_instances[instance.type.key] = instance
+        if settings is not None:
+            for setting_type in settings:
+                instance = SettingInstance(setting_type)
+                self.append(instance)
+                self.__setting_instances[instance.type.key] = instance
 
     @staticmethod
     def getMoves() -> List[Move]:
@@ -34,3 +35,6 @@ class Export(QObjectList[SettingInstance]):
     def setLocalQmlSource(self, filename: str) -> None:
         path = os.path.dirname(sys.modules[type(self).__module__].__file__)
         self.qml_source = "file:///%s/%s" % (path, filename)
+
+    def getSettingValue(self, key: str) -> str:
+        return self.__setting_instances[key].value

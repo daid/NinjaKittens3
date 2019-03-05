@@ -18,7 +18,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 class MachineInstance(QObjectList[SettingInstance]):
     name = QProperty[str]("")
     tools = QProperty[QObjectList[ToolInstance]](QObjectList[ToolInstance]("PLACEHOLDER"))
-    export = QProperty[Export](Export([]))
+    export = QProperty[Export](Export())
 
     def __init__(self, name: str, machine_type: MachineType) -> None:
         super().__init__("setting")

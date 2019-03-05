@@ -4,7 +4,7 @@ from PyQt5.QtCore import QObject, pyqtProperty
 
 
 class SettingType(QObject):
-    def __init__(self, key: str, label: str, type: str, default: Any) -> None:
+    def __init__(self, key: str, label: str, type: str, default: str) -> None:
         super().__init__()
         self.__key = key
         self.__label = label

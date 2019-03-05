@@ -124,7 +124,9 @@ class Application(QObjectBase):
         Storage().load(self.machine_list)
         if self.machine_list.size() == 0:
             self.machine_list.append(MachineInstance("machine", RouterMachineType()))
-            self.machine_list[0].export = PluginRegistry.getInstance().getClass(Export, "GCodeExport")()
+            export_type = PluginRegistry.getInstance().getClass(Export, "GCodeExport")
+            if export_type is not None:
+                self.machine_list[0].export = export_type()
             self.machine_list[0].addTool(self.machine_list[0].type.getToolTypes()[0])
         self.active_machine = self.machine_list[0]
 
