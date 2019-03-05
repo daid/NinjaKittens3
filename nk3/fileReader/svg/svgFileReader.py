@@ -32,7 +32,21 @@ class SVGFileReader(FileReader):
         self.__processGTag(self.__xml.getroot(), root_node)
         for node in DepthFirstIterator(root_node):
             node.getPaths().stitch()
+        self.__moveToOrigin(root_node)
         return root_node
+
+    def __moveToOrigin(self, root_node: DocumentNode) -> None:
+        min_x = float("inf")
+        min_y = float("inf")
+        for node in DepthFirstIterator(root_node):
+            aabb = node.getAABB()
+            if aabb is not None:
+                min_x = min(aabb[0].real, min_x)
+                min_y = min(aabb[0].imag, min_y)
+        for node in DepthFirstIterator(root_node):
+            if isinstance(node, DocumentVectorNode):
+                for path in node.getPaths():
+                    path.offset(-complex(min_x, min_y))
 
     def __processGTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         for child in tag:
