@@ -11,6 +11,7 @@ if not TYPE_CHECKING:
     # So replace it with an empty class at runtime.
     Generic = {T: type("Generic[T]", (), {})}
 
+
 class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
     RoleItem = Qt.UserRole + 1
 

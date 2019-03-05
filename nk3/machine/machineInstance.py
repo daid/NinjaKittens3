@@ -3,7 +3,7 @@ from typing import Dict
 
 from PyQt5.QtCore import pyqtProperty
 
-from nk3.export import Export
+from nk3.machine.export import Export
 from nk3.machine.machineType import MachineType
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.tool.toolType import ToolType
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 class MachineInstance(QObjectList[SettingInstance]):
     name = QProperty[str]("")
     tools = QProperty[QObjectList[ToolInstance]](QObjectList[ToolInstance]("PLACEHOLDER"))
-    export = QProperty[Export](Export())
+    export = QProperty[Export](Export([]))
 
     def __init__(self, name: str, machine_type: MachineType) -> None:
         super().__init__("setting")

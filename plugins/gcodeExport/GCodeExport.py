@@ -1,18 +1,16 @@
 import logging
-from typing import List
 
 from PyQt5.QtCore import QUrl
 
-import nk3.application
-from nk3.export import Export
-from nk3.qt.QObjectBase import QObjectBase, QProperty, qtSlot
+from nk3.machine.export import Export
+from nk3.qt.QObjectBase import qtSlot
 
 log = logging.getLogger(__name__.split(".")[-1])
 
 
 class GCodeExport(Export):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__([])
         self.save_button_text = "Save"
         self.setLocalQmlSource("SaveGCode.qml")
 

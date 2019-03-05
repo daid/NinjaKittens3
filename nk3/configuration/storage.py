@@ -10,7 +10,7 @@ from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 from nk3.machine.operation.jobOperationType import JobOperationType
 from nk3.machine.tool.toolInstance import ToolInstance
 from nk3.machine.tool.toolType import ToolType
-from nk3.export import Export
+from nk3.machine.export import Export
 from nk3.pluginRegistry import PluginRegistry
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
@@ -36,17 +36,21 @@ class Storage:
             if type_instance is None:
                 continue
             machine_instance = MachineInstance(cp[machine_section]["name"], type_instance)
-            machines.append(machine_instance)
             for setting in machine_instance:
                 if setting.type.key in cp[machine_section]:
                     setting.value = cp[machine_section][setting.type.key]
-            machine_instance.export = self.__getInstance(Export, "GCodeExport")
+
+            export = self.__getInstance(Export, cp[machine_section].get("export", ""))
+            if export is None:
+                continue
+            machine_instance.export = export
 
             for tool_section in filter(lambda key: re.fullmatch("%s_tool_[0-9]+" % (machine_section), key), cp.sections()):
                 type_instance = self.__getInstance(ToolType, cp[tool_section]["type"])
                 if type_instance is None:
                     continue
                 tool_instance = ToolInstance(machine_instance, type_instance)
+                tool_instance.name = cp[tool_section]["name"]
                 machine_instance.tools.append(tool_instance)
                 for setting in tool_instance:
                     if setting.type.key in cp[tool_section]:
@@ -63,12 +67,14 @@ class Storage:
                             setting.value = cp[operation_section][setting.type.key]
 
                     tool_instance.operations.append(operation_instance)
+            machines.append(machine_instance)
         return True
 
     @staticmethod
     def __getInstance(base_class: Type[T], class_name: str) -> Optional[T]:
         class_instance = PluginRegistry.getInstance().getClass(base_class, class_name)
         if class_instance is None:
+            log.warning("Failed to find class: <%s> of type %s", class_name, base_class)
             return None
         return class_instance()
 
@@ -76,6 +82,7 @@ class Storage:
         cp = configparser.ConfigParser()
         for machine_index, machine in enumerate(machines):
             self._addSettingContainer(cp, "machine_%d" % (machine_index), machine)
+            cp.set("machine_%d" % (machine_index), "export", type(machine.export).__name__)
             for tool_index, tool in enumerate(machine.tools):
                 self._addSettingContainer(cp, "machine_%d_tool_%d" % (machine_index, tool_index), tool)
                 for operation_index, operation in enumerate(tool.operations):

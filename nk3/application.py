@@ -13,6 +13,7 @@ from nk3.configuration.storage import Storage
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.fileReader.fileReader import FileReader
+from nk3.machine.export import Export
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.operation.jobOperationInstance import JobOperationInstance
 from nk3.machine.tool.toolInstance import ToolInstance
@@ -123,9 +124,9 @@ class Application(QObjectBase):
         Storage().load(self.machine_list)
         if self.machine_list.size() == 0:
             self.machine_list.append(MachineInstance("machine", RouterMachineType()))
+            self.machine_list[0].export = PluginRegistry.getInstance().getClass(Export, "GCodeExport")()
+            self.machine_list[0].addTool(self.machine_list[0].type.getToolTypes()[0])
         self.active_machine = self.machine_list[0]
-        if self.active_machine.tools.size() == 0:
-            self.createNewTool()
 
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)
         self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
@@ -189,13 +190,6 @@ class Application(QObjectBase):
         for ext in types.keys():
             result.append("%s (*.%s)" % (ext, ext))
         return result
-
-    @qtSlot
-    def createNewTool(self) -> None:
-        instance = ToolInstance(self.active_machine, RouterToolType())
-        for operation_type in instance.type.getOperationTypes():
-            instance.operations.append(JobOperationInstance(instance, operation_type))
-        self.active_machine.tools.append(instance)
 
     def _onQuit(self) -> None:
         Storage().save(self.machine_list)
