@@ -52,7 +52,7 @@ class Storage:
                 type_instance = self.__getInstance(ToolType, cp[tool_section]["type"])
                 if type_instance is None:
                     continue
-                tool_instance = ToolInstance(machine_instance, type_instance)
+                tool_instance = ToolInstance(type_instance)
                 tool_instance.name = cp[tool_section]["name"]
                 machine_instance.tools.append(tool_instance)
                 for setting in tool_instance:

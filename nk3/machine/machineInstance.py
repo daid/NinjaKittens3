@@ -34,7 +34,7 @@ class MachineInstance(QObjectList[SettingInstance]):
 
     @qtSlot
     def addTool(self, tool_type: ToolType) -> None:
-        self.tools.append(ToolInstance(self, tool_type))
+        self.tools.append(ToolInstance(tool_type))
 
     @qtSlot
     def removeTool(self, index: int) -> None:

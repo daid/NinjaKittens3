@@ -13,18 +13,15 @@ from nk3.machine.tool.toolType import ToolType
 from nk3.qt.QObjectList import QObjectList
 from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.settingInstance import SettingInstance
-if TYPE_CHECKING:
-    from nk3.machine.machineInstance import MachineInstance
 
 
 class ToolInstance(QObjectList[SettingInstance]):
     name = QProperty[str]("?")
     operations = QProperty[QObjectList[Operation]](QObjectList[Operation]("PLACEHOLDER"))
 
-    def __init__(self, machine: "MachineInstance", cut_tool_type: ToolType) -> None:
+    def __init__(self, cut_tool_type: ToolType) -> None:
         super().__init__("setting")
         self.operations = QObjectList[Operation]("operation")
-        self.__machine = machine
         self.__type = cut_tool_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
 
@@ -61,7 +58,6 @@ class ToolInstance(QObjectList[SettingInstance]):
         return [operation.DEFAULT_NAME for operation in self.__type.getOperationTypes()]
 
     def fillProcessorSettings(self, settings: ProcessorSettings) -> None:
-        self.__machine.fillProcessorSettings(settings)
         self.__type.fillProcessorSettings(self, settings)
 
     def getSettingValue(self, key: str) -> str:
