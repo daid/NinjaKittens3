@@ -24,8 +24,9 @@ class CrashHandler:
     def __init__(self, type_: Type[BaseException], value: BaseException, traceback: TracebackType) -> None:
         self.__crash_info = "".join(traceback_module.format_exception(type_, value, traceback))
         self.__qml_engine = QQmlApplicationEngine()
-        CrashHandler._original_excepthook(type_, value, traceback)
+        if CrashHandler._original_excepthook is not None:
+            CrashHandler._original_excepthook(type_, value, traceback)
 
-    def show(self):
+    def show(self) -> None:
         self.__qml_engine.rootContext().setContextProperty("crash_info", self.__crash_info)
         self.__qml_engine.load(QUrl("resources/qml/Crash.qml"))
