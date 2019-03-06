@@ -21,7 +21,7 @@ class Tool(QObjectList[SettingInstance]):
         super().__init__("setting")
         self.operations = QObjectList[Operation]("operation")
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
-        self.__operation_types = operation_types
+        self.__operation_types = operation_types if operation_types is not None else []
 
         for setting_type in settings if settings is not None else []:
             instance = SettingInstance(setting_type)

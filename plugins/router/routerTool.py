@@ -13,7 +13,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 ## The RouterTool defines which settings are available for CNC router cutting tools
-class RouterToolType(Tool):
+class RouterTool(Tool):
     def __init__(self) -> None:
         super().__init__([
             SettingType(key="tool_diameter", label="Endmill diameter", type="dimension", default="6.0"),

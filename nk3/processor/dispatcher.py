@@ -6,7 +6,7 @@ from typing import List, Optional
 from PyQt5.QtCore import QModelIndex
 
 from nk3.document.node import DocumentNode
-from nk3.machine.machineInstance import MachineInstance
+from nk3.machine.machine import Machine
 from nk3.machine.tool import Tool
 from nk3.processor.collector import Collector
 from nk3.processor.pathUtils import Move
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 class Dispatcher:
     def __init__(self, document_list: QObjectList[DocumentNode]) -> None:
         self.onMoveData = lambda moves: None
-        self.__machine = None  # type: Optional[MachineInstance]
+        self.__machine = None  # type: Optional[Machine]
         self.__document_list = document_list
 
         self.__trigger = threading.Event()
@@ -30,7 +30,7 @@ class Dispatcher:
         self.__document_list.rowsInserted.connect(self.__documentInserted)
         self.__document_list.rowsAboutToBeRemoved.connect(self.__documentRemoved)
 
-    def setActiveMachine(self, machine: MachineInstance) -> None:
+    def setActiveMachine(self, machine: Machine) -> None:
         if self.__machine is not None:
             self.__disconnectTrigger(self.__machine)
         self.__machine = machine
@@ -39,7 +39,7 @@ class Dispatcher:
     def __connectTrigger(self, object: QObjectList[SettingInstance]) -> None:
         for setting in object:
             setting.valueChanged.connect(self.trigger)
-        if isinstance(object, MachineInstance):
+        if isinstance(object, Machine):
             object.tools.onAdd.connect(self.__connectTrigger)
             object.tools.onRemove.connect(self.__disconnectTrigger)
             for tool in object.tools:
@@ -53,7 +53,7 @@ class Dispatcher:
     def __disconnectTrigger(self, object: QObjectList[SettingInstance]) -> None:
         for setting in object:
             setting.valueChanged.disconnect(self.trigger)
-        if isinstance(object, MachineInstance):
+        if isinstance(object, Machine):
             for tool in object.tools:
                 self.__disconnectTrigger(tool)
         if isinstance(object, Tool):

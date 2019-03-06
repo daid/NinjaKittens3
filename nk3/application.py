@@ -14,14 +14,14 @@ from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.fileReader.fileReader import FileReader
 from nk3.machine.export import Export
-from nk3.machine.machineInstance import MachineInstance
+from nk3.machine.machine import Machine
 from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.pathUtils import Move
 from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.view import View
-from plugins.router.routerMachineType import RouterMachineType
+from plugins.router.routerMachine import RouterMachine
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -77,8 +77,8 @@ class MouseHandler(QQuickItem):
 class Application(QObjectBase):
     _instance = None  # type: Optional["Application"]
 
-    machine_list = QProperty[QObjectList[MachineInstance]](QObjectList[MachineInstance]("PLACEHOLDER"))
-    active_machine = QProperty[MachineInstance](MachineInstance("PLACEHOLDER", RouterMachineType()))
+    machine_list = QProperty[QObjectList[Machine]](QObjectList[Machine]("PLACEHOLDER"))
+    active_machine = QProperty[Machine](Machine())
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
@@ -104,7 +104,7 @@ class Application(QObjectBase):
 
         self.__move_data = []  # type: List[Move]
 
-        self.machine_list = QObjectList[MachineInstance]("machine")
+        self.machine_list = QObjectList[Machine]("machine")
 
         self.__document_list = QObjectList[DocumentNode]("node")
         self.__document_list.rowsInserted.connect(lambda parent, first, last: self.__view.home())
@@ -115,7 +115,7 @@ class Application(QObjectBase):
 
         Storage().load(self.machine_list)
         if self.machine_list.size() == 0:
-            self.machine_list.append(MachineInstance("machine", RouterMachineType()))
+            self.machine_list.append(RouterMachine())
             export_type = PluginRegistry.getInstance().getClass(Export, "GCodeExport")
             if export_type is not None:
                 self.machine_list[0].export = export_type()

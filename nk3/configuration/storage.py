@@ -4,8 +4,7 @@ import os
 import re
 from typing import Type, TypeVar, Optional
 
-from nk3.machine.machineInstance import MachineInstance
-from nk3.machine.machineType import MachineType
+from nk3.machine.machine import Machine
 from nk3.machine.operation import Operation
 from nk3.machine.tool import Tool
 from nk3.machine.export import Export
@@ -25,15 +24,15 @@ class Storage:
             config_base_path = os.path.expanduser("~/.config")
         self.__configuration_file = os.path.join(config_base_path, "NinjaKittens3", "nk3.conf")
 
-    def load(self, machines: QObjectList[MachineInstance]) -> bool:
+    def load(self, machines: QObjectList[Machine]) -> bool:
         cp = configparser.ConfigParser()
         if not cp.read(self.__configuration_file):
             return False
         for machine_section in filter(lambda key: re.fullmatch("machine_[0-9]+", key), cp.sections()):
-            type_instance = self.__getInstance(MachineType, cp.get(machine_section, "type", fallback=""))
-            if type_instance is None:
+            machine_instance = self.__getInstance(Machine, cp.get(machine_section, "type", fallback=""))
+            if machine_instance is None:
                 continue
-            machine_instance = MachineInstance(cp[machine_section]["name"], type_instance)
+            machine_instance.name = cp[machine_section]["name"]
             for setting in machine_instance:
                 if setting.type.key in cp[machine_section]:
                     setting.value = cp[machine_section][setting.type.key]
@@ -78,7 +77,7 @@ class Storage:
             return None
         return class_instance()
 
-    def save(self, machines: QObjectList[MachineInstance]) -> None:
+    def save(self, machines: QObjectList[Machine]) -> None:
         cp = configparser.ConfigParser()
         for machine_index, machine in enumerate(machines):
             self._addSettingContainer(cp, "machine_%d" % (machine_index), machine)
