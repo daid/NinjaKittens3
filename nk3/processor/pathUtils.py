@@ -56,6 +56,14 @@ class Path:
             else:
                 self.__points = [q0] + self.__points[best_index:] + self.__points[:best_index]
 
+    def removeDuplicates(self) -> None:
+        idx = 0 if self.__closed else 1
+        while idx < len(self.__points):
+            if self.__points[idx - 1] == self.__points[idx]:
+                self.__points.pop(idx)
+            else:
+                idx += 1
+
     def scoreCornering(self, start_offset: float, end_offset: float) -> float:
         p0 = self.__points[0]
         p1 = self.__points[0]

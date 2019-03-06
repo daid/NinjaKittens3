@@ -33,6 +33,8 @@ class Processor:
                 log.warning("Job has %d open paths, will be ignored...", len(self.__job.openPaths))
             return result.offset(self.__job.settings.cut_offset, tree=True)
         self.__job.closedPaths.combine(self.__job.openPaths)
+        for path in self.__job.closedPaths:
+            path.removeDuplicates()
         return self.__job.closedPaths
 
     def __processPockets(self, path_tree: pathUtils.Paths) -> None:
