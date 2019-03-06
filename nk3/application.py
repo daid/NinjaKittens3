@@ -94,7 +94,6 @@ class Application(QObjectBase):
 
         self.__app = QGuiApplication(sys.argv)
         self.__qml_engine = QQmlApplicationEngine(self.__app)
-        self.__qml_engine.addImportPath("plugins")
 
         self.__view = View(self)
 
