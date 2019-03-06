@@ -7,7 +7,7 @@ from PyQt5.QtCore import QModelIndex
 
 from nk3.document.node import DocumentNode
 from nk3.machine.machineInstance import MachineInstance
-from nk3.machine.tool.toolInstance import ToolInstance
+from nk3.machine.tool import Tool
 from nk3.processor.collector import Collector
 from nk3.processor.pathUtils import Move
 from nk3.processor.processor import Processor
@@ -44,7 +44,7 @@ class Dispatcher:
             object.tools.onRemove.connect(self.__disconnectTrigger)
             for tool in object.tools:
                 self.__connectTrigger(tool)
-        if isinstance(object, ToolInstance):
+        if isinstance(object, Tool):
             object.operations.onAdd.connect(self.__connectTrigger)
             object.operations.onRemove.connect(self.__disconnectTrigger)
             for operation in object.operations:
@@ -56,7 +56,7 @@ class Dispatcher:
         if isinstance(object, MachineInstance):
             for tool in object.tools:
                 self.__disconnectTrigger(tool)
-        if isinstance(object, ToolInstance):
+        if isinstance(object, Tool):
             for operation in object.operations:
                 self.__disconnectTrigger(operation)
 

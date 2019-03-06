@@ -1,7 +1,6 @@
 import logging
-from typing import TYPE_CHECKING
 
-from nk3.machine.tool.toolType import ToolType
+from nk3.machine.tool import Tool
 from nk3.processor.processorSettings import ProcessorSettings
 from nk3.settingType import SettingType
 from .cutCenter import CutCenterOperation
@@ -10,14 +9,11 @@ from .cutOutside import CutOutsideOperation
 from .cutOutsideWithPocket import CutOutsideWithPocketOperation
 from .cutPocket import CutPocketOperation
 
-if TYPE_CHECKING:
-    from nk3.machine.tool.toolInstance import ToolInstance
-
 log = logging.getLogger(__name__.split(".")[-1])
 
 
 ## The RouterTool defines which settings are available for CNC router cutting tools
-class RouterToolType(ToolType):
+class RouterToolType(Tool):
     def __init__(self) -> None:
         super().__init__([
             SettingType(key="tool_diameter", label="Endmill diameter", type="dimension", default="6.0"),
@@ -32,8 +28,8 @@ class RouterToolType(ToolType):
             CutCenterOperation,
         ])
 
-    def fillProcessorSettings(self, instance: "ToolInstance", settings: ProcessorSettings) -> None:
-        settings.tool_diameter = float(instance.getSettingValue("tool_diameter"))
-        settings.cut_depth_pass = float(instance.getSettingValue("cut_depth_pass"))
-        settings.cut_feedrate = float(instance.getSettingValue("cut_feedrate"))
-        settings.plunge_feedrate = float(instance.getSettingValue("plunge_feedrate"))
+    def fillProcessorSettings(self, settings: ProcessorSettings) -> None:
+        settings.tool_diameter = float(self.getSettingValue("tool_diameter"))
+        settings.cut_depth_pass = float(self.getSettingValue("cut_depth_pass"))
+        settings.cut_feedrate = float(self.getSettingValue("cut_feedrate"))
+        settings.plunge_feedrate = float(self.getSettingValue("plunge_feedrate"))

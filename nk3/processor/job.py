@@ -4,7 +4,7 @@ from typing import List
 
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.operation import Operation
-from nk3.machine.tool.toolInstance import ToolInstance
+from nk3.machine.tool import Tool
 from nk3.processor import pathUtils
 from nk3.processor.processorSettings import ProcessorSettings
 
@@ -12,7 +12,7 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Job:
-    def __init__(self, machine: MachineInstance, tool: ToolInstance, operation: Operation) -> None:
+    def __init__(self, machine: MachineInstance, tool: Tool, operation: Operation) -> None:
         self.__settings = ProcessorSettings()
         machine.fillProcessorSettings(self.__settings)
         tool.fillProcessorSettings(self.__settings)

@@ -1,12 +1,11 @@
 import logging
-from typing import Dict
+from typing import Dict, List
 
 from PyQt5.QtCore import pyqtProperty
 
 from nk3.machine.export import Export
 from nk3.machine.machineType import MachineType
-from nk3.machine.tool.toolInstance import ToolInstance
-from nk3.machine.tool.toolType import ToolType
+from nk3.machine.tool import Tool
 from nk3.processor.processorSettings import ProcessorSettings
 from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.qt.QObjectList import QObjectList
@@ -17,13 +16,13 @@ log = logging.getLogger(__name__.split(".")[-1])
 
 class MachineInstance(QObjectList[SettingInstance]):
     name = QProperty[str]("")
-    tools = QProperty[QObjectList[ToolInstance]](QObjectList[ToolInstance]("PLACEHOLDER"))
+    tools = QProperty[QObjectList[Tool]](QObjectList[Tool]("PLACEHOLDER"))
     export = QProperty[Export](Export())
 
     def __init__(self, name: str, machine_type: MachineType) -> None:
         super().__init__("setting")
         self.name = name
-        self.tools = QObjectList[ToolInstance]("tool")
+        self.tools = QObjectList[Tool]("tool")
         self.__type = machine_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
 
@@ -33,8 +32,10 @@ class MachineInstance(QObjectList[SettingInstance]):
             self.__setting_instances[instance.type.key] = instance
 
     @qtSlot
-    def addTool(self, tool_type: ToolType) -> None:
-        self.tools.append(ToolInstance(tool_type))
+    def addTool(self, tool_type_name: str) -> None:
+        for tool_type in self.__type.getToolTypes():
+            if tool_type.__name__ == tool_type_name:
+                self.tools.append(tool_type())
 
     @qtSlot
     def removeTool(self, index: int) -> None:
@@ -53,9 +54,9 @@ class MachineInstance(QObjectList[SettingInstance]):
     def type(self) -> MachineType:
         return self.__type
 
-    @pyqtProperty(QObjectList, constant=True)
-    def tool_types(self) -> QObjectList[ToolType]:
-        return self.__type.getToolTypes()
+    @pyqtProperty("QStringList", constant=True)
+    def tool_types(self) -> List[str]:
+        return [tool_type.__name__ for tool_type in self.__type.getToolTypes()]
 
     def fillProcessorSettings(self, settings: ProcessorSettings) -> None:
         self.__type.fillProcessorSettings(self, settings)

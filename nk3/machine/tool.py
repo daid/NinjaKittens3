@@ -1,38 +1,36 @@
 import logging
+from typing import Dict, List, Type, Optional
 
 from PyQt5.QtCore import pyqtProperty
 
 from nk3.machine.operation import Operation
 from nk3.processor.processorSettings import ProcessorSettings
+from nk3.qt.QObjectBase import QProperty, qtSlot
+from nk3.qt.QObjectList import QObjectList
+from nk3.settingInstance import SettingInstance
+from nk3.settingType import SettingType
 
 log = logging.getLogger(__name__.split(".")[-1])
 
-from typing import Dict, TYPE_CHECKING, List
 
-from nk3.machine.tool.toolType import ToolType
-from nk3.qt.QObjectList import QObjectList
-from nk3.qt.QObjectBase import QProperty, qtSlot
-from nk3.settingInstance import SettingInstance
-
-
-class ToolInstance(QObjectList[SettingInstance]):
+class Tool(QObjectList[SettingInstance]):
     name = QProperty[str]("?")
     operations = QProperty[QObjectList[Operation]](QObjectList[Operation]("PLACEHOLDER"))
 
-    def __init__(self, cut_tool_type: ToolType) -> None:
+    def __init__(self, settings: Optional[List[SettingType]] = None, operation_types: Optional[List[Type[Operation]]] = None) -> None:
         super().__init__("setting")
         self.operations = QObjectList[Operation]("operation")
-        self.__type = cut_tool_type
         self.__setting_instances = {}  # type: Dict[str, SettingInstance]
+        self.__operation_types = operation_types
 
-        for setting_type in cut_tool_type.getSettingTypes():
+        for setting_type in settings if settings is not None else []:
             instance = SettingInstance(setting_type)
             self.append(instance)
             self.__setting_instances[instance.type.key] = instance
 
     @qtSlot
     def addOperation(self, operation_name: str) -> None:
-        for operation in self.__type.getOperationTypes():
+        for operation in self.__operation_types:
             if operation.DEFAULT_NAME == operation_name:
                 self.operations.append(operation())
 
@@ -49,16 +47,12 @@ class ToolInstance(QObjectList[SettingInstance]):
                 self.parent().remove(n)
                 return
 
-    @property
-    def type(self) -> ToolType:
-        return self.__type
-
     @pyqtProperty("QStringList", constant=True)
     def operation_types(self) -> List[str]:
-        return [operation.DEFAULT_NAME for operation in self.__type.getOperationTypes()]
+        return [operation.DEFAULT_NAME for operation in self.__operation_types]
 
     def fillProcessorSettings(self, settings: ProcessorSettings) -> None:
-        self.__type.fillProcessorSettings(self, settings)
+        raise NotImplementedError
 
     def getSettingValue(self, key: str) -> str:
         return self.__setting_instances[key].value

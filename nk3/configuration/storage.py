@@ -7,8 +7,7 @@ from typing import Type, TypeVar, Optional
 from nk3.machine.machineInstance import MachineInstance
 from nk3.machine.machineType import MachineType
 from nk3.machine.operation import Operation
-from nk3.machine.tool.toolInstance import ToolInstance
-from nk3.machine.tool.toolType import ToolType
+from nk3.machine.tool import Tool
 from nk3.machine.export import Export
 from nk3.pluginRegistry import PluginRegistry
 from nk3.qt.QObjectList import QObjectList
@@ -49,10 +48,9 @@ class Storage:
                     setting.value = cp[export_section][setting.type.key]
 
             for tool_section in filter(lambda key: re.fullmatch("%s_tool_[0-9]+" % (machine_section), key), cp.sections()):
-                type_instance = self.__getInstance(ToolType, cp[tool_section]["type"])
-                if type_instance is None:
+                tool_instance = self.__getInstance(Tool, cp[tool_section]["type"])
+                if tool_instance is None:
                     continue
-                tool_instance = ToolInstance(type_instance)
                 tool_instance.name = cp[tool_section]["name"]
                 machine_instance.tools.append(tool_instance)
                 for setting in tool_instance:
