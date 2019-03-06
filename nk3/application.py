@@ -119,7 +119,7 @@ class Application(QObjectBase):
             export_type = PluginRegistry.getInstance().getClass(Export, "GCodeExport")
             if export_type is not None:
                 self.machine_list[0].export = export_type()
-            self.machine_list[0].addTool(self.machine_list[0].type.getToolTypes()[0])
+            self.machine_list[0].addTool(self.machine_list[0].tool_types[0])
         self.active_machine = self.machine_list[0]
 
         self.__qml_engine.rootContext().setContextProperty("document_list", self.__document_list)

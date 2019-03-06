@@ -1,8 +1,8 @@
 import logging
 
-from nk3.fileReader.dxf.node.container import DxfContainerNode
-from nk3.fileReader.dxf.node.node import DxfNode
-from .dxfConst import group_type
+from .node.container import DxfContainerNode
+from .node.node import DxfNode
+from ._dxfConst import group_type
 
 log = logging.getLogger(__name__.split(".")[-1])
 

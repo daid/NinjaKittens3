@@ -2,20 +2,19 @@ import cmath
 import logging
 import math
 import os
-
-from typing import Optional, List, Iterable, Dict
+from typing import Optional, Iterable, Dict
 
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
-from nk3.fileReader.dxf.node.node import DxfNode
 from nk3.fileReader.fileReader import FileReader
-from nk3.vectorPath.vectorPaths import VectorPaths
 from nk3.vectorPath.complexTransform import ComplexTransform
 from nk3.vectorPath.nurbs import NURBS
-from .dxfParser import DXFParser
-from . import dxfConst
+from nk3.vectorPath.vectorPaths import VectorPaths
+from . import _dxfConst
+from ._dxfParser import DXFParser
 from .node.container import DxfContainerNode
+from .node.node import DxfNode
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -118,7 +117,7 @@ class DXFFileReader(FileReader):
             return int(color)
         color = entity.findEntry(62, default=None)
         if color is not None:
-            color_tuple = dxfConst.colors[int(color)]
+            color_tuple = _dxfConst.colors[int(color)]
             return color_tuple[0] | color_tuple[1] << 8 | color_tuple[2] << 16
         return None
 
