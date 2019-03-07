@@ -26,15 +26,3 @@ class SettingType(QObject):
     @pyqtProperty(str, constant=True)
     def default_value(self) -> str:
         return self.__default_value
-
-    @pyqtProperty(str, constant=True)
-    def unit(self) -> str:
-        if self.__type == "dimension":
-            return "mm"
-        if self.__type == "angle":
-            return "deg"
-        if self.__type == "speed":
-            return "mm/min"
-        if self.__type == "percentage":
-            return "%"
-        return ""
