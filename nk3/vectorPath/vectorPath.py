@@ -1,7 +1,4 @@
-import logging
 from typing import List, Iterator
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class VectorPath:

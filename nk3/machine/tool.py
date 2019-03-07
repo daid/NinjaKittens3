@@ -1,4 +1,3 @@
-import logging
 from typing import Dict, List, Type, Optional
 
 from PyQt5.QtCore import pyqtProperty
@@ -9,8 +8,6 @@ from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 from nk3.settingType import SettingType
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Tool(QObjectList[SettingInstance]):

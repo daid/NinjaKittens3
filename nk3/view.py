@@ -1,4 +1,3 @@
-import logging
 import math
 
 from PyQt5.QtCore import QPoint
@@ -7,8 +6,6 @@ from PyQt5.QtGui import QAbstractOpenGLFunctions
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 MYPY = False
 if MYPY:

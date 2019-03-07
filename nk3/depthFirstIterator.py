@@ -1,7 +1,4 @@
-import logging
 from typing import Any, Optional, Callable, Iterator, List
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class DepthFirstIterator:

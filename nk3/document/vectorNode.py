@@ -1,11 +1,8 @@
-import logging
 import math
 from typing import Optional, Tuple
 
 from nk3.vectorPath.vectorPaths import VectorPaths
 from .node import DocumentNode
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class DocumentVectorNode(DocumentNode):

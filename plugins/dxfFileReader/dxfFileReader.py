@@ -16,8 +16,6 @@ from ._dxfParser import DXFParser
 from .node.container import DxfContainerNode
 from .node.node import DxfNode
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 
 class DXFFileReader(FileReader):
     @staticmethod
@@ -144,7 +142,7 @@ class DXFFileReader(FileReader):
         elif entity.type_name in self.__IGNORED_ENTITIES:
             pass
         else:
-            log.warning("Unknown entity: %s", entity)
+            logging.warning("Unknown entity: %s", entity)
             # entity.dumpEntries()
 
     def _processLine(self, entity: DxfNode) -> None:
@@ -176,7 +174,7 @@ class DXFFileReader(FileReader):
         if entity.getInt(70) & 0x01:
             for vertex in entity:
                 if vertex.type_name != "VERTEX":
-                    log.warning("Ignoring unknown POLYLINE entry: %s", vertex)
+                    logging.warning("Ignoring unknown POLYLINE entry: %s", vertex)
                     continue
                 p0 = vertex.getComplex(10, 20)
                 bulge = vertex.getFloat(42)
@@ -185,7 +183,7 @@ class DXFFileReader(FileReader):
             bulge = 0.0
         for vertex in entity:
             if vertex.type_name != "VERTEX":
-                log.warning("Ignoring unknown POLYLINE entry: %s", vertex)
+                logging.warning("Ignoring unknown POLYLINE entry: %s", vertex)
                 continue
             p1 = complex(vertex.getFloat(10), vertex.getFloat(20))
             if p0 is not None:
@@ -226,7 +224,7 @@ class DXFFileReader(FileReader):
             p1 = complex(float(point[0]), float(point[1]))
             path.addLine(p0, p1)
             p0 = p1
-        log.warning("MLine processed, but not with offset lines")
+        logging.warning("MLine processed, but not with offset lines")
 
     def _processSpline(self, entity: DxfNode) -> None:
         nurbs = NURBS(entity.getInt(71))

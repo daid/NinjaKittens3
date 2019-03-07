@@ -1,8 +1,6 @@
 import logging
 from typing import Optional, Union, List, Tuple
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 EntryTypes = Union[bool, int, float, str]
 
 
@@ -81,9 +79,9 @@ class DxfNode:
         return "%s:%s" % (self.__type_name, self.__name)
 
     def dump(self, indent: int=0) -> None:
-        log.info("%s%s", "  " * indent, self)
+        logging.info("%s%s", "  " * indent, self)
 
     def dumpEntries(self) -> None:
-        log.info("%s", self)
+        logging.info("%s", self)
         for entry in self.__entries:
-            log.info("  %d: %s", entry[0], entry[1])
+            logging.info("  %d: %s", entry[0], entry[1])

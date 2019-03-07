@@ -1,10 +1,7 @@
-import logging
 from typing import Optional, Iterator, List
 
 from . import nodeInfo
 from .node import DxfNode
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class DxfContainerNode(DxfNode):

@@ -1,7 +1,6 @@
 import logging
-import re
 import math
-
+import re
 from typing import Iterable, Optional
 from xml.etree import ElementTree
 
@@ -10,8 +9,6 @@ from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
 from nk3.fileReader.fileReader import FileReader
 from nk3.vectorPath.complexTransform import ComplexTransform
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class SVGFileReader(FileReader):
@@ -72,7 +69,7 @@ class SVGFileReader(FileReader):
             elif child_tag in ("desc", "title", "animate", "animateColor", "animateTransform", "script", "namedview", "metadata"):
                 pass  # ignore these tags, as they contain no value for us.
             else:
-                log.warning("Unknown svg tag: %s", child_tag)
+                logging.warning("Unknown svg tag: %s", child_tag)
             if child.get("transform"):
                 self.__transform_stack.pop()
 
@@ -291,7 +288,7 @@ class SVGFileReader(FileReader):
                     paths.addLine(p0, start)
                 start = None
             else:
-                log.warning("Unknown path command: %s %s", command, params)
+                logging.warning("Unknown path command: %s %s", command, params)
 
     def __pushTransform(self, transform: str) -> None:
         t = ComplexTransform()
@@ -316,7 +313,7 @@ class SVGFileReader(FileReader):
             elif func == "skewy" and len(params) == 1:
                 t = ComplexTransform([1.0, 0.0, 0.0, math.tan(math.radians(params[0])), 1.0, 0.0, 0.0, 0.0, 1.0]).combine(t)
             else:
-                log.warning("Ignoring transform: %s %s", func, params)
+                logging.warning("Ignoring transform: %s %s", func, params)
         self.__transform_stack.append(t.combine(self.__transform_stack[-1]))
 
     def __getNodeFor(self, tag: ElementTree.Element, base_node: DocumentVectorNode) -> DocumentVectorNode:
@@ -339,6 +336,7 @@ class SVGFileReader(FileReader):
         return child
 
     def __getColorOf(self, tag: ElementTree.Element) -> str:
+        # TODO: Color can be inherited from parent nodes, we do not handle this yet.
         style = tag.get("style", "")
         styles = {}
         for style_part in style.split(";"):

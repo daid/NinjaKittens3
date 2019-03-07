@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 from typing import List, Dict, Optional
@@ -9,8 +8,6 @@ from nk3.qt.QObjectBase import QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 from nk3.settingType import SettingType
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Export(QObjectList[SettingInstance]):

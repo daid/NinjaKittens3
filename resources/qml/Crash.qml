@@ -11,7 +11,7 @@ Window {
     flags: "Dialog"
 
     title: qsTr("Oops...")
-    width: 640
+    width: 800
     height: 640
 
     ColumnLayout {
@@ -21,6 +21,7 @@ Window {
             text: "Oops, we encountered an issue. We hope the following kitten makes it a bit better:"
         }
         Image {
+            Layout.alignment: Layout.Center
             source: "http://www.randomkittengenerator.com/cats/rotator.php"
             onStatusChanged: if (status == Image.Error) source = "../images/kitten.jpg"
         }

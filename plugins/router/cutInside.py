@@ -1,9 +1,6 @@
 from nk3.machine.operation import Operation
 from nk3.processor.processorSettings import ProcessorSettings
 from nk3.settingType import SettingType
-import logging
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class CutInsideOperation(Operation):

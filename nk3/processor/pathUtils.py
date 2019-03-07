@@ -1,9 +1,5 @@
-import logging
-from typing import List, NamedTuple, Tuple, Iterable, Set, Iterator
 import pyclipper
-
-log = logging.getLogger(__name__.split(".")[-1])
-
+from typing import List, NamedTuple, Tuple, Iterable, Set, Iterator
 
 Move = NamedTuple('Move', [('xy', complex), ('z', float), ('speed', float)])
 

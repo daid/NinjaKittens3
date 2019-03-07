@@ -1,8 +1,3 @@
-import logging
-
-log = logging.getLogger(__name__.split(".")[-1])
-
-
 class ProcessorSettings:
     def __init__(self) -> None:
         self.tool_diameter = 0.0

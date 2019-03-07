@@ -4,8 +4,6 @@ from .node.container import DxfContainerNode
 from .node.node import DxfNode
 from ._dxfConst import group_type
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 
 class DXFParser:
     def __init__(self, filename: str) -> None:
@@ -26,7 +24,7 @@ class DXFParser:
                 try:
                     value = group_type[group_code](value)
                 except ValueError:
-                    log.warning("Failed to parse %s as %s (group code %d)", value, group_type[group_code], group_code)
+                    logging.warning("Failed to parse %s as %s (group code %d)", value, group_type[group_code], group_code)
             if group_code == 0:
                 current_entity = current_entity.processNewEntity(value)
             else:

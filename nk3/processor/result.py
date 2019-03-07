@@ -1,7 +1,5 @@
 import logging
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 
 class Result:
     def __init__(self):

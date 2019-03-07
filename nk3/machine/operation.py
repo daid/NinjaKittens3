@@ -1,8 +1,8 @@
-from typing import Dict, TYPE_CHECKING, List, Optional
+from typing import Dict, List, Optional
 
-from nk3.qt.QObjectList import QObjectList
-from nk3.qt.QObjectBase import QProperty
 from nk3.processor.processorSettings import ProcessorSettings
+from nk3.qt.QObjectBase import QProperty
+from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 from nk3.settingType import SettingType
 

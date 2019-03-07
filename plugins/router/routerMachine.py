@@ -1,10 +1,7 @@
-import logging
+from nk3.machine.machine import Machine
 from nk3.processor.processorSettings import ProcessorSettings
 from nk3.settingType import SettingType
 from .routerTool import RouterTool
-from nk3.machine.machine import Machine
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class RouterMachine(Machine):

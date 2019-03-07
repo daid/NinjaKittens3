@@ -6,8 +6,6 @@ from nk3.machine.export import Export
 from nk3.qt.QObjectBase import qtSlot
 from nk3.settingType import SettingType
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 
 class GCodeExport(Export):
     def __init__(self) -> None:
@@ -20,7 +18,7 @@ class GCodeExport(Export):
 
     @qtSlot
     def save(self, filename: QUrl) -> None:
-        log.info("Exporting to %s", filename.toLocalFile())
+        logging.info("Exporting to %s", filename.toLocalFile())
         f = open(filename.toLocalFile(), "wt")
         start_code = self.getSettingValue("start_code").strip()
         if start_code != "":

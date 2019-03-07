@@ -5,6 +5,7 @@ from types import TracebackType
 
 from PyQt5.QtCore import QUrl
 from PyQt5.QtQml import QQmlApplicationEngine
+from nk3.logging import LogHandler
 
 
 class CrashHandler:
@@ -22,7 +23,11 @@ class CrashHandler:
         CrashHandler._instance.show()
 
     def __init__(self, type_: Type[BaseException], value: BaseException, traceback: TracebackType) -> None:
-        self.__crash_info = "".join(traceback_module.format_exception(type_, value, traceback))
+        self.__crash_info = "--------Exception--------\n"
+        self.__crash_info += "".join(traceback_module.format_exception(type_, value, traceback))
+        self.__crash_info += "--------LOG--------\n"
+        for message in LogHandler.getLogHistory():
+            self.__crash_info += "%s\n" % (message)
         self.__qml_engine = QQmlApplicationEngine()
         if CrashHandler._original_excepthook is not None:
             CrashHandler._original_excepthook(type_, value, traceback)

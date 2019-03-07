@@ -23,8 +23,6 @@ from nk3.qt.QObjectList import QObjectList
 from nk3.view import View
 from plugins.router.routerMachine import RouterMachine
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 
 class MainWindow(QQuickWindow):
     requestRepaint = pyqtSignal()
@@ -164,16 +162,12 @@ class Application(QObjectBase):
 
     @qtSlot
     def loadFile(self, filename: QUrl) -> None:
-        try:
-            log.info("Going to load: %s", filename.toLocalFile())
-            reader = FileReader.getFileTypes()[os.path.splitext(filename.toLocalFile())[1][1:].lower()]
-            document_node = reader().load(filename.toLocalFile())
-        except Exception:
-            log.exception("Load file failed for: %s", filename.toLocalFile())
-        else:
-            while len(self.__document_list) > 0:
-                self.__document_list.remove(0)
-            self.__document_list.append(document_node)
+        logging.info("Going to load: %s", filename.toLocalFile())
+        reader = FileReader.getFileTypes()[os.path.splitext(filename.toLocalFile())[1][1:].lower()]
+        document_node = reader().load(filename.toLocalFile())
+        while len(self.__document_list) > 0:
+            self.__document_list.remove(0)
+        self.__document_list.append(document_node)
         self.repaint()
 
     @qtSlot

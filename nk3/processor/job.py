@@ -1,5 +1,3 @@
-import logging
-
 from typing import List
 
 from nk3.machine.machine import Machine
@@ -7,8 +5,6 @@ from nk3.machine.operation import Operation
 from nk3.machine.tool import Tool
 from nk3.processor import pathUtils
 from nk3.processor.processorSettings import ProcessorSettings
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class Job:

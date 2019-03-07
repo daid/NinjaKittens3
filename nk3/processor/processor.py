@@ -8,8 +8,6 @@ from nk3.processor.job import Job
 from nk3.processor.pathUtils import Move
 from nk3.processor.tabGenerator import TabGenerator
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 
 class Processor:
     def __init__(self, job: Job) -> None:
@@ -30,7 +28,7 @@ class Processor:
         if self.__job.settings.cut_offset != 0.0:
             result = self.__job.closedPaths.union()
             if self.__job.openPaths:
-                log.warning("Job has %d open paths, will be ignored...", len(self.__job.openPaths))
+                logging.warning("Job has %d open paths, will be ignored...", len(self.__job.openPaths))
             return result.offset(self.__job.settings.cut_offset, tree=True)
         self.__job.closedPaths.combine(self.__job.openPaths)
         for path in self.__job.closedPaths:

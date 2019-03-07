@@ -1,13 +1,10 @@
-import logging
-import math
 import cmath
+import math
 from typing import Optional, List, Iterator
 
+from nk3.vectorPath.complexTransform import ComplexTransform
 from nk3.vectorPath.nurbs import NURBS
 from nk3.vectorPath.vectorPath import VectorPath
-from nk3.vectorPath.complexTransform import ComplexTransform
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class VectorPaths:

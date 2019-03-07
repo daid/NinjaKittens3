@@ -12,8 +12,6 @@ from nk3.pluginRegistry import PluginRegistry
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 T = TypeVar("T", bound=QObjectList[SettingInstance])
 
 
@@ -69,7 +67,7 @@ class Storage:
     def __getInstance(base_class: Type[T], class_name: str) -> Optional[T]:
         class_instance = PluginRegistry.getInstance().getClass(base_class, class_name)
         if class_instance is None:
-            log.warning("Failed to find class: <%s> of type %s", class_name, base_class)
+            logging.warning("Failed to find class: <%s> of type %s", class_name, base_class)
             return None
         return class_instance()  # type: ignore
 

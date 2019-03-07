@@ -4,8 +4,6 @@ import os
 import sys
 from typing import TypeVar, Optional, Type, Dict, cast, List
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 T = TypeVar("T")
 
 
@@ -40,7 +38,7 @@ class PluginRegistry:
 
     def register(self, register_class: Type[object]) -> None:
         assert register_class.__name__ not in self.__classes
-        log.info("Registering plugin: [%s] of type [%s]", register_class.__name__, register_class.mro()[1].__name__)
+        logging.info("Registering plugin: [%s] of type [%s]", register_class.__name__, register_class.mro()[1].__name__)
         self.__classes[register_class.__name__] = register_class
 
     def getClass(self, base_class: Type[T], name: str) -> Optional[Type[T]]:

@@ -1,10 +1,7 @@
-import logging
 from typing import Type, Dict, Iterable
 
 from nk3.document.node import DocumentNode
 from nk3.pluginRegistry import PluginRegistry
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class FileReader:

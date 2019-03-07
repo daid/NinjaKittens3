@@ -1,9 +1,6 @@
-import logging
 import math
 
 from typing import Optional, List
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class ComplexTransform:

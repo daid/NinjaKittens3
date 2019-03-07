@@ -1,11 +1,5 @@
-import logging
-
-from typing import List
-
 from nk3.processor import pathUtils
 from nk3.processor.processorSettings import ProcessorSettings
-
-log = logging.getLogger(__name__.split(".")[-1])
 
 
 class TabGenerator:

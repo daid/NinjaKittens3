@@ -14,8 +14,6 @@ from nk3.processor.processor import Processor
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 
-log = logging.getLogger(__name__.split(".")[-1])
-
 
 class Dispatcher:
     def __init__(self, document_list: QObjectList[DocumentNode]) -> None:
@@ -94,7 +92,7 @@ class Dispatcher:
             try:
                 self.__process()
             except:
-                log.exception("Exception during processing")
+                logging.exception("Exception during processing")
 
     def __process(self) -> None:
         # Collect all paths from nodes and match them with the respective operations
