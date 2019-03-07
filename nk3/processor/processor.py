@@ -64,7 +64,7 @@ class Processor:
     def __processToMoves(self, path_list: List[pathUtils.Path]) -> List[Move]:
         cut_depth_total = self.__job.settings.cut_depth_total
         cut_depth_pass = self.__job.settings.cut_depth_pass
-        if self.__job.settings.attack_angle < 90:
+        if 0.0 < self.__job.settings.attack_angle < 90.0:
             attack_length = cut_depth_pass / math.tan(math.radians(self.__job.settings.attack_angle))
         else:
             attack_length = 0.0

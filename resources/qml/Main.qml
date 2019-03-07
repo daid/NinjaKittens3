@@ -1,8 +1,9 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.0
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs 1.2
 import NK3 1.0 as NK3
+
 
 NK3.MainWindow {
     visible: true
@@ -41,6 +42,12 @@ NK3.MainWindow {
                 anchors.bottom: parent.bottom
                 text: NK3.Application.active_machine.export.save_button_text
                 onClicked: export_loader.item.activate()
+            }
+            ToolButton {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                text: "Edit machine settings"
+                onClicked: machine_settings.open()
             }
             ToolButton {
                 anchors.top: parent.top
@@ -94,6 +101,10 @@ NK3.MainWindow {
                 NK3.Application.loadFile(fileUrls[idx]);
             }
         }
+    }
+
+    MachineSettings {
+        id: machine_settings
     }
 
     Loader {

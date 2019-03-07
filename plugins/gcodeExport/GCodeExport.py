@@ -11,7 +11,7 @@ class GCodeExport(Export):
     def __init__(self) -> None:
         super().__init__([
             SettingType(key="start_code", label="Start GCode", type="gcode", default=""),
-            SettingType(key="end_code", label="Start GCode", type="gcode", default=""),
+            SettingType(key="end_code", label="End GCode", type="gcode", default=""),
         ])
         self.save_button_text = "Save"
         self.setLocalQmlSource("SaveGCode.qml")

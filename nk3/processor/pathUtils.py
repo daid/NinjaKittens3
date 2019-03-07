@@ -1,3 +1,4 @@
+import logging
 import pyclipper
 from typing import List, NamedTuple, Tuple, Iterable, Set, Iterator
 
@@ -123,7 +124,8 @@ class Path:
                 yield (p1, d0[1] + (d1[1] - d0[1]) * (done_distance - d0[0]) / (d1[0] - d0[0]))
             else:
                 # Move to a depth point in the path.
-                p1 = p0 + (p1 - p0) * (next_depth_distance - done_distance) / (next_move_distance - done_distance)
+                if next_move_distance != done_distance:
+                    p1 = p0 + (p1 - p0) * (next_depth_distance - done_distance) / (next_move_distance - done_distance)
                 done_distance = next_depth_distance
                 depth_index += 1
                 yield (p1, self.__depth_at_distance[depth_index][1])
