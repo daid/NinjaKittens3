@@ -320,16 +320,12 @@ class SVGFileReader(FileReader):
         self.__transform_stack.append(t.combine(self.__transform_stack[-1]))
 
     def __getNodeFor(self, tag: ElementTree.Element, base_node: DocumentVectorNode) -> DocumentVectorNode:
-        color_name = "NoColor"
-
-        style = tag.get("style", "")
-        for style_part in style.split(";"):
-            key, _, value = style_part.partition(":")
-            if key == "stroke":
-                color_name = value
+        color_name = self.__getColorOf(tag)
 
         color = None
         if color_name.startswith("#"):
+            if len(color_name) == 4:
+                color_name = color_name[0:2] + color_name[1] + color_name[2] + color_name[2] + color_name[3] + color_name[3]
             color = int(color_name[1:], 16)
 
         for child in base_node:
@@ -341,3 +337,20 @@ class SVGFileReader(FileReader):
         base_node.append(child)
         child.getPaths().setTransformStack(self.__transform_stack)
         return child
+
+    def __getColorOf(self, tag: ElementTree.Element) -> str:
+        style = tag.get("style", "")
+        styles = {}
+        for style_part in style.split(";"):
+            key, _, value = style_part.partition(":")
+            styles[key] = value
+
+        if "stroke" in styles:
+            return styles["stroke"]
+        elif "fill" in styles:
+            return styles["fill"]
+        elif "stroke" in tag.attrib:
+            return tag.get("stroke")
+        elif "fill" in tag.attrib:
+            return tag.get("fill")
+        return "NoColor"
