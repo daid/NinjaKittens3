@@ -7,7 +7,9 @@ RowLayout {
     implicitWidth: parent.width
 
     Text {
+        Layout.alignment: Qt.AlignTop
         Layout.fillWidth: true
+        Layout.preferredHeight: 30
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         text: setting.type.label
