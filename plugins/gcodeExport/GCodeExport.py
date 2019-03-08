@@ -10,8 +10,14 @@ from nk3.settingType import SettingType
 class GCodeExport(Export):
     def __init__(self) -> None:
         super().__init__([
-            SettingType(key="start_code", label="Start GCode", type="gcode", default=""),
-            SettingType(key="end_code", label="End GCode", type="gcode", default=""),
+            SettingType(key="start_code", label="Start GCode", type="gcode", default="",
+                        tooltip="""GCode that is inserted before the actual instructions to
+                        generate the object. Things to prepare the machine can be put here,
+                        like spinning up your spindle, setting coordinate systems."""),
+            SettingType(key="end_code", label="End GCode", type="gcode", default="",
+                        tooltip="""GCode that is inserted at the end of the instructions.
+                        You can place code here to wind or disable your machine.
+                        For example disabling motors, spindles."""),
         ])
         self.save_button_text = "Save"
         self.setLocalQmlSource("SaveGCode.qml")

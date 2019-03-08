@@ -8,8 +8,11 @@ class CutInsideOperation(Operation):
 
     def __init__(self) -> None:
         super().__init__([
-            SettingType(key="cut_depth_total", label="Cut depth", type="dimension", default="6.0"),
-            SettingType(key="tab_height", label="Tab height", type="dimension", default="2.5"),
+            SettingType(key="cut_depth_total", label="Cut depth", type="dimension", default="6.0",
+                        tooltip="""Total depth of cutting into the material."""),
+            SettingType(key="tab_height", label="Tab height", type="dimension", default="2.5",
+                        tooltip="""Height of the tabs holding target object to the rest of the material.
+                        Set to 0.0 to disable the generation of holding tabs."""),
         ])
 
     def fillProcessorSettings(self, settings: ProcessorSettings) -> None:

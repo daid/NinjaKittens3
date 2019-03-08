@@ -1,3 +1,6 @@
+import math
+import logging
+
 from nk3.processor import pathUtils
 from nk3.processor.processorSettings import ProcessorSettings
 
@@ -7,8 +10,12 @@ class TabGenerator:
         self.__path = path
 
         self.__tab_height = settings.tab_height
-        self.__tab_top_width = settings.tool_diameter
-        self.__tab_bottom_width = self.__tab_top_width + self.__tab_height * 2
+        self.__tab_top_width = settings.tool_diameter * 1.5
+        if 0.0 < settings.attack_angle < 90.0:
+            attack_length = self.__tab_height / math.tan(math.radians(settings.attack_angle))
+        else:
+            attack_length = 0.0001  # The top needs to be slightly smaller then the bottom, else the depthAtDistance of the Path object sorting goes wrong.
+        self.__tab_bottom_width = self.__tab_top_width + attack_length * 2
 
         assert self.__tab_height > 0.0
 

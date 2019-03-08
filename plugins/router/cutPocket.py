@@ -8,8 +8,11 @@ class CutPocketOperation(Operation):
 
     def __init__(self) -> None:
         super().__init__([
-            SettingType(key="cut_depth_total", label="Cut depth", type="dimension", default="6.0"),
-            SettingType(key="pocket_overlap", label="Pocket overlap", type="percentage", default="50"),
+            SettingType(key="cut_depth_total", label="Cut depth", type="dimension", default="6.0",
+                        tooltip="""Total depth of cutting into the material."""),
+            SettingType(key="pocket_overlap", label="Pocket overlap", type="percentage", default="50",
+                        tooltip="""Percentual overlap of pocket passes, 0% makes each pass cut 100% new material.
+                        50% is a decent compromise between speed and cutting quality."""),
         ])
 
     def fillProcessorSettings(self, settings: ProcessorSettings) -> None:

@@ -12,10 +12,16 @@ from .cutPocket import CutPocketOperation
 class RouterTool(Tool):
     def __init__(self) -> None:
         super().__init__([
-            SettingType(key="tool_diameter", label="Endmill diameter", type="dimension", default="6.0"),
-            SettingType(key="cut_depth_pass", label="Cut depth per pass", type="dimension", default="1.0"),
-            SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="1200"),
-            SettingType(key="plunge_feedrate", label="Plungerate", type="speed", default="180"),
+            SettingType(key="tool_diameter", label="Endmill diameter", type="dimension", default="6.0",
+                        tooltip="""Diameter of the cutting tool.
+                        This is used to offset the cut path from the drawing in inside/outside cutting.
+                        As well as how far apart each pass of a pocket is."""),
+            SettingType(key="cut_depth_pass", label="Cut depth per pass", type="dimension", default="1.0",
+                        tooltip="""The amount of depth to cut away in a single pass."""),
+            SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="1200",
+                        tooltip="""At which speed can this tool cut."""),
+            SettingType(key="plunge_feedrate", label="Plungerate", type="speed", default="180",
+                        tooltip="""Maximum speed that is used for downward movements."""),
         ], [
             CutOutsideOperation,
             CutOutsideWithPocketOperation,
