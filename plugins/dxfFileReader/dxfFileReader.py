@@ -112,6 +112,7 @@ class DXFFileReader(FileReader):
     def _getColorFor(self, entity: DxfNode) -> Optional[int]:
         color = entity.findEntry(420, default=None)
         if color is not None:
+            color = (color & 0xff) << 16 | (color & 0xff0000) >> 16 | (color & 0xff00)
             return int(color)
         color = entity.findEntry(62, default=None)
         if color is not None:

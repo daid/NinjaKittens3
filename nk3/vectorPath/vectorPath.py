@@ -20,6 +20,15 @@ class VectorPath:
     def offset(self, amount: complex) -> None:
         self.__points = [p + amount for p in self.__points]
 
+    def isSignificant(self) -> bool:
+        # Workaround for some files that have left over tiny lines that add nothing of significance.
+        # So we clear those out.
+        if self.__closed:
+            return True
+        if len(self.__points) > 2:
+            return True
+        return abs(self.__points[0] - self.__points[-1]) > 1.0
+
     @property
     def empty(self) -> bool:
         return not self.__points

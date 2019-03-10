@@ -165,7 +165,7 @@ class VectorPaths:
             if not path.empty and not path.closed:
                 while self._stitch(path):
                     pass
-        self.__paths = list(filter(lambda path: not path.empty, self.__paths))
+        self.__paths = list(filter(lambda path: not path.empty and path.isSignificant(), self.__paths))
 
     def _stitch(self, source: VectorPath) -> bool:
         if abs(source.start - source.end) < 0.001:
