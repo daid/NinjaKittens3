@@ -121,6 +121,9 @@ class DXFFileReader(FileReader):
         return None
 
     def _processEntity(self, entity: DxfNode) -> None:
+        z_normal = float(entity.findEntry(230, default=1.0))
+        if z_normal < 0.0:
+            self.__transform_stack.append(ComplexTransform.scale(complex(-1.0, 1.0)).combine(self.__transform_stack[-1]))
         if entity.type_name == "LINE":
             self._processLine(entity)
         elif entity.type_name == "CIRCLE":
@@ -145,6 +148,8 @@ class DXFFileReader(FileReader):
         else:
             logging.warning("Unknown entity: %s", entity)
             # entity.dumpEntries()
+        if z_normal < 0.0:
+            self.__transform_stack.pop()
 
     def _processLine(self, entity: DxfNode) -> None:
         start = entity.getComplex(10, 20)
