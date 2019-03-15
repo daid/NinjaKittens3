@@ -16,9 +16,9 @@ class RouterTool(Tool):
                         tooltip="""Diameter of the cutting tool.
                         This is used to offset the cut path from the drawing in inside/outside cutting.
                         As well as how far apart each pass of a pocket is."""),
-            SettingType(key="cut_depth_pass", label="Cut depth per pass", type="dimension", default="1.0",
+            SettingType(key="cut_depth_pass", label="Cut depth per pass", type="dimension", default="2.0",
                         tooltip="""The amount of depth to cut away in a single pass."""),
-            SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="1200",
+            SettingType(key="cut_feedrate", label="Feedrate", type="speed", default="800",
                         tooltip="""At which speed can this tool cut."""),
             SettingType(key="plunge_feedrate", label="Plungerate", type="speed", default="180",
                         tooltip="""Maximum speed that is used for downward movements."""),
