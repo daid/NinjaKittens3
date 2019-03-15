@@ -111,9 +111,9 @@ class DXFFileReader(FileReader):
 
     def _getColorFor(self, entity: DxfNode) -> Optional[int]:
         color = entity.findEntry(420, default=None)
-        if color is not None:
+        if isinstance(color, int):
             color = (color & 0xff) << 16 | (color & 0xff0000) >> 16 | (color & 0xff00)
-            return int(color)
+            return color
         color = entity.findEntry(62, default=None)
         if color is not None:
             color_tuple = _dxfConst.colors[int(color)]
@@ -121,7 +121,7 @@ class DXFFileReader(FileReader):
         return None
 
     def _processEntity(self, entity: DxfNode) -> None:
-        z_normal = float(entity.findEntry(230, default=1.0))
+        z_normal = entity.getFloat(230, default=1.0)
         if z_normal < 0.0:
             self.__transform_stack.append(ComplexTransform.scale(complex(-1.0, 1.0)).combine(self.__transform_stack[-1]))
         if entity.type_name == "LINE":

@@ -10,8 +10,8 @@ class ProcessorSettings:
         self.attack_angle = 0.0
 
         self.travel_height = 5.0
-        self.travel_speed = 1200
-        self.lift_speed = 300
+        self.travel_speed = 1200.0
+        self.lift_speed = 300.0
 
         self.pocket_offset = 0.0
         self.tab_height = 0.0
