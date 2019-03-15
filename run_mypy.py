@@ -3,12 +3,16 @@ import sys
 import os
 
 
+global_exit_code = 0
+
+
 def run(*args: str) -> None:
+    global global_exit_code
     stdout, stderr, exit_code = mypy.api.run(list(args))
     if exit_code != 0:
         print("Failure on:", *args)
         print(stdout, stderr)
-        sys.exit(exit_code)
+        global_exit_code = exit_code
 
 
 run(__file__)
@@ -22,3 +26,5 @@ for directory in os.listdir("plugins"):
             if file.startswith("_"):
                 continue
             run("-m", "plugins.%s.%s" % (directory, file[:-3]))
+
+sys.exit(global_exit_code)
