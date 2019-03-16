@@ -7,7 +7,7 @@ from typing import Type, TypeVar, Optional
 from nk3.machine.machine import Machine
 from nk3.machine.operation import Operation
 from nk3.machine.tool import Tool
-from nk3.machine.export import Export
+from nk3.machine.outputmethod import OutputMethod
 from nk3.pluginRegistry import PluginRegistry
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
@@ -31,11 +31,13 @@ class Storage:
             if machine_instance is None:
                 continue
 
-            export_section = "%s_export" % (machine_section)
-            export = self.__createInstanceFromSettings(Export, cp[export_section])
-            if export is None:
+            output_method_section = "%s_output_method" % (machine_section)
+            if output_method_section not in cp:
                 continue
-            machine_instance.export = export
+            output_method = self.__createInstanceFromSettings(OutputMethod, cp[output_method_section])
+            if output_method is None:
+                continue
+            machine_instance.output_method = output_method
 
             for tool_section in filter(lambda key: re.fullmatch("%s_tool_[0-9]+" % (machine_section), key), cp.sections()):
                 tool_instance = self.__createInstanceFromSettings(Tool, cp[tool_section])
@@ -75,7 +77,7 @@ class Storage:
         cp = configparser.ConfigParser()
         for machine_index, machine in enumerate(machines):
             self.__addSettingContainer(cp, "machine_%d" % (machine_index), machine)
-            self.__addSettingContainer(cp, "machine_%d_export" % (machine_index), machine.export)
+            self.__addSettingContainer(cp, "machine_%d_output_method" % (machine_index), machine.output_method)
             for tool_index, tool in enumerate(machine.tools):
                 self.__addSettingContainer(cp, "machine_%d_tool_%d" % (machine_index, tool_index), tool)
                 for operation_index, operation in enumerate(tool.operations):

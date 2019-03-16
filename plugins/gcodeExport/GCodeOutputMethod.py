@@ -2,12 +2,14 @@ import logging
 
 from PyQt5.QtCore import QUrl
 
-from nk3.machine.export import Export
+from nk3.machine.outputmethod import OutputMethod
 from nk3.qt.QObjectBase import qtSlot
 from nk3.settingType import SettingType
 
 
-class GCodeExport(Export):
+class GCodeOutputMethod(OutputMethod):
+    NAME = "GCode Export"
+
     def __init__(self) -> None:
         super().__init__([
             SettingType(key="start_code", label="Start GCode", type="gcode", default="",

@@ -5,8 +5,6 @@ from nk3.pluginRegistry import PluginRegistry
 
 
 class FileReader:
-    __EXTENSION_MAPPING = None
-
     def __init__(self) -> None:
         pass
 
@@ -19,10 +17,8 @@ class FileReader:
 
     @staticmethod
     def getFileTypes() -> Dict[str, Type["FileReader"]]:
-        if FileReader.__EXTENSION_MAPPING is None:
-            mapping = {}
-            for class_ in PluginRegistry.getInstance().getAllClasses(FileReader):
-                for extension in class_.getExtensions():
-                    mapping[extension] = class_
-            FileReader.__EXTENSION_MAPPING = mapping
-        return FileReader.__EXTENSION_MAPPING
+        mapping = {}
+        for class_ in PluginRegistry.getInstance().getAllClasses(FileReader):
+            for extension in class_.getExtensions():
+                mapping[extension] = class_
+        return mapping

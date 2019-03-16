@@ -2,8 +2,9 @@ from typing import Dict, List, Type, Optional
 
 from PyQt5.QtCore import pyqtProperty
 
-from nk3.machine.export import Export
+from nk3.machine.outputmethod import OutputMethod
 from nk3.machine.tool import Tool
+from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.processorSettings import ProcessorSettings
 from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.qt.QObjectList import QObjectList
@@ -14,7 +15,7 @@ from nk3.settingType import SettingType
 class Machine(QObjectList[SettingInstance]):
     name = QProperty[str]("Unnamed Machine")
     tools = QProperty[QObjectList[Tool]](QObjectList[Tool]("PLACEHOLDER"))
-    export = QProperty[Export](Export())
+    output_method = QProperty[OutputMethod](OutputMethod())
 
     def __init__(self, settings: Optional[List[SettingType]] = None, tool_types: Optional[List[Type[Tool]]] = None) -> None:
         super().__init__("setting")
@@ -46,9 +47,26 @@ class Machine(QObjectList[SettingInstance]):
                 self.parent().remove(n)
                 return
 
+    @qtSlot
+    def switchOutputMethod(self, new_output_method: str) -> None:
+        for output_method_type in PluginRegistry.getInstance().getAllClasses(OutputMethod):
+            if output_method_type.NAME == new_output_method:
+                old_output_method = self.output_method
+                self.output_method = output_method_type()
+                for setting in self.output_method:
+                    try:
+                        setting.value = old_output_method.getSettingValue(setting.type.key)
+                    except KeyError:
+                        pass
+                return
+
     @pyqtProperty("QStringList", constant=True)
     def tool_types(self) -> List[str]:
         return [tool_type.__name__ for tool_type in self.__tool_types]
+
+    @pyqtProperty("QStringList", constant=True)
+    def output_methods(self) -> List[str]:
+        return [output_method_type.NAME for output_method_type in PluginRegistry.getInstance().getAllClasses(OutputMethod)]
 
     def fillProcessorSettings(self, settings: ProcessorSettings) -> None:
         raise NotImplementedError

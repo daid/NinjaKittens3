@@ -13,8 +13,13 @@ Dialog {
             model: NK3.Application.active_machine
             Setting {}
         }
+        ComboBox {
+            width: 200
+            model: NK3.Application.active_machine.output_methods
+            onActivated: NK3.Application.active_machine.switchOutputMethod(model[index])
+        }
         Repeater {
-            model: NK3.Application.active_machine.export
+            model: NK3.Application.active_machine.output_method
             Setting {}
         }
     }

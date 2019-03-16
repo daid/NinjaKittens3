@@ -40,8 +40,8 @@ NK3.MainWindow {
             ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                text: NK3.Application.active_machine.export.save_button_text
-                onClicked: export_loader.item.activate()
+                text: NK3.Application.active_machine.output_method.save_button_text
+                onClicked: output_method_loader.item.activate()
             }
             ToolButton {
                 anchors.top: parent.top
@@ -108,7 +108,12 @@ NK3.MainWindow {
     }
 
     Loader {
-        id: export_loader
-        source: NK3.Application.active_machine.export.qml_source
+        anchors.top: toolbar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+
+        id: output_method_loader
+        source: NK3.Application.active_machine.output_method.qml_source
     }
 }

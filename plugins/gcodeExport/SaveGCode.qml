@@ -18,6 +18,6 @@ FileDialog {
 
     onAccepted: {
         print(fileUrls[0])
-        NK3.Application.active_machine.export.save(fileUrls[0]);
+        NK3.Application.active_machine.output_method.save(fileUrls[0]);
     }
 }

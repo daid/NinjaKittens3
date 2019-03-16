@@ -13,7 +13,7 @@ from nk3.configuration.storage import Storage
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.fileReader.fileReader import FileReader
-from nk3.machine.export import Export
+from nk3.machine.outputmethod import OutputMethod
 from nk3.machine.machine import Machine
 from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.dispatcher import Dispatcher
@@ -113,9 +113,9 @@ class Application(QObjectBase):
         Storage().load(self.machine_list)
         if self.machine_list.size() == 0:
             self.machine_list.append(RouterMachine())
-            export_type = PluginRegistry.getInstance().getClass(Export, "GCodeExport")
-            if export_type is not None:
-                self.machine_list[0].export = export_type()
+            output_method_type = PluginRegistry.getInstance().getClass(OutputMethod, "GCodeOutputMethod")
+            if output_method_type is not None:
+                self.machine_list[0].output_method = output_method_type()
             self.machine_list[0].addTool(self.machine_list[0].tool_types[0])
         self.active_machine = self.machine_list[0]
 
