@@ -97,6 +97,11 @@ class Processor:
                 total_distance += path.length()
             path.addDepthAtDistance(depths[-1], total_distance)
 
+            # Finally, move upwards diagonally if we have an requested attack angle.
+            if attack_length > 0.0:
+                total_distance += abs(depths[-1]) / math.tan(math.radians(self.__job.settings.attack_angle))
+                path.addDepthAtDistance(0.0, total_distance)
+
             if path.hasTag("tabs"):
                 TabGenerator(self.__job.settings, path)
 
