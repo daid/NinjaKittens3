@@ -52,6 +52,7 @@ class Machine(QObjectList[SettingInstance]):
         for output_method_type in PluginRegistry.getInstance().getAllClasses(OutputMethod):
             if output_method_type.NAME == new_output_method:
                 old_output_method = self.output_method
+                old_output_method.release()
                 self.output_method = output_method_type()
                 for setting in self.output_method:
                     try:

@@ -2,6 +2,8 @@ import os
 import sys
 from typing import List, Dict, Optional
 
+from PyQt5.QtCore import pyqtProperty
+
 import nk3.application
 from nk3.processor.pathUtils import Move
 from nk3.qt.QObjectBase import QProperty
@@ -37,3 +39,10 @@ class OutputMethod(QObjectList[SettingInstance]):
 
     def getSettingValue(self, key: str) -> str:
         return self.__setting_instances[key].value
+
+    def release(self) -> None:
+        pass
+
+    @pyqtProperty(str, constant=True)
+    def typename(self):
+        return self.NAME

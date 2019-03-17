@@ -16,6 +16,7 @@ Dialog {
         ComboBox {
             width: 200
             model: NK3.Application.active_machine.output_methods
+            currentIndex: model.indexOf(NK3.Application.active_machine.output_method.typename)
             onActivated: NK3.Application.active_machine.switchOutputMethod(model[index])
         }
         Repeater {
