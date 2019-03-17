@@ -158,6 +158,7 @@ class Application(QObjectBase):
         for window in self.__qml_engine.rootObjects():
             window.close()
         self.__qml_engine.clearComponentCache()
+        logging.info("Reloading QML")
         self.__qml_engine.load(QUrl("resources/qml/Main.qml"))
 
     @qtSlot

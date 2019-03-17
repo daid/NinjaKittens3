@@ -34,9 +34,9 @@ class CrashHandler(QObjectBase):
         self.__crash_info += "--------LOG--------\n"
         for message in LogHandler.getLogHistory():
             self.__crash_info += "%s\n" % (message)
-        self.onShow.emit()
         if CrashHandler._original_excepthook is not None:
             CrashHandler._original_excepthook(type_, value, traceback)
+        self.onShow.emit()
 
     onShow = pyqtSignal()
 
