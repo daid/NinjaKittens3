@@ -15,7 +15,6 @@ from nk3.settingType import SettingType
 class OutputMethod(QObjectList[SettingInstance]):
     NAME = "Unnamed Output Method"
 
-    save_button_text = QProperty[str]("?")
     qml_source = QProperty[str]("")
 
     def __init__(self, settings: Optional[List[SettingType]] = None) -> None:
@@ -44,5 +43,5 @@ class OutputMethod(QObjectList[SettingInstance]):
         pass
 
     @pyqtProperty(str, constant=True)
-    def typename(self):
+    def typename(self) -> str:
         return self.NAME

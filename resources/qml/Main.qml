@@ -40,12 +40,6 @@ NK3.MainWindow {
             ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                text: NK3.Application.active_machine.output_method.save_button_text
-                onClicked: output_method_loader.item.activate()
-            }
-            ToolButton {
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
                 text: "Edit machine settings"
                 onClicked: machine_settings.open()
             }

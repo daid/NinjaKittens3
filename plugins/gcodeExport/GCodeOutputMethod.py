@@ -21,7 +21,6 @@ class GCodeOutputMethod(OutputMethod):
                         You can place code here to wind or disable your machine.
                         For example disabling motors, spindles."""),
         ])
-        self.save_button_text = "Save"
         self.setLocalQmlSource("SaveGCode.qml")
 
     @qtSlot
