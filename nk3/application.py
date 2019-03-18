@@ -111,7 +111,9 @@ class Application(QObjectBase):
 
         Storage().load(self.machine_list)
         if self.machine_list.size() == 0:
-            self.machine_list.append(PluginRegistry.getInstance().getClass(Machine, "RouterMachine")())
+            machine_type = PluginRegistry.getInstance().getClass(Machine, "RouterMachine")
+            assert machine_type is not None
+            self.machine_list.append(machine_type())
             output_method_type = PluginRegistry.getInstance().getClass(OutputMethod, "GCodeOutputMethod")
             if output_method_type is not None:
                 self.machine_list[0].output_method = output_method_type()
