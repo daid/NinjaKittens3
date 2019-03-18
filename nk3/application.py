@@ -13,15 +13,14 @@ from nk3.configuration.storage import Storage
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.fileReader.fileReader import FileReader
-from nk3.machine.outputmethod import OutputMethod
 from nk3.machine.machine import Machine
+from nk3.machine.outputmethod import OutputMethod
 from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.dispatcher import Dispatcher
 from nk3.processor.pathUtils import Move
 from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.view import View
-from plugins.router.routerMachine import RouterMachine
 
 
 class MainWindow(QQuickWindow):
@@ -112,7 +111,7 @@ class Application(QObjectBase):
 
         Storage().load(self.machine_list)
         if self.machine_list.size() == 0:
-            self.machine_list.append(RouterMachine())
+            self.machine_list.append(PluginRegistry.getInstance().getClass(Machine, "RouterMachine")())
             output_method_type = PluginRegistry.getInstance().getClass(OutputMethod, "GCodeOutputMethod")
             if output_method_type is not None:
                 self.machine_list[0].output_method = output_method_type()
