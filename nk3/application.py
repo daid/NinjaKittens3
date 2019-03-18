@@ -135,7 +135,11 @@ class Application(QObjectBase):
         for node in DepthFirstIterator(self.__document_list):
             node.tool_index = -1
             node.operation_index = -1
+        for machine in self.machine_list:
+            if machine != self.active_machine:
+                machine.output_method.release()
         self.__dispatcher.setActiveMachine(self.active_machine)
+        self.active_machine.output_method.activate()
 
     def __onMoveData(self, move_data: List[Move]) -> None:
         self.__move_data = move_data

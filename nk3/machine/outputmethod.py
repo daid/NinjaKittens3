@@ -39,6 +39,9 @@ class OutputMethod(QObjectList[SettingInstance]):
     def getSettingValue(self, key: str) -> str:
         return self.__setting_instances[key].value
 
+    def activate(self) -> None:
+        pass
+
     def release(self) -> None:
         pass
 
