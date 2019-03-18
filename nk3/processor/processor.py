@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import List
+from typing import List, Optional
 
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.processor import pathUtils
@@ -19,7 +19,6 @@ class Processor:
         # TODO: Calculate problem areas
         # Generate pockets
         self.__processPockets(path_tree)
-        # TODO: Order the paths
         path_list = self.__orderPaths(path_tree)
         # Convert 2d paths to 3d paths
         return self.__processToMoves(path_list)
@@ -53,12 +52,24 @@ class Processor:
                     path.addTag("tabs")
 
     def __orderPaths(self, path_tree: pathUtils.Paths) -> List[pathUtils.Path]:
-        result = []
+        pick_list = []
         for paths in DepthFirstIterator(path_tree, iter_function=lambda n: n.children):
             for path in paths:
                 if path.length() == 0.0:
                     continue
-                result.append(path)
+                pick_list.append(path)
+        result = []
+        p0 = complex(0, 0)
+        while len(pick_list) > 0:
+            best_index = None  # type: Optional[int]
+            best_distance = 0.0
+            for index in range(0, len(pick_list)):
+                distance = abs(pick_list[index][0] - p0)
+                if best_index is None or distance < best_distance:
+                    best_index = index
+                    best_distance = distance
+            assert best_index is not None
+            result.append(pick_list.pop(best_index))
         return result
 
     def __processToMoves(self, path_list: List[pathUtils.Path]) -> List[Move]:

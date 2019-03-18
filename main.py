@@ -9,6 +9,7 @@ from nk3.crashHandler import CrashHandler
 
 if __name__ == '__main__':
     os.putenv("QML_DISABLE_DISK_CACHE", "1")
+    os.putenv("QSG_RENDER_LOOP", "basic")
     nk3.logging.setup()
     logging.info("Creating application")
     CrashHandler.register()
