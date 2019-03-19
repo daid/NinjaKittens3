@@ -110,7 +110,14 @@ class Application(QObjectBase):
         self.__dispatcher.onMoveData = self.__onMoveData
         self.active_machineChanged.connect(self.__onActiveMachineChanged)
 
-        Storage().load(self.machine_list)
+        self.__last_file = ""
+
+        s = Storage()
+        if s.load():
+            s.loadMachines(self.machine_list)
+            self.__last_file = s.getGeneralSetting("last_file")
+            if os.path.isfile(self.__last_file):
+                self._loadFile(self.__last_file)
         if self.machine_list.size() == 0:
             machine_type = PluginRegistry.getInstance().getClass(Machine, "RouterMachine")
             assert machine_type is not None
@@ -157,7 +164,9 @@ class Application(QObjectBase):
         return self.__view
 
     def repaint(self) -> None:
-        self.__qml_engine.rootObjects()[0].requestRepaint.emit()
+        root_objects = self.__qml_engine.rootObjects()
+        if len(root_objects) > 0:
+            root_objects[0].requestRepaint.emit()
 
     def start(self) -> int:
         if not self.__qml_engine.rootObjects():
@@ -174,12 +183,16 @@ class Application(QObjectBase):
 
     @qtSlot
     def loadFile(self, filename: QUrl) -> None:
-        logging.info("Going to load: %s", filename.toLocalFile())
-        reader = FileReader.getFileTypes()[os.path.splitext(filename.toLocalFile())[1][1:].lower()]
-        document_node = reader().load(filename.toLocalFile())
+        self._loadFile(filename.toLocalFile())
+
+    def _loadFile(self, filename: str) -> None:
+        logging.info("Going to load: %s", filename)
+        reader = FileReader.getFileTypes()[os.path.splitext(filename)[1][1:].lower()]
+        document_node = reader().load(filename)
         while len(self.__document_list) > 0:
             self.__document_list.remove(0)
         self.__document_list.append(document_node)
+        self.__last_file = filename
         self.repaint()
 
     @qtSlot
@@ -191,4 +204,7 @@ class Application(QObjectBase):
         return result
 
     def _onQuit(self) -> None:
-        Storage().save(self.machine_list)
+        s = Storage()
+        s.setGeneralSetting("last_file", self.__last_file)
+        s.storeMachines(self.machine_list)
+        s.save()
