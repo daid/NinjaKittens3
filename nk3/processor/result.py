@@ -15,5 +15,5 @@ class Result:
     def addProblemRegion(self, path: Path) -> None:
         pass
 
-    def addProblemPath(self, path: Path) -> None
+    def addProblemPath(self, path: Path) -> None:
         pass
