@@ -9,7 +9,7 @@ from nk3.document.node import DocumentNode
 from nk3.machine.machine import Machine
 from nk3.machine.tool import Tool
 from nk3.processor.collector import Collector
-from nk3.processor.pathUtils import Move
+from nk3.processor.result import Move
 from nk3.processor.processor import Processor
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance

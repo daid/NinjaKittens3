@@ -5,7 +5,7 @@ from typing import List, Optional
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.processor import pathUtils
 from nk3.processor.job import Job
-from nk3.processor.pathUtils import Move
+from nk3.processor.result import Move
 from nk3.processor.tabGenerator import TabGenerator
 
 

@@ -1,8 +1,6 @@
-import logging
 import pyclipper
-from typing import List, NamedTuple, Tuple, Iterable, Set, Iterator
+from typing import List, Tuple, Iterable, Set, Iterator
 
-Move = NamedTuple('Move', [('xy', complex), ('z', float), ('speed', float)])
 
 
 def dot(p0: complex, p1: complex) -> float:

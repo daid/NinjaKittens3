@@ -17,7 +17,7 @@ from nk3.machine.machine import Machine
 from nk3.machine.outputmethod import OutputMethod
 from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.dispatcher import Dispatcher
-from nk3.processor.pathUtils import Move
+from nk3.processor.result import Move
 from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.view import View

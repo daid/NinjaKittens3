@@ -5,7 +5,7 @@ from typing import List, Dict, Optional
 from PyQt5.QtCore import pyqtProperty
 
 import nk3.application
-from nk3.processor.pathUtils import Move
+from nk3.processor.result import Move
 from nk3.qt.QObjectBase import QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
