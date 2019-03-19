@@ -22,8 +22,7 @@ Item {
         selectExisting: false
 
         onAccepted: {
-            print(fileUrls[0])
-            NK3.Application.active_machine.output_method.save(fileUrls[0]);
+            output_method.save(fileUrls[0]);
         }
     }
 }

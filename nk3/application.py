@@ -6,7 +6,7 @@ from typing import List, Optional, Any
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint
 from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QAbstractOpenGLFunctions, QMouseEvent, \
     QWheelEvent
-from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType
+from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType, QQmlError
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
 
 from nk3.configuration.storage import Storage
@@ -91,6 +91,7 @@ class Application(QObjectBase):
 
         self.__app = QGuiApplication(sys.argv)
         self.__qml_engine = QQmlApplicationEngine(self.__app)
+        self.__qml_engine.warnings.connect(self.__onWarning)
 
         self.__view = View(self)
 
@@ -125,6 +126,10 @@ class Application(QObjectBase):
 
         self.__app.aboutToQuit.connect(self._onQuit)
 
+    def __onWarning(self, warnings: List[QQmlError]) -> None:
+        for warning in warnings:
+            logging.info("%s:%d %s", warning.url().toLocalFile(), warning.line(), warning.description())
+
     @property
     def document_list(self) -> QObjectList[DocumentNode]:
         return self.__document_list
@@ -142,6 +147,7 @@ class Application(QObjectBase):
                 machine.output_method.release()
         self.__dispatcher.setActiveMachine(self.active_machine)
         self.active_machine.output_method.activate()
+        self.__qml_engine.rootContext().setContextProperty("output_method", self.active_machine.output_method)
 
     def __onMoveData(self, move_data: List[Move]) -> None:
         self.__move_data = move_data

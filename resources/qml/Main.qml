@@ -108,6 +108,6 @@ NK3.MainWindow {
         anchors.bottom: parent.bottom
 
         id: output_method_loader
-        source: NK3.Application.active_machine.output_method.qml_source
+        source: output_method.qml_source
     }
 }

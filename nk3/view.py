@@ -41,6 +41,18 @@ class View:
         gl.glRotatef(-self.__yaw, 0, 0, 1)
         gl.glTranslatef(-self.__view_position.real, -self.__view_position.imag, 0)
 
+        gl.glBegin(gl.GL_LINES)
+        gl.glColor4ub(0xFF, 0, 0, 0xFF)
+        gl.glVertex3f(0, 0, 0)
+        gl.glVertex3f(10, 0, 0)
+        gl.glColor4ub(0, 0xFF, 0, 0xFF)
+        gl.glVertex3f(0, 0, 0)
+        gl.glVertex3f(0, 10, 0)
+        gl.glColor4ub(0, 0, 0xFF, 0xFF)
+        gl.glVertex3f(0, 0, 0)
+        gl.glVertex3f(0, 0, 10)
+        gl.glEnd()
+
         for node in self.__application.document_list:
             self._renderDocument(gl, node)
 
