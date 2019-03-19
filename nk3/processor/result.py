@@ -6,7 +6,7 @@ Move = NamedTuple('Move', [('xy', complex), ('z', float), ('speed', float)])
 
 
 class Result:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__moves = []  # type: List[Move]
 
     def addMove(self, move: Move) -> None:
