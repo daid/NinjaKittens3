@@ -1,6 +1,9 @@
 import logging
 from typing import List, Any
 
+from PyQt5.QtCore import qInstallMessageHandler, QtWarningMsg, QtInfoMsg, QtDebugMsg, QtCriticalMsg, QtFatalMsg, \
+    QMessageLogContext
+
 
 def setup() -> None:
     handlers = []  # type: List[logging.Handler]
@@ -9,6 +12,23 @@ def setup() -> None:
         handlers.append(logging.StreamHandler())
     handlers.append(LogHandler())
     logging.basicConfig(handlers=handlers, format="%(asctime)s:%(levelname)10s:%(module)20s:%(message)s", level=logging.INFO)
+
+    qInstallMessageHandler(qtMessageHandler)
+
+
+_qtLogTypeMapping = {
+    QtDebugMsg: logging.DEBUG,
+    QtInfoMsg: logging.INFO,
+    QtWarningMsg: logging.WARNING,
+    QtCriticalMsg: logging.CRITICAL,
+    QtFatalMsg: logging.FATAL,
+}
+
+
+def qtMessageHandler(type: int, context: QMessageLogContext, message: str) -> None:
+    log_level = _qtLogTypeMapping.get(type, logging.NOTSET)
+    for msg in message.strip().split("\n"):
+        logging.log(log_level, msg)
 
 
 class LogHandler(logging.Handler):

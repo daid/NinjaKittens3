@@ -92,6 +92,7 @@ class Application(QObjectBase):
         self.__app = QGuiApplication(sys.argv)
         self.__qml_engine = QQmlApplicationEngine(self.__app)
         self.__qml_engine.warnings.connect(self.__onWarning)
+        self.__qml_engine.setOutputWarningsToStandardError(False)
 
         self.__view = View(self)
 
