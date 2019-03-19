@@ -1,6 +1,6 @@
 import math
 
-from PyQt5.QtCore import QPoint
+from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QAbstractOpenGLFunctions
 
 from nk3.depthFirstIterator import DepthFirstIterator
@@ -20,7 +20,7 @@ class View:
         self.__pitch = 0.0
         self.__view_position = complex(0, 0)
 
-    def render(self, gl: QAbstractOpenGLFunctions, size: QPoint) -> None:
+    def render(self, gl: QAbstractOpenGLFunctions, size: QSize) -> None:
         gl.glViewport(0, 0, size.width(), size.height())
         gl.glUseProgram(0)
         gl.glEnable(gl.GL_DEPTH_TEST)
@@ -135,7 +135,7 @@ class View:
             self.zoom = zoom
 
     @staticmethod
-    def glPerspective(gl: QAbstractOpenGLFunctions, fov: float, window_size: QPoint, near: float, far: float) -> None:
+    def glPerspective(gl: QAbstractOpenGLFunctions, fov: float, window_size: QSize, near: float, far: float) -> None:
         aspect = window_size.width() / window_size.height()
         y = math.tan(fov / 360 * math.pi) * near
         if aspect > 1.0:
