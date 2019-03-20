@@ -167,9 +167,15 @@ class Paths:
         clipper.AddPaths(self._toClipper(), pyclipper.PT_SUBJECT, True)
         return Paths()._fromClipper(clipper.Execute(pyclipper.CT_UNION))
 
+    def difference(self, other: "Paths") -> "Paths":
+        clipper = pyclipper.Pyclipper()
+        clipper.AddPaths(self._toClipper(), pyclipper.PT_SUBJECT, True)
+        clipper.AddPaths(other._toClipper(), pyclipper.PT_CLIP, True)
+        return Paths()._fromClipper(clipper.Execute(pyclipper.CT_DIFFERENCE))
+
     def offset(self, amount: float, *, tree: bool=False) -> "Paths":
         offset = pyclipper.PyclipperOffset()
-        offset.AddPaths(self._toClipper(), pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON)
+        offset.AddPaths(self._toClipper(), pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
         if tree:
             return Paths()._fromClipperTree(offset.Execute2(amount * 1000.0))
         else:
@@ -189,7 +195,10 @@ class Paths:
         self.__paths.clear()
 
     def _toClipper(self) -> List[List[Tuple[float, float]]]:
-        return [path._toClipper() for path in self.__paths]
+        result = [path._toClipper() for path in self.__paths]
+        for child in self.__children:
+            result += child._toClipper()
+        return result
 
     def _fromClipper(self, paths: List[List[Tuple[float, float]]]) -> "Paths":
         self.__paths.clear()

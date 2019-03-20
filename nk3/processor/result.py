@@ -1,6 +1,6 @@
 from typing import NamedTuple, List, Iterator, Optional
 
-from nk3.processor.pathUtils import Path
+from nk3.processor.pathUtils import Paths
 
 Move = NamedTuple('Move', [('xy', complex), ('z', float), ('speed', float)])
 
@@ -12,6 +12,8 @@ class Result:
         self.__xy_travel_speed = 0.0
         self.__z_down_speed = 0.0
         self.__z_up_speed = 0.0
+
+        self.__problem_regions = Paths()
 
     def setSpeeds(self, *, xy_speed: float, xy_travel_speed: float, z_down_speed: float, z_up_speed: float) -> None:
         self.__xy_speed = xy_speed
@@ -50,10 +52,10 @@ class Result:
             return None
         return self.__moves[-1].xy
 
-    def addProblemRegion(self, path: Path) -> None:
-        pass
+    def addProblemRegions(self, paths: Paths) -> None:
+        self.__problem_regions.combine(paths)
 
-    def addProblemPath(self, path: Path) -> None:
+    def addProblemPath(self, path: Paths) -> None:
         pass
 
     @property

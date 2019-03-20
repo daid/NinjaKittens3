@@ -15,20 +15,25 @@ class Processor:
 
     def process(self, result: Result) -> None:
         # Process paths with pyclipper (offsets)
-        path_tree = self.__process2d()
-        # TODO: Calculate problem areas
+        path_tree = self.__process2d(result)
         # Generate pockets
         self.__processPockets(path_tree)
         path_list = self.__orderPaths(path_tree)
         # Convert 2d paths to 3d paths
         self.__processToMoves(path_list, result)
 
-    def __process2d(self) -> pathUtils.Paths:
+    def __process2d(self, result: Result) -> pathUtils.Paths:
         if self.__job.settings.cut_offset != 0.0:
-            result = self.__job.closedPaths.union()
+            paths = self.__job.closedPaths.union()
             if self.__job.openPaths:
                 logging.warning("Job has %d open paths, will be ignored...", len(self.__job.openPaths))
-            return result.offset(self.__job.settings.cut_offset, tree=True)
+            offset_result = paths.offset(self.__job.settings.cut_offset, tree=True)
+            # Calculate problem areas
+            if self.__job.settings.cut_offset < 0.0:
+                result.addProblemRegions(offset_result.offset(-self.__job.settings.cut_offset + 0.05))
+            else:
+                result.addProblemRegions(offset_result.offset(-self.__job.settings.cut_offset - 0.05).difference(paths))
+            return offset_result
         self.__job.closedPaths.combine(self.__job.openPaths)
         for path in self.__job.closedPaths:
             path.removeDuplicates()
@@ -88,7 +93,7 @@ class Processor:
         result.setSpeeds(
             xy_speed=self.__job.settings.cut_feedrate,
             xy_travel_speed=self.__job.settings.travel_speed,
-            z_up_speed=self.__job.settings.plunge_feedrate,
+            z_up_speed=self.__job.settings.lift_speed,
             z_down_speed=self.__job.settings.plunge_feedrate
         )
 
