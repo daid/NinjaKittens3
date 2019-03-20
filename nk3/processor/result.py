@@ -33,11 +33,16 @@ class Result:
             total_distance = abs(complex(xy_distance, z_distance))
             if total_distance == 0.0:
                 return
-            speed = xy_speed * xy_distance / total_distance
-            if z_distance < 0:
-                speed += self.__z_down_speed * -z_distance / total_distance
-            elif z_distance > 0:
-                speed += self.__z_down_speed * z_distance / total_distance
+            z_speed = self.__z_down_speed if z_distance < 0 else self.__z_up_speed
+            # Make it so that:
+            # speed * xy_distance / total_distance = xy_speed
+            # speed * z_distance / total_distance = z_speed
+            if xy_distance != 0.0 and z_distance != 0.0:
+                speed = min(xy_speed / xy_distance * total_distance, z_speed / abs(z_distance) * total_distance)
+            elif xy_distance != 0.0:
+                speed = xy_speed / xy_distance * total_distance
+            else:
+                speed / abs(z_distance) * total_distance
         self.__moves.append(Move(xy, z, speed))
 
     def getLastXY(self) -> Optional[complex]:

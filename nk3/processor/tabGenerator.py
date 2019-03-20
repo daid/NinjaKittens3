@@ -1,5 +1,4 @@
 import math
-import logging
 
 from nk3.processor import pathUtils
 from nk3.processor.processorSettings import ProcessorSettings
