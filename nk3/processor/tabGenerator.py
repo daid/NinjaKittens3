@@ -65,4 +65,6 @@ class TabGenerator:
     def __addDepth(self, offset: float, depth: float) -> None:
         current_depth = self.__path.getDepthAt(offset)
         depth = max(depth, current_depth)
+        if offset > self.__path.getTotalDepthDistance() and depth == current_depth:
+            return
         self.__path.addDepthAtDistance(depth, offset)

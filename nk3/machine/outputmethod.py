@@ -39,9 +39,13 @@ class OutputMethod(QObjectList[SettingInstance]):
     def getSettingValue(self, key: str) -> str:
         return self.__setting_instances[key].value
 
+    # Called when this output method is on the current active machine.
+    # Override in subclass as needed.
     def activate(self) -> None:
         pass
 
+    # Called when this output method is no longer on the active machine, or being removed.
+    # Override in subclass as needed.
     def release(self) -> None:
         pass
 

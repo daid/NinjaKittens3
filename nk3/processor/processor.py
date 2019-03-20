@@ -37,7 +37,7 @@ class Processor:
     def __processPockets(self, path_tree: pathUtils.Paths) -> None:
         for paths in DepthFirstIterator(path_tree, include_root=False, iter_function=lambda n: n.children):
             if self.__needPocket(paths):
-                # Combine our childs into ourselfs, so the pocket becomes a single Paths group.
+                # Combine our childs into ourselves, so the pocket becomes a single Paths group.
                 for child in paths.children:
                     paths.combine(child)
                     child.clear()
