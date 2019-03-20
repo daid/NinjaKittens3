@@ -17,7 +17,7 @@ from nk3.machine.machine import Machine
 from nk3.machine.outputmethod import OutputMethod
 from nk3.pluginRegistry import PluginRegistry
 from nk3.processor.dispatcher import Dispatcher
-from nk3.processor.result import Move
+from nk3.processor.result import Result
 from nk3.qt.QObjectBase import qtSlot, QObjectBase, QProperty
 from nk3.qt.QObjectList import QObjectList
 from nk3.view import View
@@ -100,7 +100,7 @@ class Application(QObjectBase):
         qmlRegisterType(MouseHandler, "NK3", 1, 0, "MouseHandler")
         qmlRegisterSingletonType(Application, "NK3", 1, 0, "Application", Application.getInstance)
 
-        self.__move_data = []  # type: List[Move]
+        self.__process_result = Result()
 
         self.machine_list = QObjectList[Machine]("machine")
 
@@ -108,7 +108,7 @@ class Application(QObjectBase):
         self.__document_list.rowsInserted.connect(lambda parent, first, last: self.__view.home())
 
         self.__dispatcher = Dispatcher(self.__document_list)
-        self.__dispatcher.onMoveData = self.__onMoveData
+        self.__dispatcher.onResultData = self.__onResultData
         self.active_machineChanged.connect(self.__onActiveMachineChanged)
 
         self.__last_file = ""
@@ -143,8 +143,8 @@ class Application(QObjectBase):
         return self.__document_list
 
     @property
-    def move_data(self) -> List[Move]:
-        return self.__move_data
+    def result_data(self) -> Result:
+        return self.__process_result
 
     def __onActiveMachineChanged(self) -> None:
         for node in DepthFirstIterator(self.__document_list):
@@ -157,8 +157,8 @@ class Application(QObjectBase):
         self.active_machine.output_method.activate()
         self.__qml_engine.rootContext().setContextProperty("output_method", self.active_machine.output_method)
 
-    def __onMoveData(self, move_data: List[Move]) -> None:
-        self.__move_data = move_data
+    def __onResultData(self, result: Result) -> None:
+        self.__process_result = result
         self.repaint()
 
     def getView(self) -> View:

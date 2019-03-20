@@ -5,7 +5,7 @@ from typing import List, Optional
 from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.processor import pathUtils
 from nk3.processor.job import Job
-from nk3.processor.result import Move
+from nk3.processor.result import Result
 from nk3.processor.tabGenerator import TabGenerator
 
 
@@ -13,7 +13,7 @@ class Processor:
     def __init__(self, job: Job) -> None:
         self.__job = job
 
-    def process(self) -> List[Move]:
+    def process(self, result: Result) -> None:
         # Process paths with pyclipper (offsets)
         path_tree = self.__process2d()
         # TODO: Calculate problem areas
@@ -21,7 +21,7 @@ class Processor:
         self.__processPockets(path_tree)
         path_list = self.__orderPaths(path_tree)
         # Convert 2d paths to 3d paths
-        return self.__processToMoves(path_list)
+        self.__processToMoves(path_list, result)
 
     def __process2d(self) -> pathUtils.Paths:
         if self.__job.settings.cut_offset != 0.0:
@@ -72,7 +72,7 @@ class Processor:
             result.append(pick_list.pop(best_index))
         return result
 
-    def __processToMoves(self, path_list: List[pathUtils.Path]) -> List[Move]:
+    def __processToMoves(self, path_list: List[pathUtils.Path], result: Result) -> None:
         cut_depth_total = self.__job.settings.cut_depth_total
         cut_depth_pass = self.__job.settings.cut_depth_pass
         if 0.0 < self.__job.settings.attack_angle < 90.0:
@@ -80,15 +80,24 @@ class Processor:
         else:
             attack_length = 0.0
 
-        depths = [-cut_depth_pass]
-        while depths[-1] > -cut_depth_total:
-            depths.append(depths[-1] - cut_depth_pass)
-        depths[-1] = -cut_depth_total
+        depths = [-cut_depth_total]
+        while depths[0] < 0:
+            depths.insert(0, depths[0] + cut_depth_pass)
+        depths.pop(0)
 
-        moves = [Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed)]
+        result.setSpeeds(
+            xy_speed=self.__job.settings.cut_feedrate,
+            xy_travel_speed=self.__job.settings.travel_speed,
+            z_up_speed=self.__job.settings.plunge_feedrate,
+            z_down_speed=self.__job.settings.plunge_feedrate
+        )
+
+        if result.getLastXY() is None:
+            result.addTravel(complex(0, 0), self.__job.settings.travel_height)
         for path in path_list:
-            if moves[-1].xy is not None:
-                path.shiftStartTowards(moves[-1].xy)
+            last_xy = result.getLastXY()
+            if last_xy is not None:
+                path.shiftStartTowards(last_xy)
 
             # Add enough cut distance to cut out each depth for the path
             total_distance = 0.0
@@ -116,12 +125,13 @@ class Processor:
             if path.hasTag("tabs"):
                 TabGenerator(self.__job.settings, path)
 
-            moves.append(Move(path[0], self.__job.settings.travel_height, self.__job.settings.travel_speed))
+            result.addTravel(path[0], self.__job.settings.travel_height)
             for point, height in path.iterateDepthPoints():
-                moves.append(Move(point, height, self.__job.settings.cut_feedrate))
-            moves.append(Move(moves[-1].xy, self.__job.settings.travel_height, self.__job.settings.lift_speed))
-        moves.append(Move(complex(0, 0), self.__job.settings.travel_height, self.__job.settings.travel_speed))
-        return moves
+                result.addMove(point, height)
+            last_xy = result.getLastXY()
+            assert last_xy is not None
+            result.addTravel(last_xy, self.__job.settings.travel_height)
+        result.addTravel(complex(0, 0), self.__job.settings.travel_height)
 
     def __needPocket(self, paths: pathUtils.Paths) -> bool:
         if self.__job.settings.pocket_offset > 0.0 and not paths.isHole:

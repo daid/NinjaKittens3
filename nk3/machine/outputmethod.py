@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Iterator
 
 from PyQt5.QtCore import pyqtProperty
 
@@ -28,8 +28,8 @@ class OutputMethod(QObjectList[SettingInstance]):
                 self.__setting_instances[instance.type.key] = instance
 
     @staticmethod
-    def getMoves() -> List[Move]:
-        return nk3.application.Application.getInstance().move_data
+    def getMoves() -> Iterator[Move]:
+        return nk3.application.Application.getInstance().result_data.moves
 
     # Set the qml source to a file inside the plugin that provides this output method type.
     def setLocalQmlSource(self, filename: str) -> None:

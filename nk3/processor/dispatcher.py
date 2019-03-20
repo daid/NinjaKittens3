@@ -1,7 +1,7 @@
 import logging
 import threading
 import time
-from typing import List, Optional
+from typing import Optional
 
 from PyQt5.QtCore import QModelIndex
 
@@ -9,15 +9,15 @@ from nk3.document.node import DocumentNode
 from nk3.machine.machine import Machine
 from nk3.machine.tool import Tool
 from nk3.processor.collector import Collector
-from nk3.processor.result import Move
 from nk3.processor.processor import Processor
+from nk3.processor.result import Result
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 
 
 class Dispatcher:
     def __init__(self, document_list: QObjectList[DocumentNode]) -> None:
-        self.onMoveData = lambda moves: None
+        self.onResultData = lambda result: None
         self.__machine = None  # type: Optional[Machine]
         self.__document_list = document_list
 
@@ -96,12 +96,12 @@ class Dispatcher:
 
     def __process(self) -> None:
         # Collect all paths from nodes and match them with the respective operations
-        moves = []  # type: List[Move]
+        result = Result()
         machine = self.__machine
         if machine is not None:
             collector = Collector(self.__document_list, machine)
             for job in collector.getJobs():
-                moves += Processor(job).process()
+                Processor(job).process(result)
         # Notify the main application of new processed data.
         # The main application can display this and export it.
-        self.onMoveData(moves)
+        self.onResultData(result)

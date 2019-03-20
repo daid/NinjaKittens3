@@ -56,13 +56,12 @@ class View:
         for node in self.__application.document_list:
             self._renderDocument(gl, node)
 
-        move_data = self.__application.move_data
-        if move_data is not None:
-            gl.glColor4ub(0xFF, 0xFF, 0xFF, 0xFF)
-            gl.glBegin(gl.GL_LINE_STRIP)
-            for move in move_data:
-                gl.glVertex3f(move.xy.real, move.xy.imag, move.z)
-            gl.glEnd()
+        result_data = self.__application.result_data
+        gl.glColor4ub(0xFF, 0xFF, 0xFF, 0xFF)
+        gl.glBegin(gl.GL_LINE_STRIP)
+        for move in result_data.moves:
+            gl.glVertex3f(move.xy.real, move.xy.imag, move.z)
+        gl.glEnd()
 
     def _renderDocument(self, gl: QAbstractOpenGLFunctions, document: DocumentNode) -> None:
         if isinstance(document, DocumentVectorNode):
