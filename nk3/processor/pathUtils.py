@@ -78,6 +78,7 @@ class Path:
         return sum(corner_dot_values)
 
     def addDepthAtDistance(self, depth: float, distance: float) -> None:
+        assert distance >= 0.0
         self.__depth_at_distance.append((distance, depth))
         self.__depth_at_distance.sort(key=lambda n: (n[0], -n[1]))
 

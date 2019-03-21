@@ -26,7 +26,7 @@ class TabGenerator:
             return
 
         f = length / 3
-        if f > self.__tab_bottom_width * 2:
+        if f > self.__tab_bottom_width * 3:
             self.__addTab(self.__findBetterTabOffset(f * 0.5))
             self.__addTab(self.__findBetterTabOffset(f * 1.5))
             self.__addTab(self.__findBetterTabOffset(f * 2.5))
@@ -40,6 +40,8 @@ class TabGenerator:
         best_score = self.__path.scoreCornering(start, end)
         best_offset = offset
         for n in [-1.0, -0.5, 0.5, 1.0]:
+            if start + self.__tab_bottom_width * n < 0.0:
+                continue
             score = self.__path.scoreCornering(start + self.__tab_bottom_width * n, end + self.__tab_bottom_width * n) + abs(n * 0.001)
             if score < best_score:
                 best_score = score
