@@ -42,9 +42,9 @@ class Result:
             if xy_distance != 0.0 and z_distance != 0.0:
                 speed = min(xy_speed / xy_distance * total_distance, z_speed / abs(z_distance) * total_distance)
             elif xy_distance != 0.0:
-                speed = xy_speed / xy_distance * total_distance
+                speed = xy_speed
             else:
-                speed / abs(z_distance) * total_distance
+                speed = z_speed
         self.__moves.append(Move(xy, z, speed))
 
     def getLastXY(self) -> Optional[complex]:

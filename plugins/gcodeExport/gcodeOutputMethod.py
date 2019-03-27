@@ -3,8 +3,10 @@ import logging
 from PyQt5.QtCore import QUrl
 
 from nk3.machine.outputmethod import OutputMethod
+from nk3.pluginRegistry import PluginRegistry
 from nk3.qt.QObjectBase import qtSlot
 from nk3.settingType import SettingType
+from .gcodeDialect import GCodeDialect
 
 
 class GCodeOutputMethod(OutputMethod):
@@ -30,8 +32,10 @@ class GCodeOutputMethod(OutputMethod):
         start_code = self.getSettingValue("start_code").strip()
         if start_code != "":
             f.write(start_code + "\n")
+        dialect = PluginRegistry.getInstance().createInstance(GCodeDialect, "CompatibilityDialect")
+        assert dialect is not None
         for move in self.getMoves():
-            f.write("G1 F%d X%f Y%f Z%f\n" % (move.speed, move.xy.real, move.xy.imag, move.z))
+            f.write("%s\n" % (dialect.convertMove(move)))
         end_code = self.getSettingValue("end_code").strip()
         if end_code != "":
             f.write(end_code + "\n")
