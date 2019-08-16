@@ -20,6 +20,7 @@ class SVGFileReader(FileReader):
         super().__init__()
         self.__xml = None  # type: Optional[ElementTree.ElementTree]
         dpi = 90
+        dpi = 25.4
         self.__transform_stack = [ComplexTransform.scale(complex(25.4/dpi, -25.4/dpi))]
 
     def load(self, filename: str) -> DocumentNode:
@@ -163,7 +164,7 @@ class SVGFileReader(FileReader):
         p0 = complex(0, 0)
         cp1 = complex(0, 0)
         for command in re.findall("[a-df-zA-DF-Z][^a-df-zA-DF-Z]*", path_string):
-            params = list(map(float, re.findall("-?[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?", command[1:])))
+            params = list(map(float, re.findall("[-\\+]?(?:[0-9]+(?:\\.[0-9]*)?)|(?:\\.[0-9]+)(?:[eE][+-]?[0-9]+)?", command[1:])))
             command = command[0]
             if command == "M":
                 p0 = complex(params[0], params[1])
@@ -188,7 +189,10 @@ class SVGFileReader(FileReader):
                     p0 = p1
             elif command == "l":
                 for n in range(0, len(params), 2):
-                    p1 = p0 + complex(params[n], params[n + 1])
+                    if n + 1 == len(params):
+                        p1 = p0 + complex(params[n], 0)
+                    else:
+                        p1 = p0 + complex(params[n], params[n + 1])
                     paths.addLine(p0, p1)
                     p0 = p1
             elif command == 'H':
