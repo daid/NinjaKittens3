@@ -164,7 +164,7 @@ class SVGFileReader(FileReader):
         p0 = complex(0, 0)
         cp1 = complex(0, 0)
         for command in re.findall("[a-df-zA-DF-Z][^a-df-zA-DF-Z]*", path_string):
-            params = list(map(float, re.findall("[-\\+]?(?:[0-9]+(?:\\.[0-9]*)?)|(?:\\.[0-9]+)(?:[eE][+-]?[0-9]+)?", command[1:])))
+            params = list(map(float, re.findall("[-\\+]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?", command[1:])))
             command = command[0]
             if command == "M":
                 p0 = complex(params[0], params[1])
