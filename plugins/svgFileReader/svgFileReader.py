@@ -19,7 +19,7 @@ class SVGFileReader(FileReader):
     def __init__(self) -> None:
         super().__init__()
         self.__xml = None  # type: Optional[ElementTree.ElementTree]
-        dpi = 90
+        dpi = 90.0
         dpi = 25.4
         self.__transform_stack = [ComplexTransform.scale(complex(25.4/dpi, -25.4/dpi))]
 
@@ -49,7 +49,7 @@ class SVGFileReader(FileReader):
     def __processGTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         for child in tag:
             if child.get("transform"):
-                self.__pushTransform(child.get("transform"))
+                self.__pushTransform(str(child.get("transform")))
             child_tag = child.tag[child.tag.find('}') + 1:].lower()
             if child_tag == "g" or child_tag == "a":
                 self.__processGTag(child, node)
