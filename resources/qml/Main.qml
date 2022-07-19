@@ -7,8 +7,6 @@ import NK3 1.0 as NK3
 
 NK3.MainWindow {
     visible: true
-    width: 640
-    height: 480
     title: qsTr("NinjaKittens 3")
 
     NK3.MouseHandler {

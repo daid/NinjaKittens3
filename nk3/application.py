@@ -35,6 +35,7 @@ class MainWindow(QQuickWindow):
         self.setClearBeforeRendering(False)
         self.beforeRendering.connect(self._render, type=Qt.DirectConnection)
         self.requestRepaint.connect(self.update)
+        self.setVisibility(QQuickWindow.Maximized)
 
     def _initialize(self) -> None:
         profile = QOpenGLVersionProfile()
