@@ -1,6 +1,0 @@
-[tinyci]
-enabled = True
-
-[build-native]
-directory = 
-commands = python3 run_mypy.py
