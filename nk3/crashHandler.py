@@ -28,7 +28,7 @@ class CrashHandler(QObjectBase):
         self.__qml_engine = None  # type: Optional[QQmlApplicationEngine]
         self.onShow.connect(self.show)
 
-    def handleException(self, type_: Type[BaseException], value: BaseException, traceback: TracebackType) -> None:
+    def handleException(self, type_: Type[BaseException], value: BaseException, traceback: Optional[TracebackType]) -> None:
         self.__crash_info = "--------Exception--------\n"
         self.__crash_info += "".join(traceback_module.format_exception(type_, value, traceback))
         self.__crash_info += "--------LOG--------\n"

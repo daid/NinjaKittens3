@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, Callable
 import abc
 
 
 class ProtocolBase(abc.ABC):
-    def __init__(self, status_callback) -> None:
+    def __init__(self, status_callback: Callable[[str, bool, bool], None]) -> None:
         self.onStatusUpdate = status_callback
 
     @abc.abstractmethod

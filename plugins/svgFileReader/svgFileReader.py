@@ -131,6 +131,7 @@ class SVGFileReader(FileReader):
                 ry_str = rx_str
             elif rx_str is None:
                 rx_str = ry_str
+            assert rx_str is not None and ry_str is not None
             rx = float(rx_str)
             ry = float(ry_str)
             if rx > w / 2:
@@ -352,7 +353,7 @@ class SVGFileReader(FileReader):
         elif "fill" in styles:
             return styles["fill"]
         elif "stroke" in tag.attrib:
-            return tag.get("stroke")
+            return tag.get("stroke") or ""
         elif "fill" in tag.attrib:
-            return tag.get("fill")
+            return tag.get("fill") or ""
         return "NoColor"

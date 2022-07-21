@@ -33,7 +33,9 @@ class OutputMethod(QObjectList[SettingInstance]):
 
     # Set the qml source to a file inside the plugin that provides this output method type.
     def setLocalQmlSource(self, filename: str) -> None:
-        path = os.path.dirname(sys.modules[type(self).__module__].__file__)
+        module_filename = sys.modules[type(self).__module__].__file__
+        assert module_filename is not None
+        path = os.path.dirname(module_filename)
         self.qml_source = "file:///%s/%s" % (path, filename)
 
     def getSettingValue(self, key: str) -> str:

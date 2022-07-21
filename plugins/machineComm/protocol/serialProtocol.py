@@ -2,7 +2,7 @@ import queue
 import time
 import abc
 import logging
-from typing import Optional, List, TYPE_CHECKING
+from typing import Callable, Optional, List, TYPE_CHECKING
 
 import serial
 
@@ -19,7 +19,7 @@ else:
 # It has a normal queue for a sequence of commands, as well as a priority queue that bypasses the normal queue.
 # The priority queue can be used for status requests as well as abort commands.
 class SerialProtocol(ProtocolBase, abc.ABC):
-    def __init__(self, ser: serial.Serial, status_callback) -> None:
+    def __init__(self, ser: serial.Serial, status_callback: Callable[[str, bool, bool], None]) -> None:
         super().__init__(status_callback)
         self.__max_in_flight_data = 0
 
@@ -76,7 +76,7 @@ class SerialProtocol(ProtocolBase, abc.ABC):
                         break
                     msg = self.__received_data[:message_length]
                     self.__received_data = self.__received_data[message_length:]
-                    logging.info(f"Reply: {msg}")
+                    logging.info(f"Reply: {msg!r}")
                     if self._processIncommingMessage(msg):
                         try:
                             self.__in_flight_data.pop(0)
@@ -112,7 +112,7 @@ class SerialProtocol(ProtocolBase, abc.ABC):
         if self.__want_to_transmit is not None and (in_flight == 0 or in_flight + len(self.__want_to_transmit) <= self.__max_in_flight_data):
             self.__serial.write(self.__want_to_transmit)
             self.__in_flight_data.append(len(self.__want_to_transmit))
-            logging.info(f"Sending {self.__want_to_transmit}:{sum(self.__in_flight_data)}")
+            logging.info(f"Sending {self.__want_to_transmit!r}:{sum(self.__in_flight_data)}")
             self.__want_to_transmit = None
             return True
         return False

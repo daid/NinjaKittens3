@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 
 import serial
 import logging
@@ -9,7 +9,7 @@ from .serialProtocol import SerialProtocol
 
 
 class Grbl(SerialProtocol):
-    def __init__(self, ser: serial.Serial, status_callback) -> None:
+    def __init__(self, ser: serial.Serial, status_callback: Callable[[str, bool, bool], None]) -> None:
         super().__init__(ser, status_callback)
 
         self.__firmware_version_string = ""
