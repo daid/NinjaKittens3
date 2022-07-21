@@ -28,10 +28,10 @@ class QObjectList(Generic[T], QAbstractListModel, metaclass=QObjectBaseMeta):
             self.RoleItem: self.__entry_name,
         }
 
-    def rowCount(self, parent: QObject) -> int:  ## Part of QAbstractListModel
+    def rowCount(self, parent: QModelIndex = ...) -> int:  ## Part of QAbstractListModel
         return len(self.__entries)
 
-    def data(self, index: QModelIndex, role: int) -> Any:  ## Part of QAbstractListModel
+    def data(self, index: QModelIndex, role: int = ...) -> Any:  ## Part of QAbstractListModel
         if not index.isValid():
             return QVariant()
         if role == self.RoleItem:
