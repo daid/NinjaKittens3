@@ -30,7 +30,7 @@ class View:
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        self.glPerspective(gl, 90.0, size, 1.0, self.__zoom * 4.0)
+        self.glPerspective(gl, 60.0, size, 1.0, self.__zoom * 4.0)
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glLoadIdentity()
         self._renderDocuments(gl)
@@ -130,7 +130,7 @@ class View:
                         complex(max(combined_aabb[1].real, aabb[1].real), max(combined_aabb[1].imag, aabb[1].imag)))
         if combined_aabb is not None:
             size = combined_aabb[1] - combined_aabb[0]
-            zoom = max(size.real, size.imag) / 1.8
+            zoom = max(size.real, size.imag) / 0.8
             self.view_position = (combined_aabb[0] + combined_aabb[1]) / 2.0
             self.zoom = zoom
 
