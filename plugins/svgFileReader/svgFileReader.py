@@ -332,6 +332,7 @@ class SVGFileReader(FileReader):
 
         for child in base_node:
             if child.name == color_name:
+                assert isinstance(child, DocumentVectorNode)
                 return child
         child = DocumentVectorNode(color_name)
         if color is not None:

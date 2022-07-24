@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import math
 from typing import List, Optional, Any
 
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint
@@ -64,8 +65,16 @@ class MouseHandler(QQuickItem):
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         if self.__last_pos is not None:
-            Application.getInstance().getView().yaw += (event.pos().x() - self.__last_pos.x())
-            Application.getInstance().getView().pitch += (event.pos().y() - self.__last_pos.y())
+            view = Application.getInstance().getView()
+            delta_x = (event.pos().x() - self.__last_pos.x()) / self.size().height()
+            delta_y = (event.pos().y() - self.__last_pos.y()) / self.size().height()
+            if event.buttons() & Qt.RightButton:
+                delta = complex(-delta_x, delta_y) * view.zoom * 2.0
+                delta *= complex(math.cos(math.radians(view.yaw)), math.sin(math.radians(view.yaw)))
+                view.view_position = view.view_position + delta
+            else:
+                view.yaw += delta_x * 360.0
+                view.pitch += delta_y * 360.0
         self.__last_pos = event.pos()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
