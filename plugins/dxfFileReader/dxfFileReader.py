@@ -66,19 +66,6 @@ class DXFFileReader(FileReader):
         self._moveToOrigin(self.__document_root)
         return self.__document_root
 
-    def _moveToOrigin(self, root_node: DocumentNode) -> None:
-        min_x = float("inf")
-        min_y = float("inf")
-        for node in DepthFirstIterator(root_node):
-            aabb = node.getAABB()
-            if aabb is not None:
-                min_x = min(aabb[0].real, min_x)
-                min_y = min(aabb[0].imag, min_y)
-        for node in DepthFirstIterator(root_node):
-            if isinstance(node, DocumentVectorNode):
-                for path in node.getPaths():
-                    path.offset(-complex(min_x, min_y))
-
     def _finish(self, node: DocumentNode) -> None:
         if isinstance(node, DocumentVectorNode):
             node.getPaths().stitch()
