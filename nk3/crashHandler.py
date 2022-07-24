@@ -6,7 +6,7 @@ from types import TracebackType
 
 from PyQt5.QtCore import QUrl, pyqtSignal
 from PyQt5.QtQml import QQmlApplicationEngine
-from nk3.logging import LogHandler
+from nk3.qtlogging import LogHandler
 from nk3.qt.QObjectBase import QObjectBase, qtSlot
 
 
