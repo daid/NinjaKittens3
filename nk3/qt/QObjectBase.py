@@ -13,7 +13,7 @@ class QProperty(Generic[T]):
         pass
 
     def __get__(self, instance: Any, owner: Any) -> T:
-        pass
+        raise NotImplementedError()
 
     def getDefinedType(self) -> type:
         if TYPE_CHECKING:
