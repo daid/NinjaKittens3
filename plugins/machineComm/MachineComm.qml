@@ -24,6 +24,7 @@ Item {
                     id: jog_mode
                     model: [
                         {value: 0, text: "None"},
+                        {value: 100, text: "100mm"},
                         {value: 10, text: "10mm"},
                         {value: 1, text: "1mm"},
                         {value: 0.1, text: "0.1mm"}
@@ -73,43 +74,49 @@ Item {
             Shortcut {
                 sequences: ["Left", "a"]
                 onActivated: {
-                    if (jog_mode.currentValue != 0 && output_method.connected && !output_method.busy)
-                        output_method.jog(-jog_mode.currentValue, 0, 0);
+                    var mode = jog_mode.model[jog_mode.currentIndex].value;
+                    if (mode != 0 && output_method.connected && !output_method.busy)
+                        output_method.jog(-mode, 0, 0);
                 }
             }
             Shortcut {
                 sequences: ["Right", "d"]
                 onActivated: {
-                    if (jog_mode.currentValue != 0 && output_method.connected && !output_method.busy)
-                        output_method.jog(jog_mode.currentValue, 0, 0);
+                    var mode = jog_mode.model[jog_mode.currentIndex].value;
+                    if (mode != 0 && output_method.connected && !output_method.busy)
+                        output_method.jog(mode, 0, 0);
                 }
             }
             Shortcut {
                 sequences: ["Up", "w"]
                 onActivated: {
-                    if (jog_mode.currentValue != 0 && output_method.connected && !output_method.busy)
-                        output_method.jog(0, jog_mode.currentValue, 0);
+                    var mode = jog_mode.model[jog_mode.currentIndex].value;
+                    if (mode != 0 && output_method.connected && !output_method.busy)
+                        output_method.jog(0, mode, 0);
                 }
             }
             Shortcut {
                 sequences: ["Down", "s"]
                 onActivated: {
-                    if (jog_mode.currentValue != 0 && output_method.connected && !output_method.busy)
-                        output_method.jog(0, -jog_mode.currentValue, 0);
+                    var mode = jog_mode.model[jog_mode.currentIndex].value;
+                    if (mode != 0 && output_method.connected && !output_method.busy)
+                        output_method.jog(0, -mode, 0);
                 }
             }
             Shortcut {
                 sequences: ["e"]
                 onActivated: {
-                    if (jog_mode.currentValue != 0 && output_method.connected && !output_method.busy)
-                        output_method.jog(0, 0, jog_mode.currentValue);
+                    var mode = jog_mode.model[jog_mode.currentIndex].value;
+                    if (mode != 0 && output_method.connected && !output_method.busy)
+                        output_method.jog(0, 0, mode);
                 }
             }
             Shortcut {
                 sequences: ["q"]
                 onActivated: {
-                    if (jog_mode.currentValue != 0 && output_method.connected && !output_method.busy)
-                        output_method.jog(0, 0, -jog_mode.currentValue);
+                    var mode = jog_mode.model[jog_mode.currentIndex].value;
+                    if (mode != 0 && output_method.connected && !output_method.busy)
+                        output_method.jog(0, 0, -mode);
                 }
             }
         }

@@ -64,7 +64,7 @@ class SerialProtocol(ProtocolBase, abc.ABC):
         last_status_request = time.monotonic()
         while True:
             try:
-                input_data = self.__serial.read(4096)
+                input_data = self.__serial.read(max(1, self.__serial.in_waiting))
             except serial.SerialException as e:
                 logging.error(f"Serial error: {e}")
                 return

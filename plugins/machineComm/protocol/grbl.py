@@ -29,7 +29,7 @@ class Grbl(SerialProtocol):
         self.__want_to_reset = True  # When we are idle, request a soft reset.
 
     def jog(self, *, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None) -> None:
-        cmd = "$J=F600"
+        cmd = "$J=G91 F600"
         if x is not None:
             cmd += " X%f" % x
         if y is not None:
