@@ -1,4 +1,5 @@
 import math
+import numpy
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QAbstractOpenGLFunctions
@@ -19,6 +20,8 @@ class View:
         self.__yaw = 0.0
         self.__pitch = 0.0
         self.__view_position = complex(0, 0)
+        self.__projection_matrix = None
+        self.__model_matrix = None
 
     def render(self, gl: QAbstractOpenGLFunctions, size: QSize) -> None:
         gl.glViewport(0, 0, size.width(), size.height())
@@ -34,6 +37,9 @@ class View:
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glLoadIdentity()
         self._renderDocuments(gl)
+        self.__projection_matrix = numpy.matrix(numpy.array(gl.glGetDoublev(gl.GL_PROJECTION_MATRIX)).reshape((4, 4)))
+        self.__model_matrix = numpy.matrix(numpy.array(gl.glGetDoublev(gl.GL_MODELVIEW_MATRIX)).reshape((4, 4)))
+        self.__viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
 
     def _renderDocuments(self, gl: QAbstractOpenGLFunctions) -> None:
         gl.glTranslatef(0, 0, -self.__zoom)
@@ -153,6 +159,23 @@ class View:
     def view_position(self, view_position: complex) -> None:
         self.__view_position = view_position
         self.__application.repaint()
+
+    def screen_to_world(self, x, y):
+        x = (x - self.__viewport[0]) / self.__viewport[2]
+        y = (y - self.__viewport[1]) / self.__viewport[3]
+        x = x * 2 - 1
+        y = -(y * 2 - 1)
+        m = numpy.linalg.inv(self.__projection_matrix.T)
+        p = numpy.linalg.inv(self.__model_matrix.T)
+        m = p * m
+        v = numpy.array([x,x, y,y, 0,1, 1,1]).reshape((4,2))
+        v = m * v
+        v0 = (v[0:3,0] / v[3,0]).A.flatten()
+        v1 = (v[0:3,1] / v[3,1]).A.flatten()
+        d = v1 - v0
+        d = d / numpy.linalg.norm(d)
+        v = v0 + d / d[2] * -v0[2]
+        return complex(v[0], v[1])
 
     def _getAABB(self):
         combined_aabb = None

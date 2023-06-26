@@ -69,8 +69,9 @@ class MouseHandler(QQuickItem):
             delta_x = (event.pos().x() - self.__last_pos.x()) / self.size().height()
             delta_y = (event.pos().y() - self.__last_pos.y()) / self.size().height()
             if event.buttons() & Qt.RightButton:
-                delta = complex(-delta_x, delta_y) * view.zoom * 2.0
-                delta *= complex(math.cos(math.radians(view.yaw)), math.sin(math.radians(view.yaw)))
+                prev = Application.getInstance().getView().screen_to_world(self.__last_pos.x(), self.__last_pos.y())
+                current = Application.getInstance().getView().screen_to_world(event.pos().x(), event.pos().y())
+                delta = prev - current
                 view.view_position = view.view_position + delta
             else:
                 view.yaw += delta_x * 360.0
