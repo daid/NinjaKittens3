@@ -13,8 +13,21 @@ class DocumentNode(QObjectList["DocumentNode"]):
         super().__init__("node")
         self.name = name
 
-    def getAABB(self) -> Optional[Tuple[complex, complex]]:
+    def _getAABB(self) -> Optional[Tuple[complex, complex]]:
         return None
+
+    def getAABB(self) -> Optional[Tuple[complex, complex]]:
+        aabb = self._getAABB()
+        for node in self:
+            aabb_node = node.getAABB()
+            if aabb and aabb_node:
+                aabb = (
+                    complex(min(aabb[0].real, aabb_node[0].real), min(aabb[0].imag, aabb_node[0].imag)),
+                    complex(max(aabb[1].real, aabb_node[1].real), max(aabb[1].imag, aabb_node[1].imag))
+                )
+            elif aabb_node:
+                aabb = aabb_node
+        return aabb
 
     def getCenter(self) -> Optional[complex]:
         aabb = self.getAABB()

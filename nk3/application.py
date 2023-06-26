@@ -86,6 +86,7 @@ class Application(QObjectBase):
 
     machine_list = QProperty[QObjectList[Machine]](QObjectList[Machine]("PLACEHOLDER"))
     active_machine = QProperty[Machine](Machine())
+    result_info = QProperty[str]("No file loaded")
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
@@ -169,6 +170,7 @@ class Application(QObjectBase):
 
     def __onResultData(self, result: Result) -> None:
         self.__process_result = result
+        self.result_info = result.info()
         self.repaint()
 
     def getView(self) -> View:

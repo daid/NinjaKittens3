@@ -33,7 +33,7 @@ class Result:
             xy_distance = abs(self.__moves[-1].xy - xy)
             z_distance = z - self.__moves[-1].z
             total_distance = abs(complex(xy_distance, z_distance))
-            if total_distance == 0.0:
+            if total_distance <= 0.01:
                 return
             z_speed = self.__z_down_speed if z_distance < 0 else self.__z_up_speed
             # Make it so that:
@@ -61,3 +61,17 @@ class Result:
     @property
     def moves(self) -> Iterator[Move]:
         return iter(self.__moves)
+
+    def info(self) -> str:
+        if not self.__moves:
+            return "Nothing to do"
+        minx, miny, minz = float("inf"), float("inf"), float("inf")
+        maxx, maxy, maxz = -float("inf"), -float("inf"), -float("inf")
+        for move in self.__moves:
+            minx = min(minx, move.xy.real)
+            maxx = max(maxx, move.xy.real)
+            miny = min(miny, move.xy.imag)
+            maxy = max(maxy, move.xy.imag)
+            minz = min(minz, move.z)
+            maxz = max(maxz, move.z)
+        return f"Area: {minx:g},{miny:g}->{maxx:g},{maxy:g}\nMax depth: {-minz:g}"
