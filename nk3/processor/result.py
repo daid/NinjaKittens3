@@ -68,6 +68,8 @@ class Result:
         minx, miny, minz = float("inf"), float("inf"), float("inf")
         maxx, maxy, maxz = -float("inf"), -float("inf"), -float("inf")
         for move in self.__moves:
+            if move.z > 0.0:
+                continue
             minx = min(minx, move.xy.real)
             maxx = max(maxx, move.xy.real)
             miny = min(miny, move.xy.imag)

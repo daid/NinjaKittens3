@@ -68,7 +68,7 @@ class Grbl(SerialProtocol):
             # Status report.
             fields = line[1:-1].split("|")
             status = fields.pop(0)
-            if status == "Hold" and self.__want_to_reset:
+            if status == "Hold:0" and self.__want_to_reset:
                 self._write(b"\x18")  # Request a soft-reset
             return False
         if line.startswith("error:"):  # Error reported as result of a request.

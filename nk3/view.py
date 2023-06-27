@@ -69,7 +69,7 @@ class View:
         gl.glBegin(gl.GL_LINE_STRIP)
         for move in result_data.moves:
             if move.z < 0.0:
-                gl.glColor4ub(0xFF, 0xFF, 0xFF, 0xFF)
+                gl.glColor4ub(0x00, 0x00, 0x00, 0xFF)
             else:
                 gl.glColor4ub(0x80, 0x80, 0xFF, 0xFF)
             gl.glVertex3f(move.xy.real, move.xy.imag, move.z)
@@ -89,7 +89,7 @@ class View:
         gl.glVertex3f(aabb[0].real, aabb[1].imag, 0)
         gl.glVertex3f(aabb[0].real, aabb[1].imag, 0)
         gl.glVertex3f(aabb[0].real, aabb[0].imag, 0)
-        for x in range(int(aabb[0].real), int(aabb[1].real), 10):
+        for x in range(int(aabb[0].real), int(aabb[1].real) + 10, 10):
             width = 2
             if x % 100 == 0:
                 width = 7
@@ -97,7 +97,7 @@ class View:
                 width = 4
             gl.glVertex3f(x, aabb[0].imag, 0)
             gl.glVertex3f(x, aabb[0].imag - width, 0)
-        for y in range(int(aabb[0].imag), int(aabb[1].imag), 10):
+        for y in range(int(aabb[0].imag), int(aabb[1].imag) + 10, 10):
             width = 2
             if y % 100 == 0:
                 width = 7

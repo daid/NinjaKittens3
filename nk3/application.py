@@ -6,7 +6,7 @@ from typing import List, Optional, Any
 
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint
 from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QAbstractOpenGLFunctions, QMouseEvent, \
-    QWheelEvent
+    QWheelEvent, QHoverEvent
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType, QQmlError
 from PyQt5.QtQuick import QQuickWindow, QQuickItem
 
@@ -54,7 +54,11 @@ class MouseHandler(QQuickItem):
     def __init__(self, parent: QObject) -> None:
         super().__init__(parent)
         self.setAcceptedMouseButtons(Qt.AllButtons)
+        self.setAcceptHoverEvents(True)
         self.__last_pos = None  # type: Optional[QPoint]
+
+    def hoverMoveEvent(self, event: QHoverEvent) -> None:
+        pass
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         self.setFocus(True)  # Steal focus from whatever had it, so we unfocus text boxes.
