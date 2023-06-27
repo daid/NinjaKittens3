@@ -67,6 +67,9 @@ class Result:
             return "Nothing to do"
         minx, miny, minz = float("inf"), float("inf"), float("inf")
         maxx, maxy, maxz = -float("inf"), -float("inf"), -float("inf")
+        prev = None
+        distance = 0
+        time = 0
         for move in self.__moves:
             minx = min(minx, move.xy.real)
             maxx = max(maxx, move.xy.real)
@@ -74,4 +77,8 @@ class Result:
             maxy = max(maxy, move.xy.imag)
             minz = min(minz, move.z)
             maxz = max(maxz, move.z)
-        return f"Area: {minx:g},{miny:g}->{maxx:g},{maxy:g}\nMax depth: {-minz:g}"
+            if prev:
+                distance += abs(move.xy - prev.xy)
+                time += abs(move.xy - prev.xy) / move.speed
+            prev = move
+        return f"Area: {minx:g},{miny:g}->{maxx:g},{maxy:g}\nMax depth: {-minz:g}\nDistance: {distance:g}\nTime: {time:g}"
