@@ -62,15 +62,15 @@ class SVGFileReader(FileReader):
                 self.__transform_stack.pop()
 
     def __processLineTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
-        x1 = float(tag.get('x1', 0))
-        y1 = float(tag.get('y1', 0))
-        x2 = float(tag.get('x2', 0))
-        y2 = float(tag.get('y2', 0))
+        x1 = float(tag.attrib.get('x1', 0))
+        y1 = float(tag.attrib.get('y1', 0))
+        x2 = float(tag.attrib.get('x2', 0))
+        y2 = float(tag.attrib.get('y2', 0))
         node.getPaths().addLine(complex(x1, y1), complex(x2, y2))
 
     def __processPolylineTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
-        values = list(map(float, re.split('[, \t]+', tag.get('points', '').strip())))
+        values = list(map(float, re.split('[, \t]+', tag.attrib.get('points', '').strip())))
         p0 = complex(values[0], values[1])
         for n in range(2, len(values)-1, 2):
             p1 = complex(values[n], values[n + 1])
@@ -79,7 +79,7 @@ class SVGFileReader(FileReader):
 
     def __processPolygonTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
-        values = list(map(float, re.split('[, \t]+', tag.get('points', '').strip())))
+        values = list(map(float, re.split('[, \t]+', tag.attrib.get('points', '').strip())))
         start = p0 = complex(values[0], values[1])
         for n in range(2, len(values)-1, 2):
             p1 = complex(values[n], values[n + 1])
@@ -88,26 +88,26 @@ class SVGFileReader(FileReader):
         paths.addLine(p0, start)
 
     def __processCircleTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
-        cx = float(tag.get('cx', '0'))
-        cy = float(tag.get('cy', '0'))
-        r = float(tag.get('r', '0'))
+        cx = float(tag.attrib.get('cx', '0'))
+        cy = float(tag.attrib.get('cy', '0'))
+        r = float(tag.attrib.get('r', '0'))
         paths = node.getPaths()
         paths.addCircle(complex(cx, cy), r)
 
     def __processEllipseTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
-        cx = float(tag.get('cx', '0'))
-        cy = float(tag.get('cy', '0'))
-        rx = float(tag.get('rx', '0'))
-        ry = float(tag.get('ry', '0'))
+        cx = float(tag.attrib.get('cx', '0'))
+        cy = float(tag.attrib.get('cy', '0'))
+        rx = float(tag.attrib.get('rx', '0'))
+        ry = float(tag.attrib.get('ry', '0'))
         paths = node.getPaths()
         paths.addArcByAngle(complex(cx, cy), complex(rx, ry), 0, 360)
 
     def __processRectTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
-        x = float(tag.get("x", 0))
-        y = float(tag.get("y", 0))
-        w = float(tag.get("width", 0))
-        h = float(tag.get("height", 0))
+        x = float(tag.attrib.get("x", 0))
+        y = float(tag.attrib.get("y", 0))
+        w = float(tag.attrib.get("width", 0))
+        h = float(tag.attrib.get("height", 0))
 
         if w <= 0 or h <= 0:
             return
@@ -147,7 +147,7 @@ class SVGFileReader(FileReader):
 
     def __processPathTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
         paths = node.getPaths()
-        path_string = tag.get("d", "").replace(",", " ")
+        path_string = tag.attrib.get("d", "").replace(",", " ")
         start = None
         p0 = complex(0, 0)
         cp1 = complex(0, 0)
@@ -330,7 +330,7 @@ class SVGFileReader(FileReader):
 
     def __getColorOf(self, tag: ElementTree.Element) -> str:
         # TODO: Color can be inherited from parent nodes, we do not handle this yet.
-        style = tag.get("style", "")
+        style = tag.attrib.get("style", "")
         styles = {}
         for style_part in style.split(";"):
             key, _, value = style_part.partition(":")
