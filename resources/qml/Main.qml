@@ -101,11 +101,15 @@ NK3.MainWindow {
 
     Loader {
         anchors.top: toolbar.bottom
-        anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
 
         id: output_method_loader
         source: output_method.qml_source
+    }
+
+    Text {
+        anchors.top: output_method_loader.bottom
+        anchors.right: parent.right
+        text: NK3.Application.result_info
     }
 }

@@ -69,8 +69,9 @@ class MouseHandler(QQuickItem):
             delta_x = (event.pos().x() - self.__last_pos.x()) / self.size().height()
             delta_y = (event.pos().y() - self.__last_pos.y()) / self.size().height()
             if event.buttons() & Qt.RightButton:
-                delta = complex(-delta_x, delta_y) * view.zoom * 2.0
-                delta *= complex(math.cos(math.radians(view.yaw)), math.sin(math.radians(view.yaw)))
+                prev = Application.getInstance().getView().screen_to_world(self.__last_pos.x(), self.__last_pos.y())
+                current = Application.getInstance().getView().screen_to_world(event.pos().x(), event.pos().y())
+                delta = prev - current
                 view.view_position = view.view_position + delta
             else:
                 view.yaw += delta_x * 360.0
@@ -86,6 +87,7 @@ class Application(QObjectBase):
 
     machine_list = QProperty[QObjectList[Machine]](QObjectList[Machine]("PLACEHOLDER"))
     active_machine = QProperty[Machine](Machine())
+    result_info = QProperty[str]("No file loaded")
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
@@ -169,6 +171,7 @@ class Application(QObjectBase):
 
     def __onResultData(self, result: Result) -> None:
         self.__process_result = result
+        self.result_info = result.info()
         self.repaint()
 
     def getView(self) -> View:

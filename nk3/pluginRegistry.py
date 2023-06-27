@@ -29,11 +29,15 @@ class PluginRegistry:
                     if file.startswith("_"):
                         continue
                     module_name = "%s.%s" % (directory, file[:-3])
-                    module = importlib.import_module(module_name)
-                    for attr_name in dir(module):
-                        attr = getattr(module, attr_name)
-                        if isinstance(attr, type) and attr.__module__ == module_name:
-                            self.register(attr)
+                    try:
+                        module = importlib.import_module(module_name)
+                    except:
+                        logging.exception("Failed to import %s", module_name)
+                    else:
+                        for attr_name in dir(module):
+                            attr = getattr(module, attr_name)
+                            if isinstance(attr, type) and attr.__module__ == module_name:
+                                self.register(attr)
         sys.path.pop(0)
 
     def register(self, register_class: Type[object]) -> None:

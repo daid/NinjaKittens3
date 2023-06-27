@@ -29,7 +29,7 @@ class Grbl(SerialProtocol):
         self.__want_to_reset = True  # When we are idle, request a soft reset.
 
     def jog(self, *, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None) -> None:
-        cmd = "$J=F600"
+        cmd = "$J=G91 F600"
         if x is not None:
             cmd += " X%f" % x
         if y is not None:
@@ -68,7 +68,7 @@ class Grbl(SerialProtocol):
             # Status report.
             fields = line[1:-1].split("|")
             status = fields.pop(0)
-            if status == "Idle" and self.__want_to_reset:
+            if status == "Hold" and self.__want_to_reset:
                 self._write(b"\x18")  # Request a soft-reset
             return False
         if line.startswith("error:"):  # Error reported as result of a request.

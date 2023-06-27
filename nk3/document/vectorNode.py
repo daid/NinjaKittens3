@@ -13,7 +13,7 @@ class DocumentVectorNode(DocumentNode):
     def getPaths(self) -> VectorPaths:
         return self.__vector_paths
 
-    def getAABB(self) -> Optional[Tuple[complex, complex]]:
+    def _getAABB(self) -> Optional[Tuple[complex, complex]]:
         min_x, min_y = float("inf"), float("inf")
         max_x, max_y = -float("inf"), -float("inf")
         for path in self.__vector_paths:

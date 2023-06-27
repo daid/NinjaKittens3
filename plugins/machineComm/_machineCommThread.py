@@ -36,7 +36,7 @@ class MachineCommThread(QThread):
                 port = self.__autoDetectPort()
                 self.onStatusUpdate.emit(f"CONNECTING:{port}", False, False)
                 self.__serial = serial.Serial(port)
-                time.sleep(1.5)  # Normal bootloader timeout
+                time.sleep(2.5)  # Normal bootloader timeout
                 self.__protocol_handler = self.__autoDetectBaudrateAndFirmware()
                 if self.__protocol_handler is None:
                     time.sleep(15)  # Some bootloaders just have extreme timeouts.
