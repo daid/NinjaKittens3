@@ -1,5 +1,5 @@
 import struct
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Dict
 
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
@@ -13,8 +13,8 @@ class STLFileReader(FileReader):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__layers = {}
-        self.__root = None
+        self.__layers: Dict[str, DocumentVectorNode] = {}
+        self.__root = DocumentVectorNode("Placeholder")
 
     def load(self, filename: str) -> DocumentNode:
         self.__root = DocumentVectorNode(filename)
@@ -34,7 +34,7 @@ class STLFileReader(FileReader):
             child.getPaths().stitch()
         return self.__root
 
-    def _add(self, v0, v1, v2):
+    def _add(self, v0: Tuple[float, float, float], v1: Tuple[float, float, float], v2: Tuple[float, float, float]) -> None:
         if v2[2] > v0[2]:
             return
         layer_name = f"{v0[2]:.0f} {v2[2]:.0f}"
