@@ -1,6 +1,8 @@
 import math
 import numpy
 
+from typing import Tuple
+
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QAbstractOpenGLFunctions
 
@@ -163,7 +165,7 @@ class View:
         self.__view_position = view_position
         self.__application.repaint()
 
-    def screen_to_world(self, x, y):
+    def screen_to_world(self, x: float, y: float) -> complex:
         x = (x - self.__viewport[0]) / self.__viewport[2]
         y = (y - self.__viewport[1]) / self.__viewport[3]
         x = x * 2 - 1
@@ -180,7 +182,7 @@ class View:
         v = v0 + d / d[2] * -v0[2]
         return complex(v[0], v[1])
 
-    def _getAABB(self):
+    def _getAABB(self) -> Tuple[complex, complex]:
         combined_aabb = None
         for document in self.__application.document_list:
             aabb = document.getAABB()
