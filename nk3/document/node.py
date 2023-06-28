@@ -1,5 +1,6 @@
 from nk3.qt.QObjectList import QObjectList
 from nk3.qt.QObjectBase import QProperty
+from nk3.depthFirstIterator import DepthFirstIterator
 from typing import Optional, Tuple
 
 
@@ -12,6 +13,9 @@ class DocumentNode(QObjectList["DocumentNode"]):
     def __init__(self, name: str) -> None:
         super().__init__("node")
         self.name = name
+
+    def offset(self, offset: complex) -> None:
+        pass
 
     def _getAABB(self) -> Optional[Tuple[complex, complex]]:
         return None
@@ -40,3 +44,12 @@ class DocumentNode(QObjectList["DocumentNode"]):
         if aabb is None:
             return None
         return aabb[1] - aabb[0]
+
+    def setOrigin(self, x: float, y: float) -> None:
+        aabb = self.getAABB()
+        if aabb is None:
+            return
+        offset_x = aabb[0].real + (aabb[1].real - aabb[0].real) * x
+        offset_y = aabb[0].imag + (aabb[1].imag - aabb[0].imag) * y
+        for node in DepthFirstIterator(self):
+            node.offset(-complex(offset_x, offset_y))

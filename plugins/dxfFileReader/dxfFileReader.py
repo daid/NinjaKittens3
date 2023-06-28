@@ -63,7 +63,7 @@ class DXFFileReader(FileReader):
                 self._processEntity(entity)
 
         self._finish(self.__document_root)
-        self._moveToOrigin(self.__document_root)
+        self.__document_root.setOrigin(0, 0)
         return self.__document_root
 
     def _finish(self, node: DocumentNode) -> None:

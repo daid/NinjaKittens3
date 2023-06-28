@@ -30,7 +30,7 @@ class SVGFileReader(FileReader):
         self.__processGTag(self.__xml.getroot(), root_node)
         for node in DepthFirstIterator(root_node):
             node.getPaths().stitch()
-        self._moveToOrigin(root_node)
+        root_node.setOrigin(0, 0)
         return root_node
 
     def __processGTag(self, tag: ElementTree.Element, node: DocumentVectorNode) -> None:
