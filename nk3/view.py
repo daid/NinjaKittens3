@@ -77,6 +77,8 @@ class View:
 
     def _renderFrame(self, gl: QAbstractOpenGLFunctions) -> None:
         aabb = self._getAABB()
+        if not aabb:
+            return
 
         gl.glLineWidth(2)
         gl.glBegin(gl.GL_LINES)

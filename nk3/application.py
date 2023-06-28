@@ -106,6 +106,8 @@ class Application(QObjectBase):
         PluginRegistry.getInstance().findPlugins(os.path.join(os.getcwd(), "plugins"))
 
         self.__app = QGuiApplication(sys.argv)
+        self.__app.setOrganizationName("daid")
+        self.__app.setOrganizationDomain("daid.eu")
         self.__qml_engine = QQmlApplicationEngine(self.__app)
         self.__qml_engine.warnings.connect(self.__onWarning)
         self.__qml_engine.setOutputWarningsToStandardError(False)
