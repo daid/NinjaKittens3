@@ -20,8 +20,9 @@ class View:
         self.__yaw = 0.0
         self.__pitch = 0.0
         self.__view_position = complex(0, 0)
-        self.__projection_matrix = None
-        self.__model_matrix = None
+        self.__projection_matrix = numpy.matrix(numpy.eye(4))
+        self.__model_matrix = numpy.matrix(numpy.eye(4))
+        self.__viewport = (0.0, 0.0, 0.0, 0.0)
 
     def render(self, gl: QAbstractOpenGLFunctions, size: QSize) -> None:
         gl.glViewport(0, 0, size.width(), size.height())
