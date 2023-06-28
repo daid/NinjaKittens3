@@ -6,7 +6,6 @@ import NK3 1.0 as NK3
 
 
 Item {
-    width: childrenRect.width
     implicitHeight: childrenRect.height
 
     Button {

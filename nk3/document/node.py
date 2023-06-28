@@ -2,6 +2,7 @@ from nk3.qt.QObjectList import QObjectList
 from nk3.qt.QObjectBase import QProperty
 from nk3.depthFirstIterator import DepthFirstIterator
 from typing import Optional, Tuple
+from PyQt5.QtCore import pyqtProperty, pyqtSignal
 
 
 class DocumentNode(QObjectList["DocumentNode"]):
@@ -9,6 +10,11 @@ class DocumentNode(QObjectList["DocumentNode"]):
     tool_index = QProperty[int](-1)
     operation_index = QProperty[int](-1)
     color = QProperty[int](0)
+
+    color_signal = pyqtSignal()
+    @pyqtProperty(str, notify=color_signal)
+    def color_string(self):
+        return f"#{self.color:06x}"
 
     def __init__(self, name: str) -> None:
         super().__init__("node")

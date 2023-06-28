@@ -12,6 +12,7 @@ Column {
             height: parent.height
             border.width: 1
             radius: 7
+            color: node.color_string
 
             MouseArea {
                 anchors.fill: parent
