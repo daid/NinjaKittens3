@@ -1,7 +1,7 @@
 import math
 import numpy
 
-from typing import Tuple
+from typing import Tuple, Optional
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QAbstractOpenGLFunctions
@@ -182,7 +182,7 @@ class View:
         v = v0 + d / d[2] * -v0[2]
         return complex(v[0], v[1])
 
-    def _getAABB(self) -> Tuple[complex, complex]:
+    def _getAABB(self) -> Optional[Tuple[complex, complex]]:
         combined_aabb = None
         for document in self.__application.document_list:
             aabb = document.getAABB()
