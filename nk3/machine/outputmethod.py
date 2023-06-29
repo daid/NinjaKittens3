@@ -51,6 +51,9 @@ class OutputMethod(QObjectList[SettingInstance]):
     def release(self) -> None:
         pass
 
+    def onDrawingDoubleClick(self, pos: complex) -> bool:
+        return False
+
     @pyqtProperty(str, constant=True)
     def typename(self) -> str:
         return self.NAME

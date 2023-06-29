@@ -62,3 +62,9 @@ class MachineComm(OutputMethod):
     def rawCommand(self, cmd: str) -> None:
         if cmd:
             self.__thread.queue(cmd)
+
+    def onDrawingDoubleClick(self, pos: complex) -> bool:
+        if self.busy:
+            return False
+        self.__thread.queue(f"G0 X{pos.real} Y{pos.imag}")
+        return True

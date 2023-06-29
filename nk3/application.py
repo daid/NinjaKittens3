@@ -82,6 +82,10 @@ class MouseHandler(QQuickItem):
                 view.pitch += delta_y * 360.0
         self.__last_pos = event.pos()
 
+    def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
+        pos = Application.getInstance().getView().screen_to_world(event.pos().x(), event.pos().y())
+        Application.getInstance().active_machine.output_method.onDrawingDoubleClick(pos)
+
     def wheelEvent(self, event: QWheelEvent) -> None:
         Application.getInstance().getView().zoom *= 1.0 - (event.angleDelta().y() / 120.0) * 0.1
 
