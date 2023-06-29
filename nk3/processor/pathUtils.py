@@ -199,6 +199,7 @@ class Paths:
         result = [path._toClipper() for path in self.__paths]
         for child in self.__children:
             result += child._toClipper()
+        result = pyclipper.CleanPolygons(result)
         return result
 
     def _fromClipper(self, paths: List[List[Tuple[float, float]]]) -> "Paths":
