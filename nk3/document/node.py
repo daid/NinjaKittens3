@@ -13,7 +13,7 @@ class DocumentNode(QObjectList["DocumentNode"]):
 
     color_signal = pyqtSignal()
     @pyqtProperty(str, notify=color_signal)
-    def color_string(self):
+    def color_string(self) -> str:
         return f"#{self.color:06x}"
 
     def __init__(self, name: str) -> None:
