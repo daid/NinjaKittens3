@@ -1,6 +1,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.1
+import NK3 1.0 as NK3
 
 Column {
     x: 10
@@ -17,6 +18,10 @@ Column {
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.DragLinkCursor
+                hoverEnabled: true
+                onEntered: NK3.Application.highlight_node = node
+                onExited: NK3.Application.highlight_node = null
+
                 onPressed: {
                     connections.dragging = node
                 }

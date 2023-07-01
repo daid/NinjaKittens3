@@ -6,7 +6,6 @@ from typing import Tuple, Optional
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QAbstractOpenGLFunctions
 
-from nk3.depthFirstIterator import DepthFirstIterator
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
 
@@ -25,6 +24,7 @@ class View:
         self.__projection_matrix = numpy.matrix(numpy.eye(4))
         self.__model_matrix = numpy.matrix(numpy.eye(4))
         self.__viewport = (0.0, 0.0, 0.0, 0.0)
+        self.highlight_node = None  # type: Optional[DocumentNode]
 
     def render(self, gl: QAbstractOpenGLFunctions, size: QSize) -> None:
         gl.glViewport(0, 0, size.width(), size.height())
@@ -116,7 +116,7 @@ class View:
         if isinstance(document, DocumentVectorNode):
             color = document.color
             gl.glColor4ub(color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, 0xFF)
-            gl.glLineWidth(5)
+            gl.glLineWidth(10 if self.highlight_node == document else 5)
             for path in document.getPaths():
                 if path.closed:
                     gl.glBegin(gl.GL_LINE_LOOP)

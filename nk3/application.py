@@ -96,6 +96,7 @@ class Application(QObjectBase):
     machine_list = QProperty[QObjectList[Machine]](QObjectList[Machine]("PLACEHOLDER"))
     active_machine = QProperty[Machine](Machine())
     result_info = QProperty[str]("No file loaded")
+    highlight_node = QProperty[DocumentNode](None)
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
@@ -132,6 +133,7 @@ class Application(QObjectBase):
         self.__dispatcher = Dispatcher(self.__document_list)
         self.__dispatcher.onResultData = self.__onResultData
         self.active_machineChanged.connect(self.__onActiveMachineChanged)
+        self.highlight_nodeChanged.connect(self.__onHighlightChanged)
 
         self.__last_file = ""
 
@@ -178,6 +180,10 @@ class Application(QObjectBase):
         self.__dispatcher.setActiveMachine(self.active_machine)
         self.active_machine.output_method.activate()
         self.__qml_engine.rootContext().setContextProperty("output_method", self.active_machine.output_method)
+
+    def __onHighlightChanged(self):
+        self.getView().highlight_node = self.highlight_node
+        self.repaint()
 
     def __onResultData(self, result: Result) -> None:
         self.__process_result = result

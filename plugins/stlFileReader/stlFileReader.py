@@ -32,6 +32,7 @@ class STLFileReader(FileReader):
 
         for child in self.__root:
             child.getPaths().stitch()
+        self.__root.setOrigin(0.5, 0.5)
         return self.__root
 
     def _add(self, v0: Tuple[float, float, float], v1: Tuple[float, float, float], v2: Tuple[float, float, float]) -> None:
