@@ -51,11 +51,14 @@ class MainWindow(QQuickWindow):
 
 
 class MouseHandler(QQuickItem):
+    rightClick = pyqtSignal()
+
     def __init__(self, parent: QObject) -> None:
         super().__init__(parent)
         self.setAcceptedMouseButtons(Qt.AllButtons)
         self.setAcceptHoverEvents(True)
         self.__last_pos = None  # type: Optional[QPoint]
+        self.__done_drag = False
 
     def hoverMoveEvent(self, event: QHoverEvent) -> None:
         pass
@@ -63,11 +66,14 @@ class MouseHandler(QQuickItem):
     def mousePressEvent(self, event: QMouseEvent) -> None:
         self.setFocus(True)  # Steal focus from whatever had it, so we unfocus text boxes.
         self.__last_pos = event.pos()
+        self.__done_drag = False
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        pass
+        if event.button() == Qt.RightButton and not self.__done_drag:
+            self.rightClick.emit()
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        self.__done_drag = True
         if self.__last_pos is not None:
             view = Application.getInstance().getView()
             delta_x = (event.pos().x() - self.__last_pos.x()) / self.size().height()
@@ -214,6 +220,10 @@ class Application(QObjectBase):
     @qtSlot
     def loadFile(self, filename: QUrl) -> None:
         self._loadFile(filename.toLocalFile())
+
+    @qtSlot
+    def home(self) -> None:
+        self.__view.home()
 
     def _loadFile(self, filename: str) -> None:
         logging.info("Going to load: %s", filename)

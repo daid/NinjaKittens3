@@ -9,8 +9,33 @@ NK3.MainWindow {
     visible: true
     title: qsTr("NinjaKittens 3")
 
+    function setOrigin(x, y) {
+        for(var idx=0; idx<document_list.size(); idx++)
+            document_list.get(idx).setOrigin(x, y);
+        NK3.Application.home()
+    }
+
+    Menu {
+        id: contextMenu
+        Menu {
+            title: "Origin"
+            MenuItem { text: "Front Left"; onTriggered: { setOrigin(0, 0); } }
+            MenuItem { text: "Front Center"; onTriggered: { setOrigin(0.5, 0); } }
+            MenuItem { text: "Front Right"; onTriggered: { setOrigin(1, 0); } }
+            MenuItem { text: "Center Left"; onTriggered: { setOrigin(0, 0.5); } }
+            MenuItem { text: "Center Center"; onTriggered: { setOrigin(0.5, 0.5); } }
+            MenuItem { text: "Center Right"; onTriggered: { setOrigin(1, 0.5); } }
+            MenuItem { text: "Back Left"; onTriggered: { setOrigin(0, 1); } }
+            MenuItem { text: "Back Center"; onTriggered: { setOrigin(0.5, 1); } }
+            MenuItem { text: "Back Right"; onTriggered: { setOrigin(1, 1); } }
+        }
+    }
+
     NK3.MouseHandler {
         anchors.fill: parent
+        onRightClick: {
+            contextMenu.popup();
+        }
     }
 
     ToolBar {

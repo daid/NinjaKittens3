@@ -1,5 +1,5 @@
 from nk3.qt.QObjectList import QObjectList
-from nk3.qt.QObjectBase import QProperty
+from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.depthFirstIterator import DepthFirstIterator
 from typing import Optional, Tuple
 from PyQt5.QtCore import pyqtProperty, pyqtSignal
@@ -51,6 +51,7 @@ class DocumentNode(QObjectList["DocumentNode"]):
             return None
         return aabb[1] - aabb[0]
 
+    @qtSlot
     def setOrigin(self, x: float, y: float) -> None:
         aabb = self.getAABB()
         if aabb is None:
