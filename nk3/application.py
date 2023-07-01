@@ -181,7 +181,7 @@ class Application(QObjectBase):
         self.active_machine.output_method.activate()
         self.__qml_engine.rootContext().setContextProperty("output_method", self.active_machine.output_method)
 
-    def __onHighlightChanged(self):
+    def __onHighlightChanged(self) -> None:
         self.getView().highlight_node = self.highlight_node
         self.repaint()
 
