@@ -15,8 +15,24 @@ NK3.MainWindow {
         NK3.Application.home()
     }
 
+    function transformDocuments(xx, xy, yx, yy) {
+        for(var idx=0; idx<document_list.size(); idx++)
+            document_list.get(idx).transform(xx, xy, yx, yy);
+        NK3.Application.home()
+    }
+
     Menu {
         id: contextMenu
+        Menu {
+            title: "Rotate"
+            MenuItem { text: "Left 90 degree"; onTriggered: { transformDocuments(0, -1, 1, 0); } }
+            MenuItem { text: "Right 90 degree"; onTriggered: { transformDocuments(0, 1, -1, 0); } }
+        }
+        Menu {
+            title: "Mirror"
+            MenuItem { text: "X"; onTriggered: { transformDocuments(-1, 0, 0, 1); } }
+            MenuItem { text: "Y"; onTriggered: { transformDocuments(1, 0, 0, -1); } }
+        }
         Menu {
             title: "Origin"
             MenuItem { text: "Front Left"; onTriggered: { setOrigin(0, 0); } }

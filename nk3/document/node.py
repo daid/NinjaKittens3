@@ -23,6 +23,15 @@ class DocumentNode(QObjectList["DocumentNode"]):
     def offset(self, offset: complex) -> None:
         pass
 
+    @qtSlot
+    def transform(self, xx: float, xy: float, yx: float, yy: float) -> None:
+        self._transform(xx, xy, yx, yy)
+        for child in self:
+            child.transform(xx, xy, yx, yy)
+
+    def _transform(self, xx: float, xy: float, yx: float, yy: float) -> None:
+        pass
+
     def _getAABB(self) -> Optional[Tuple[complex, complex]]:
         return None
 

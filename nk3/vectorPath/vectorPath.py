@@ -20,6 +20,9 @@ class VectorPath:
     def offset(self, amount: complex) -> None:
         self.__points = [p + amount for p in self.__points]
 
+    def transform(self, xx: float, xy: float, yx: float, yy: float) -> None:
+        self.__points = [complex(p.real * xx + p.imag * xy, p.real * yx + p.imag * yy) for p in self.__points]
+
     def isSignificant(self) -> bool:
         # Workaround for some files that have left over tiny lines that add nothing of significance.
         # So we clear those out.
