@@ -60,6 +60,9 @@ Rectangle {
             TextField {
                 Layout.fillWidth: true
                 id: rawinput
+                onAccepted: {
+                    if (output_method.connected && !output_method.busy) output_method.rawCommand(rawinput.text);
+                }
             }
             Button {
                 text: "Send"
