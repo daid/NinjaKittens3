@@ -15,4 +15,4 @@ if __name__ == '__main__':
     CrashHandler.register()
     app = application.Application()
     logging.info("Starting application")
-    sys.exit(app.start())
+    app.start()
