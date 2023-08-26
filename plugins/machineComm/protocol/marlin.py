@@ -2,6 +2,7 @@ from typing import Optional, Callable
 
 import serial
 import logging
+import time
 
 from .serialProtocol import SerialProtocol
 
@@ -23,7 +24,7 @@ class Marlin(SerialProtocol):
         self._write(b"M410\n")  # Abort all moves
 
     def jog(self, *, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None) -> None:
-        # TODO: Move relative
+        self.queueRaw("G91")
         cmd = "G1"
         if x is not None:
             cmd += " X%f" % x
@@ -32,6 +33,7 @@ class Marlin(SerialProtocol):
         if z is not None:
             cmd += " Z%f" % z
         self.queueRaw(cmd)
+        self.queueRaw("G90")
 
     def zero(self, axis: str) -> None:
         for a in axis:
@@ -50,6 +52,46 @@ class Marlin(SerialProtocol):
     def _processIncommingMessage(self, data: bytes) -> bool:
         line = data.decode("ascii", "replace").strip()
         if line == "ok":
+            return True
+        return False
+
+    def _requestStatus(self) -> None:
+        pass
+
+
+class DaidFirmware(SerialProtocol):
+    def __init__(self, ser: serial.Serial, status_callback: Callable[[str, bool, bool], None]) -> None:
+        super().__init__(ser, status_callback)
+
+        self._setMaxInFlightByteCount(64)
+        ser.timeout = 0.5
+        ser.inter_byte_timeout = None
+
+    def isConnected(self) -> bool:
+        return True
+
+    def abort(self) -> None:
+        self._abortQueue()
+
+    def jog(self, *, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None) -> None:
+        self.queueRaw("G91")
+        cmd = "G1"
+        if x is not None:
+            cmd += " X%f" % x
+        if y is not None:
+            cmd += " Y%f" % y
+        if z is not None:
+            cmd += " Z%f" % z
+        self.queueRaw(cmd)
+        self.queueRaw("G90")
+
+    def zero(self, axis: str) -> None:
+        for a in axis:
+            self.queueRaw("G92 %s0" % (a))
+
+    def _processIncommingMessage(self, data: bytes) -> bool:
+        line = data.decode("ascii", "replace").strip()
+        if line == "ok" or line == "error":
             return True
         return False
 

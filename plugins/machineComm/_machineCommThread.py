@@ -9,7 +9,7 @@ from serial.tools import list_ports
 
 from plugins.machineComm.protocol.base import ProtocolBase
 from .protocol.grbl import Grbl
-from .protocol.marlin import Marlin
+from .protocol.marlin import Marlin, DaidFirmware
 
 if serial.VERSION == "3.4" and platform.system() == "Windows":
     logging.warning("pyserial 3.4 on windows has a serious issue. Be warned, your devices will reset during discovery.")
@@ -98,6 +98,7 @@ class MachineCommThread(QThread):
                 logging.info("Detected possible smoothie firmware...")
             elif b"error" in response:
                 logging.info("Detected possible daid firmware...")
+                protocol_handler = DaidFirmware(self.__serial, lambda msg, connected, busy: self.onStatusUpdate.emit(msg, connected, busy))
             if protocol_handler is not None and protocol_handler.isConnected():
                 return protocol_handler
         self.onStatusUpdate.emit(f"CONNECT FAILED:{self.__serial.port}", False, False)
