@@ -2,11 +2,11 @@ import os
 import sys
 from typing import List, Dict, Optional, Iterator
 
-from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty, QPoint
 
 import nk3.application
 from nk3.processor.result import Move
-from nk3.qt.QObjectBase import QProperty
+from nk3.qt.QObjectBase import QProperty, qtSlot
 from nk3.qt.QObjectList import QObjectList
 from nk3.settingInstance import SettingInstance
 from nk3.settingType import SettingType
@@ -16,6 +16,10 @@ class OutputMethod(QObjectList[SettingInstance]):
     NAME = "Unnamed Output Method"
 
     qml_source = QProperty[str]("")
+
+    status = QProperty[str]("Unknown")
+    connected = QProperty[bool](False)
+    busy = QProperty[bool](False)
 
     def __init__(self, settings: Optional[List[SettingType]] = None) -> None:
         super().__init__("setting")
@@ -51,7 +55,8 @@ class OutputMethod(QObjectList[SettingInstance]):
     def release(self) -> None:
         pass
 
-    def onDrawingDoubleClick(self, pos: complex) -> bool:
+    @qtSlot
+    def moveToRequest(self, pos: QPoint) -> bool:
         return False
 
     @pyqtProperty(str, constant=True)

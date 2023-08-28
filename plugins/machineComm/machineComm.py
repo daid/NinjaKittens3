@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QPoint
+
 from nk3.machine.outputmethod import OutputMethod
 from nk3.qt.QObjectBase import qtSlot, QProperty
 from nk3.settingType import SettingType
@@ -6,10 +8,6 @@ from ._machineCommThread import MachineCommThread
 
 class MachineComm(OutputMethod):
     NAME = "Machine Comm"
-
-    status = QProperty[str]("Unknown")
-    connected = QProperty[bool](False)
-    busy = QProperty[bool](False)
 
     def __init__(self) -> None:
         super().__init__([
@@ -63,8 +61,10 @@ class MachineComm(OutputMethod):
         if cmd:
             self.__thread.queue(cmd)
 
-    def onDrawingDoubleClick(self, pos: complex) -> bool:
-        if self.busy:
+    @qtSlot
+    def moveToRequest(self, pos: QPoint) -> bool:
+        print(pos)
+        if not self.connected or self.busy:
             return False
-        self.__thread.queue(f"G0 X{pos.real} Y{pos.imag}")
+        self.__thread.queue(f"G0 X{pos.x()} Y{pos.y()}")
         return True

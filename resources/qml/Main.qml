@@ -23,6 +23,7 @@ NK3.MainWindow {
 
     Menu {
         id: contextMenu
+        property var clickPosition
         Menu {
             title: "Rotate"
             MenuItem { text: "Left 90 degree"; onTriggered: { transformDocuments(0, -1, 1, 0); } }
@@ -45,11 +46,17 @@ NK3.MainWindow {
             MenuItem { text: "Back Center"; onTriggered: { setOrigin(0.5, 1); } }
             MenuItem { text: "Back Right"; onTriggered: { setOrigin(1, 1); } }
         }
+        MenuItem {
+            text: "Move machine to"
+            onTriggered: { output_method.moveToRequest(contextMenu.clickPosition); }
+            enabled: output_method.connected && !output_method.busy
+        }
     }
 
     NK3.MouseHandler {
         anchors.fill: parent
-        onRightClick: {
+        onRightClick: click_position => {
+            contextMenu.clickPosition = click_position;
             contextMenu.popup();
         }
     }

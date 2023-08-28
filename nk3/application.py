@@ -51,7 +51,7 @@ class MainWindow(QQuickWindow):
 
 
 class MouseHandler(QQuickItem):
-    rightClick = pyqtSignal()
+    rightClick = pyqtSignal(QPoint)
 
     def __init__(self, parent: QObject) -> None:
         super().__init__(parent)
@@ -70,7 +70,8 @@ class MouseHandler(QQuickItem):
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.RightButton and not self.__done_drag:
-            self.rightClick.emit()
+            pos = Application.getInstance().getView().screen_to_world(event.pos().x(), event.pos().y())
+            self.rightClick.emit(QPoint(pos.real, pos.imag))
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         self.__done_drag = True
@@ -90,7 +91,7 @@ class MouseHandler(QQuickItem):
 
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
         pos = Application.getInstance().getView().screen_to_world(event.pos().x(), event.pos().y())
-        Application.getInstance().active_machine.output_method.onDrawingDoubleClick(pos)
+        #Application.getInstance().active_machine.output_method.onDrawingDoubleClick(pos)
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         Application.getInstance().getView().zoom *= 1.0 - (event.angleDelta().y() / 120.0) * 0.1
