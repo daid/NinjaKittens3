@@ -4,10 +4,11 @@ import numpy
 from typing import Tuple, Optional
 
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QAbstractOpenGLFunctions
+from PyQt5.QtGui import QAbstractOpenGLFunctions, QOpenGLTexture
 
 from nk3.document.node import DocumentNode
 from nk3.document.vectorNode import DocumentVectorNode
+from nk3.document.imageNode import DocumentImageNode
 
 MYPY = False
 if MYPY:
@@ -126,6 +127,24 @@ class View:
                     gl.glVertex3f(point.real, point.imag, 0)
                 gl.glEnd()
             gl.glLineWidth(1)
+        if isinstance(document, DocumentImageNode):
+            gl.glEnable(gl.GL_TEXTURE_2D)
+            if document.opengl_texture is None:
+                document.opengl_texture = QOpenGLTexture(document.qimage)
+            document.opengl_texture.bind()
+            gl.glBegin(gl.GL_QUADS)
+            aabb = document.getAABB()
+            gl.glTexCoord2f(0, 1)
+            gl.glVertex3f(aabb[0].real, aabb[0].imag, 0)
+            gl.glTexCoord2f(1, 1)
+            gl.glVertex3f(aabb[1].real, aabb[0].imag, 0)
+            gl.glTexCoord2f(1, 0)
+            gl.glVertex3f(aabb[1].real, aabb[1].imag, 0)
+            gl.glTexCoord2f(0, 0)
+            gl.glVertex3f(aabb[0].real, aabb[1].imag, 0)
+            gl.glEnd()
+            gl.glDisable(gl.GL_TEXTURE_2D)
+
         for node in document:
             self._renderDocument(gl, node)
 
