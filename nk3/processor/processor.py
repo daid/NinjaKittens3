@@ -57,24 +57,32 @@ class Processor:
                     path.addTag("tabs")
 
     def __orderPaths(self, path_tree: pathUtils.Paths) -> List[pathUtils.Path]:
-        pick_list = []
-        for paths in DepthFirstIterator(path_tree, iter_function=lambda n: n.children):
-            for path in paths:
+        pick_lists = []
+        def add_picks(tree: pathUtils.Paths, depth: int):
+            for path in tree:
                 if path.length() == 0.0:
                     continue
-                pick_list.append(path)
+                while len(pick_lists) <= depth:
+                    pick_lists.append([])
+                pick_lists[depth].append(path)
+            for child in tree.children:
+                add_picks(child, depth + 1)
+        add_picks(path_tree, 0)
+
         result = []
         p0 = complex(0, 0)
-        while len(pick_list) > 0:
-            best_index = None  # type: Optional[int]
-            best_distance = 0.0
-            for index in range(0, len(pick_list)):
-                distance = abs(pick_list[index][0] - p0)
-                if best_index is None or distance < best_distance:
-                    best_index = index
-                    best_distance = distance
-            assert best_index is not None
-            result.append(pick_list.pop(best_index))
+        while len(pick_lists) > 0:
+            pick_list = pick_lists.pop()
+            while len(pick_list) > 0:
+                best_index = None  # type: Optional[int]
+                best_distance = 0.0
+                for index in range(0, len(pick_list)):
+                    distance = abs(pick_list[index][0] - p0)
+                    if best_index is None or distance < best_distance:
+                        best_index = index
+                        best_distance = distance
+                assert best_index is not None
+                result.append(pick_list.pop(best_index))
         return result
 
     def __processToMoves(self, path_list: List[pathUtils.Path], result: Result) -> None:
