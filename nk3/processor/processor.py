@@ -57,8 +57,8 @@ class Processor:
                     path.addTag("tabs")
 
     def __orderPaths(self, path_tree: pathUtils.Paths) -> List[pathUtils.Path]:
-        pick_lists = []
-        def add_picks(tree: pathUtils.Paths, depth: int):
+        pick_lists: List[List[Path]] = []
+        def add_picks(tree: pathUtils.Paths, depth: int) -> None:
             for path in tree:
                 if path.length() == 0.0:
                     continue

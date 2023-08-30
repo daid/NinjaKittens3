@@ -228,7 +228,7 @@ class Paths:
     def isHole(self) -> bool:
         return self.__is_hole
 
-    def dumpTree(self, depth=0):
+    def dumpTree(self, depth: int = 0) -> None:
         print("  " * depth + f"> {[len(p) for p in self.__paths]}")
         for child in self.__children:
             child.dumpTree(depth+1)

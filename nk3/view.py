@@ -132,17 +132,18 @@ class View:
             if document.opengl_texture is None:
                 document.opengl_texture = QOpenGLTexture(document.qimage)
             document.opengl_texture.bind()
-            gl.glBegin(gl.GL_QUADS)
             aabb = document.getAABB()
-            gl.glTexCoord2f(0, 1)
-            gl.glVertex3f(aabb[0].real, aabb[0].imag, 0)
-            gl.glTexCoord2f(1, 1)
-            gl.glVertex3f(aabb[1].real, aabb[0].imag, 0)
-            gl.glTexCoord2f(1, 0)
-            gl.glVertex3f(aabb[1].real, aabb[1].imag, 0)
-            gl.glTexCoord2f(0, 0)
-            gl.glVertex3f(aabb[0].real, aabb[1].imag, 0)
-            gl.glEnd()
+            if aabb is not None:
+                gl.glBegin(gl.GL_QUADS)
+                gl.glTexCoord2f(0, 1)
+                gl.glVertex3f(aabb[0].real, aabb[0].imag, 0)
+                gl.glTexCoord2f(1, 1)
+                gl.glVertex3f(aabb[1].real, aabb[0].imag, 0)
+                gl.glTexCoord2f(1, 0)
+                gl.glVertex3f(aabb[1].real, aabb[1].imag, 0)
+                gl.glTexCoord2f(0, 0)
+                gl.glVertex3f(aabb[0].real, aabb[1].imag, 0)
+                gl.glEnd()
             gl.glDisable(gl.GL_TEXTURE_2D)
 
         for node in document:
