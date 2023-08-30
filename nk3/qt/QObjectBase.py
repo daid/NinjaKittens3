@@ -1,6 +1,7 @@
 import inspect
+
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
-from typing import List, Generic, TypeVar, Any, Type, Dict, TYPE_CHECKING, Union, Callable
+from typing import List, Generic, TypeVar, Any, Type, Dict, TYPE_CHECKING, Union, Callable, Optional
 
 T = TypeVar("T")
 
@@ -18,13 +19,16 @@ class QProperty(Generic[T]):
     def getDefinedType(self) -> type:
         if TYPE_CHECKING:
             # mypy is not aware of the __orig_class__ that the Generic assigns.
-            # So make it happy with a fake return. This type does not propegate anyhow,
+            # So make it happy with a fake return. This type does not propagate anyhow,
             # as it's used for the pyqt property trickery.
             return object
         else:
             result = self.__orig_class__.__args__[0]
             if hasattr(result, "__origin__"): # In case of Generics, we need to grab the origin class, instead of the proxy.
                 result = result.__origin__
+            if result is Union:
+                # Get X from Optional[X]
+                result = self.__orig_class__.__args__[0].__args__[0]
             return result
 
 

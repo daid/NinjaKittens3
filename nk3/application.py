@@ -103,7 +103,7 @@ class Application(QObjectBase):
     machine_list = QProperty[QObjectList[Machine]](QObjectList[Machine]("PLACEHOLDER"))
     active_machine = QProperty[Machine](Machine())
     result_info = QProperty[str]("No file loaded")
-    highlight_node = QProperty[DocumentNode](None)
+    highlight_node = QProperty[Optional[DocumentNode]](None)
 
     @classmethod
     def getInstance(cls, *args: Any) -> "Application":
