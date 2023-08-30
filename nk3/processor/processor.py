@@ -21,6 +21,8 @@ class Processor:
         path_list = self.__orderPaths(path_tree)
         # Convert 2d paths to 3d paths
         self.__processToMoves(path_list, result)
+        self.__processSurface(result)
+
 
     def __process2d(self, result: Result) -> pathUtils.Paths:
         if self.__job.settings.cut_offset != 0.0:
@@ -56,8 +58,18 @@ class Processor:
                 for path in paths:
                     path.addTag("tabs")
 
+    def __processSurface(self, result: Result) -> None:
+        if self.__job.settings.surface_depth > 0.0 and self.__job.settings.surface_offset > 0.0:
+            for image in self.__job.images:
+                h = image.height()
+                y = 0
+                while y < h:
+                    for x in range(image.width()):
+                        result.addMove(complex(x, y), (1.0 - (image.pixelColor(x, h - 1 - y).value() & 0xFF) / 255) * -self.__job.settings.surface_depth)
+                    y += self.__job.settings.surface_offset
+
     def __orderPaths(self, path_tree: pathUtils.Paths) -> List[pathUtils.Path]:
-        pick_lists: List[List[Path]] = []
+        pick_lists: List[List[pathUtils.Path]] = []
         def add_picks(tree: pathUtils.Paths, depth: int) -> None:
             for path in tree:
                 if path.length() == 0.0:

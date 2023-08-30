@@ -6,6 +6,7 @@ from .cutInside import CutInsideOperation
 from .cutOutside import CutOutsideOperation
 from .cutOutsideWithPocket import CutOutsideWithPocketOperation
 from .cutPocket import CutPocketOperation
+from .cutSurface import CutSurfaceOperation
 
 
 ## The RouterTool defines which settings are available for CNC router cutting tools
@@ -28,6 +29,7 @@ class RouterTool(Tool):
             CutInsideOperation,
             CutPocketOperation,
             CutCenterOperation,
+            CutSurfaceOperation,
         ])
 
     def fillProcessorSettings(self, settings: ProcessorSettings) -> None:

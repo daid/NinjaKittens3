@@ -15,3 +15,6 @@ class ProcessorSettings:
 
         self.pocket_offset = 0.0
         self.tab_height = 0.0
+
+        self.surface_depth = 0.0
+        self.surface_offset = 0.0
