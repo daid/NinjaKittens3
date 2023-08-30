@@ -62,11 +62,13 @@ class Processor:
         if self.__job.settings.surface_depth > 0.0 and self.__job.settings.surface_offset > 0.0:
             for image in self.__job.images:
                 h = image.height()
-                y = 0
+                y = 0.0
+                left_to_right = True
                 while y < h:
-                    for x in range(image.width()):
+                    for x in range(image.width()) if left_to_right else range(image.width() - 1, 0, -1):
                         result.addMove(complex(x, y), (1.0 - (image.pixelColor(x, h - 1 - y).value() & 0xFF) / 255) * -self.__job.settings.surface_depth)
                     y += self.__job.settings.surface_offset
+                    left_to_right = not left_to_right
 
     def __orderPaths(self, path_tree: pathUtils.Paths) -> List[pathUtils.Path]:
         pick_lists: List[List[pathUtils.Path]] = []
