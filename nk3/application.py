@@ -1,10 +1,9 @@
 import logging
 import os
 import sys
-import math
 from typing import List, Optional, Any
 
-from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint
+from PyQt5.QtCore import QUrl, Qt, pyqtSignal, QObject, QPoint, QPointF
 from PyQt5.QtGui import QGuiApplication, QOpenGLContext, QOpenGLVersionProfile, QAbstractOpenGLFunctions, QMouseEvent, \
     QWheelEvent, QHoverEvent
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType, qmlRegisterSingletonType, QQmlError
@@ -51,7 +50,7 @@ class MainWindow(QQuickWindow):
 
 
 class MouseHandler(QQuickItem):
-    rightClick = pyqtSignal(QPoint)
+    rightClick = pyqtSignal(QPointF)
 
     def __init__(self, parent: QObject) -> None:
         super().__init__(parent)
@@ -71,7 +70,7 @@ class MouseHandler(QQuickItem):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.RightButton and not self.__done_drag:
             pos = Application.getInstance().getView().screen_to_world(event.pos().x(), event.pos().y())
-            self.rightClick.emit(QPoint(pos.real, pos.imag))
+            self.rightClick.emit(QPointF(pos.real, pos.imag))
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         self.__done_drag = True
