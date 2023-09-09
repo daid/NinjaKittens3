@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QPoint
+from PyQt5.QtCore import QPointF
 
 from nk3.machine.outputmethod import OutputMethod
 from nk3.qt.QObjectBase import qtSlot, QProperty
@@ -62,7 +62,7 @@ class MachineComm(OutputMethod):
             self.__thread.queue(cmd)
 
     @qtSlot
-    def moveToRequest(self, pos: QPoint) -> bool:
+    def moveToRequest(self, pos: QPointF) -> bool:
         print(pos)
         if not self.connected or self.busy:
             return False
