@@ -116,7 +116,7 @@ class View:
     def _renderDocument(self, gl: QAbstractOpenGLFunctions, document: DocumentNode) -> None:
         if isinstance(document, DocumentVectorNode):
             color = document.color
-            gl.glColor4ub(color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, 0xFF)
+            gl.glColor4ub((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 0xFF)
             gl.glLineWidth(10 if self.highlight_node == document else 5)
             for path in document.getPaths():
                 if path.closed:
